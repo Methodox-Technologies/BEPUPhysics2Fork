@@ -750,19 +750,19 @@ public class ConvexHullTestDemo : Demo
         {
             testIndex = Math.Min(testIndex + 1, hullTests.Length - 1);
         }
-        if (input.WasPushed(OpenTK.Input.Key.P))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.P))
         {
             showWireframe = !showWireframe;
         }
-        if (input.WasPushed(OpenTK.Input.Key.U))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.U))
         {
             showDeleted = !showDeleted;
         }
-        if (input.WasPushed(OpenTK.Input.Key.Y))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Y))
         {
             showVertexIndices = !showVertexIndices;
         }
-        if (input.WasPushed(OpenTK.Input.Key.H))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.H))
         {
             showFaceVertexStatuses = !showFaceVertexStatuses;
         }

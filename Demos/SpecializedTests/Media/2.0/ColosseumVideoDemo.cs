@@ -114,7 +114,7 @@ public class ColosseumVideoDemo : Demo
     {
         if (input != null)
         {
-            if (input.WasPushed(Key.C))
+            if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.C))
             {
                 if (characterActive)
                 {
@@ -131,13 +131,13 @@ public class ColosseumVideoDemo : Demo
                 character.UpdateCharacterGoals(input, camera, Demo.TimestepDuration);
             }
 
-            if (input.WasPushed(Key.Z))
+            if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
             {
                 bulletDescription.Pose.Position = camera.Position;
                 bulletDescription.Velocity.Linear = camera.GetRayDirection(input.MouseLocked, window.GetNormalizedMousePosition(input.MousePosition)) * 400;
                 Simulation.Bodies.Add(bulletDescription);
             }
-            else if (input.WasPushed(Key.X))
+            else if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.X))
             {
                 shootiePatootieDescription.Pose.Position = camera.Position;
                 shootiePatootieDescription.Velocity.Linear = camera.GetRayDirection(input.MouseLocked, window.GetNormalizedMousePosition(input.MousePosition)) * 100;

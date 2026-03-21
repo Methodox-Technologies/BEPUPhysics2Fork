@@ -52,7 +52,7 @@ public class NewtVideoDemo : Demo
     BodyDescription bulletDescription;
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        if (input.WasPushed(OpenTK.Input.Key.Z))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
         {
             bulletDescription.Pose.Position = camera.Position;
             bulletDescription.Velocity.Linear = camera.Forward * 40;

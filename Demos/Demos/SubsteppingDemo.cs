@@ -129,22 +129,22 @@ public class SubsteppingDemo : Demo
     {
         var substepCountChange = (int)MathF.Max(1f, Simulation.Solver.SubstepCount * 0.25f);
         var iterationCountChange = (int)MathF.Max(1f, Simulation.Solver.VelocityIterationCount * 0.25f);
-        if (input.WasPushed(OpenTK.Input.Key.Z))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
         {
             Simulation.Solver.SubstepCount = Math.Max(1, Simulation.Solver.SubstepCount - substepCountChange);
             AwakenAllBodies();
         }
-        if (input.WasPushed(OpenTK.Input.Key.X))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.X))
         {
             Simulation.Solver.SubstepCount = Math.Min(512, Simulation.Solver.SubstepCount + substepCountChange);
             AwakenAllBodies();
         }
-        if (input.WasPushed(OpenTK.Input.Key.C))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.C))
         {
             Simulation.Solver.VelocityIterationCount = Math.Max(1, Simulation.Solver.VelocityIterationCount - iterationCountChange);
             AwakenAllBodies();
         }
-        if (input.WasPushed(OpenTK.Input.Key.V))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.V))
         {
             Simulation.Solver.VelocityIterationCount = Math.Min(512, Simulation.Solver.VelocityIterationCount + iterationCountChange);
             AwakenAllBodies();

@@ -60,7 +60,7 @@ public class ShrinkwrappedNewtsVideoDemo : Demo
 
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        if(input.WasPushed(OpenTK.Input.Key.Z))
+        if(input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
         {
             mesh.Scale = new Vector3(30);
             Simulation.Statics.Add(new StaticDescription(new Vector3(70, 0, 50), QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, -3.1f * MathHelper.PiOver4), Simulation.Shapes.Add(mesh)));

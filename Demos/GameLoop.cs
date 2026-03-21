@@ -22,7 +22,7 @@ public class GameLoop : IDisposable
         Input = new Input(window, Pool);
         Surface = new RenderSurface(
 #if OPENGL
-            window.WindowInfo,
+            window.window,
 #else
             window.Handle,
 #endif

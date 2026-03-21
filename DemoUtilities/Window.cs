@@ -1,9 +1,12 @@
-﻿using System;
-using System.Diagnostics;
+﻿using BepuUtilities;
 using OpenTK;
-using BepuUtilities;
 using OpenTK.Graphics;
+using OpenTK.Mathematics;
 using OpenTK.Platform;
+using OpenTK.Windowing.Desktop;
+using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading;
 using Vector2 = System.Numerics.Vector2;
 
@@ -20,7 +23,7 @@ namespace DemoUtilities
     /// </summary>
     public class Window : IDisposable
     {
-        internal NativeWindow window;
+        public NativeWindow window;
 
         private bool resized;
 
@@ -39,11 +42,11 @@ namespace DemoUtilities
                         if (windowMode != WindowMode.FullScreen)
                         {
                             windowMode = value;
-                            window.WindowState = WindowState.Fullscreen;
-                            window.WindowBorder = WindowBorder.Hidden;
-                            window.Location = new Point(0, 0);
-                            var primaryBounds = DisplayDevice.Default.Bounds;
-                            window.Size = new Size(primaryBounds.Width, primaryBounds.Height);
+                            window.WindowState = OpenTK.Windowing.Common.WindowState.Fullscreen;
+                            window.WindowBorder = OpenTK.Windowing.Common.WindowBorder.Hidden;
+                            window.Location = new Vector2i(0, 0);
+                            var primaryBounds = window.CurrentMonitor.ClientArea;
+                            window.Size = new Vector2i(primaryBounds.Size.X, primaryBounds.Size.Y);
                             resized = true;
                         }
                         break;
@@ -51,8 +54,8 @@ namespace DemoUtilities
                         if (windowMode != WindowMode.Windowed)
                         {
                             windowMode = value;
-                            window.WindowState = WindowState.Normal;
-                            window.WindowBorder = WindowBorder.Resizable;
+                            window.WindowState = OpenTK.Windowing.Common.WindowState.Normal;
+                            window.WindowBorder = OpenTK.Windowing.Common.WindowBorder.Resizable;
                             resized = true;
                         }
                         break;
@@ -67,23 +70,21 @@ namespace DemoUtilities
         {
             get
             {
-                return new Int2(window.ClientSize.Width, window.ClientSize.Height);
+                return new Int2(window.ClientSize.X, window.ClientSize.Y);
             }
             set
             {
-                window.ClientSize = new Size(value.X, value.Y);
+                window.ClientSize = new Vector2i(value.X, value.Y);
                 resized = true;
             }
         }
 
-        public IntPtr Handle { get { return window.WindowInfo.Handle; } }
-        public IWindowInfo WindowInfo => window.WindowInfo;
+        public unsafe IntPtr Handle { get { return (IntPtr)window.WindowPtr; } }
 
         /// <summary>
         /// Gets whether the window is currently focused.
         /// </summary>
-        public bool Focused { get { return window.Focused; } }
-
+        public bool Focused { get { return window.IsFocused; } }
 
         /// <summary>
         /// Constructs a new rendering-capable window.
@@ -94,14 +95,22 @@ namespace DemoUtilities
         /// <param name="windowMode">Initial window mode.</param>
         public Window(string title, Int2 resolution, Int2 location, WindowMode windowMode)
         {
-            window = new NativeWindow(location.X, location.Y, resolution.X, resolution.Y, title, GameWindowFlags.FixedWindow, GraphicsMode.Default, DisplayDevice.Default);
-            window.Visible = true;
+            var settings = new NativeWindowSettings
+            {
+                Title = title,
+                Size = new Vector2i(resolution.X, resolution.Y),
+                Location = new Vector2i(location.X, location.Y),
+                StartVisible = true,
+                WindowBorder = OpenTK.Windowing.Common.WindowBorder.Fixed
+            };
+
+            window = new NativeWindow(settings);
             Resolution = resolution;
-            window.Resize += (form, args) => resized = true;
+            window.Resize += args => resized = true;
             window.Closing += OnClosing;
             WindowMode = windowMode;
-
         }
+
         /// <summary>
         /// Constructs a new rendering-capable window.
         /// </summary>
@@ -109,8 +118,23 @@ namespace DemoUtilities
         /// <param name="resolution">Initial size in pixels of the window's drawable surface.</param>
         /// <param name="windowMode">Initial window mode.</param>
         public Window(string title, Int2 resolution, WindowMode windowMode)
-            : this(title, resolution, new Int2((DisplayDevice.Default.Width - resolution.X) / 2, (DisplayDevice.Default.Height - resolution.Y) / 2), windowMode)
+            : this(
+                title,
+                resolution,
+                new Int2(
+                    (GetPrimaryMonitorSize().X - resolution.X) / 2,
+                    (GetPrimaryMonitorSize().Y - resolution.Y) / 2),
+                windowMode)
         {
+        }
+
+        private static Vector2i GetPrimaryMonitorSize()
+        {
+            var settings = NativeWindowSettings.Default;
+            settings.StartVisible = false;
+            using var tempWindow = new NativeWindow(settings);
+            var area = tempWindow.CurrentMonitor.ClientArea;
+            return area.Size;
         }
 
         public Vector2 GetNormalizedMousePosition(Int2 mousePosition)
@@ -118,14 +142,16 @@ namespace DemoUtilities
             return new Vector2((float)mousePosition.X / Resolution.X, (float)mousePosition.Y / Resolution.Y);
         }
 
-        private void OnClosing(object sender, EventArgs e)
+        private void OnClosing(CancelEventArgs e)
         {
             //This will redundantly call window.Close, but that's fine.
             tryToClose = true;
+            e.Cancel = true;
         }
 
         private bool windowUpdateLoopRunning;
         private bool tryToClose;
+
         /// <summary>
         /// Closes the window at the next available opportunity.
         /// </summary>
@@ -137,7 +163,6 @@ namespace DemoUtilities
                 window.Close();
         }
 
-
         /// <summary>
         /// Launches the update loop for the window. Processes events before every invocation of the update handler.
         /// </summary>
@@ -146,30 +171,35 @@ namespace DemoUtilities
         {
             long previousTime = Stopwatch.GetTimestamp();
             windowUpdateLoopRunning = true;
+
             while (true)
             {
                 if (disposed)
                     break;
+
                 if (resized)
                 {
                     //Note that minimizing or resizing the window to invalid sizes don't result in actual resize attempts. Zero width rendering surfaces aren't allowed.
-                    if (window.Width > 0 && window.Height > 0)
+                    if (window.ClientSize.X > 0 && window.ClientSize.Y > 0)
                     {
-                        onResize(new Int2(window.Width, window.Height));
+                        onResize(new Int2(window.ClientSize.X, window.ClientSize.Y));
                     }
                     resized = false;
                 }
-                window.ProcessEvents();
-                if (tryToClose)
+
+                window.ProcessEvents(10);
+
+                if (tryToClose || window.IsExiting)
                 {
                     window.Close();
                     break;
                 }
+
                 long time = Stopwatch.GetTimestamp();
                 var dt = (float)((time - previousTime) / (double)Stopwatch.Frequency);
                 previousTime = time;
 
-                if (window.WindowState != WindowState.Minimized)
+                if (window.WindowState != OpenTK.Windowing.Common.WindowState.Minimized)
                 {
                     updateHandler(dt);
                 }
@@ -179,6 +209,7 @@ namespace DemoUtilities
                     Thread.Sleep(1);
                 }
             }
+
             windowUpdateLoopRunning = false;
         }
 
@@ -191,6 +222,5 @@ namespace DemoUtilities
                 disposed = true;
             }
         }
-
     }
 }

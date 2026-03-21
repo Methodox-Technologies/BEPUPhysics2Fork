@@ -6,6 +6,7 @@ using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
 using DemoUtilities;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Numerics;
 
@@ -66,9 +67,9 @@ public class BlockChainDemo : Demo
 
     BodyDescription coinDescription;
     Random random = new Random(5);
-    public override void Update(Window window, Camera camera, Input input, float dt)
+    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
-        if (input.WasPushed(OpenTK.Input.Key.Z))
+        if (input.WasPushed(Keys.Z))
         {
             //INVEST TODAY FOR INCREDIBLE RETURNS DON'T MISS OUT LOOK AT THE COINS THERE ARE A LOT OF THEM AND THEY COULD BE YOURS
             var origin = new Vector3(-30, 5, -30) + new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) * new Vector3(60, 30, 60);

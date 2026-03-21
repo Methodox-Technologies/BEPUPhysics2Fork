@@ -10,6 +10,7 @@ using BepuUtilities.Collections;
 using System.Diagnostics;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Demos.SpecializedTests;
 
@@ -268,7 +269,7 @@ public class FountainStressTestDemo : Demo
         }
     }
 
-    public override void Update(Window window, Camera camera, Input input, float dt)
+    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         var timestepDuration = 1f / 60f;
         time += timestepDuration;
@@ -405,7 +406,7 @@ public class FountainStressTestDemo : Demo
 
         base.Update(window, camera, input, dt);
 
-        if (input != null && input.WasPushed(OpenTK.Input.Key.P))
+        if (input != null && input.WasPushed(Keys.P))
             GC.Collect(int.MaxValue, GCCollectionMode.Forced, true, true);
 
     }

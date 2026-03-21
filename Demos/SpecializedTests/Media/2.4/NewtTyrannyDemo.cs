@@ -101,7 +101,7 @@ public class NewtTyrannyDemo : Demo
         simulationTime += TimestepDuration;
 
 
-        if(input.WasPushed(OpenTK.Input.Key.P))
+        if(input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.P))
         {
             Console.WriteLine($"camera position: {camera.Position}");
         }

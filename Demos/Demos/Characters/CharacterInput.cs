@@ -8,6 +8,7 @@ using DemoUtilities;
 using DemoRenderer.UI;
 using OpenTK.Input;
 using BepuUtilities;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Demos.Demos.Characters;
 
@@ -53,13 +54,13 @@ public struct CharacterInput
         this.shape = shape;
     }
 
-    static Key MoveForward = Key.W;
-    static Key MoveBackward = Key.S;
-    static Key MoveRight = Key.D;
-    static Key MoveLeft = Key.A;
-    static Key Sprint = Key.LShift;
-    static Key Jump = Key.Space;
-    static Key JumpAlternate = Key.BackSpace; //I have a weird keyboard.
+    static Keys MoveForward = Keys.W;
+    static Keys MoveBackward = Keys.S;
+    static Keys MoveRight = Keys.D;
+    static Keys MoveLeft = Keys.A;
+    static Keys Sprint = Keys.LeftShift;
+    static Keys Jump = Keys.Space;
+    static Keys JumpAlternate = Keys.Backspace; //I have a weird keyboard.
 
     public void UpdateCharacterGoals(Input input, Camera camera, float simulationTimestepDuration)
     {

@@ -197,7 +197,7 @@ public class CharacterDemo : Demo
 
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        if (input.WasPushed(Key.C))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.C))
         {
             if (characterActive)
             {

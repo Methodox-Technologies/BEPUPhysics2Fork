@@ -13,6 +13,7 @@ using BepuPhysics.CollisionDetection;
 using DemoRenderer.UI;
 using System.Threading;
 using DemoContentLoader;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Demos.SpecializedTests;
 
@@ -215,11 +216,11 @@ public class VolumeQueryTests : Demo
 
     bool shouldUseMultithreading = true;
 
-    public override void Update(Window window, Camera camera, Input input, float dt)
+    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         base.Update(window, camera, input, dt);
 
-        if (input.WasPushed(OpenTK.Input.Key.T))
+        if (input.WasPushed(Keys.T))
         {
             shouldUseMultithreading = !shouldUseMultithreading;
         }

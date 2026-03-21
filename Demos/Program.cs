@@ -2,6 +2,7 @@
 using DemoContentLoader;
 using DemoUtilities;
 using OpenTK;
+using OpenTK.Windowing.Desktop;
 
 namespace Demos;
 
@@ -9,8 +10,14 @@ class Program
 {
     static void Main()
     {
-        var window = new Window("pretty cool multicolored window",
-            new Int2((int)(DisplayDevice.Default.Width * 0.75f), (int)(DisplayDevice.Default.Height * 0.75f)), WindowMode.Windowed);
+        var primaryMonitor = Monitors.GetPrimaryMonitor();
+        var videoMode = primaryMonitor.ClientArea;
+
+        var window = new Window(
+            "pretty cool multicolored window",
+            new Int2((int)(videoMode.Size.X * 0.75f), (int)(videoMode.Size.Y * 0.75f)),
+            WindowMode.Windowed);
+
         var loop = new GameLoop(window);
         ContentArchive content;
         using (var stream = typeof(Program).Assembly.GetManifestResourceStream("Demos.Demos.contentarchive"))

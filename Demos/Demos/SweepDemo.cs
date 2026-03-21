@@ -199,7 +199,7 @@ public class SweepDemo : Demo
     {
         base.Update(window, camera, input, dt);
 
-        if (!input.WasDown(OpenTK.Input.Key.P))
+        if (!input.WasDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.P))
             animationT = (animationT + TimestepDuration) % (128);
     }
 

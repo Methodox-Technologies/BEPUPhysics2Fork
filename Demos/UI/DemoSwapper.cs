@@ -44,7 +44,7 @@ struct DemoSwapper
                 }
             }
 
-            if (harness.loop.Input.WasPushed(OpenTK.Input.Key.Enter))
+            if (harness.loop.Input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Enter))
             {
                 //Done entering the index. Swap the demo if needed.
                 TrackingInput = false;

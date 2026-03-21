@@ -409,20 +409,20 @@ public class RayCastingDemo : Demo
                 raySourceIndex = i + 1;
             }
         }
-        if (input.WasPushed(OpenTK.Input.Key.C))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.C))
         {
             frameCount = 0;
             shouldCycle = !shouldCycle;
         }
-        if (input.WasPushed(OpenTK.Input.Key.R))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.R))
         {
             shouldRotate = !shouldRotate;
         }
-        if (input.WasPushed(OpenTK.Input.Key.F))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.F))
         {
             rotation = 0;
         }
-        if (input.WasPushed(OpenTK.Input.Key.T))
+        if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.T))
         {
             shouldUseMultithreading = !shouldUseMultithreading;
         }

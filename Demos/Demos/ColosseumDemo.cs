@@ -101,13 +101,13 @@ public class ColosseumDemo : Demo
     {
         if (input != null)
         {
-            if (input.WasPushed(OpenTK.Input.Key.Z))
+            if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
             {
                 bulletDescription.Pose.Position = camera.Position;
                 bulletDescription.Velocity.Linear = camera.GetRayDirection(input.MouseLocked, window.GetNormalizedMousePosition(input.MousePosition)) * 400;
                 Simulation.Bodies.Add(bulletDescription);
             }
-            else if (input.WasPushed(OpenTK.Input.Key.X))
+            else if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.X))
             {
                 shootiePatootieDescription.Pose.Position = camera.Position;
                 shootiePatootieDescription.Velocity.Linear = camera.GetRayDirection(input.MouseLocked, window.GetNormalizedMousePosition(input.MousePosition)) * 100;

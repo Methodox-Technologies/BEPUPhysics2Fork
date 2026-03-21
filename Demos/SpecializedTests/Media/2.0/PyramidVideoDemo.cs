@@ -51,7 +51,7 @@ public class PyramidVideoDemo : Demo
     Random random = new Random(5);
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        if (input != null && input.WasPushed(OpenTK.Input.Key.Z))
+        if (input != null && input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
         {
             //Create the shape that we'll launch at the pyramids when the user presses a button.
             var bulletShape = new Sphere(6);

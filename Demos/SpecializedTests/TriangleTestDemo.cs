@@ -202,7 +202,7 @@ public class TriangleTestDemo : Demo
 
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        if (input.IsDown(OpenTK.Input.Key.P))
+        if (input.IsDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.P))
             Console.WriteLine("ASDF");
         base.Update(window, camera, input, dt);
     }

@@ -11,6 +11,7 @@ using DemoRenderer;
 using DemoRenderer.UI;
 using DemoUtilities;
 using OpenTK.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Demos.Demos.Tanks;
 
@@ -34,14 +35,14 @@ public class TankDemo : Demo
     QuickList<Explosion> explosions;
 
     static MouseButton Fire = MouseButton.Left;
-    static Key Forward = Key.W;
-    static Key Backward = Key.S;
-    static Key Right = Key.D;
-    static Key Left = Key.A;
-    static Key Zoom = Key.LShift;
-    static Key Brake = Key.Space;
-    static Key BrakeAlternate = Key.BackSpace; //I have a weird keyboard.
-    static Key ToggleTank = Key.C;
+    static Keys Forward = Keys.W;
+    static Keys Backward = Keys.S;
+    static Keys Right = Keys.D;
+    static Keys Left = Keys.A;
+    static Keys Zoom = Keys.LeftShift;
+    static Keys Brake = Keys.Space;
+    static Keys BrakeAlternate = Keys.Backspace; //I have a weird keyboard.
+    static Keys ToggleTank = Keys.C;
     public override void Initialize(ContentArchive content, Camera camera)
     {
         camera.Position = new Vector3(0, 5, 10);
@@ -177,7 +178,7 @@ public class TankDemo : Demo
     long frameIndex;
     long lastPlayerShotFrameIndex;
     int projectileCount;
-    public override void Update(Window window, Camera camera, Input input, float dt)
+    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         if (input.WasPushed(ToggleTank))
             playerControlActive = !playerControlActive;

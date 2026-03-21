@@ -1,21 +1,23 @@
 ﻿using DemoUtilities;
 using OpenTK.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Demos;
 
+
 /// <summary>
 /// Caches strings for enum values to avoid enum boxing.
 /// </summary>
 static class ControlStrings
 {
-    static Dictionary<Key, string> keys;
+    static Dictionary<Keys, string> keys;
     static Dictionary<MouseButton, string> mouseButtons;
     static Dictionary<MouseWheelAction, string> mouseWheel;
 
-    public static string GetName(Key key)
+    public static string GetName(Keys key)
     {
         return keys[key];
     }
@@ -30,9 +32,9 @@ static class ControlStrings
 
     static ControlStrings()
     {
-        keys = new Dictionary<Key, string>();
-        var keyNames = Enum.GetNames(typeof(Key));
-        var keyValues = (Key[])Enum.GetValues(typeof(Key));
+        keys = new Dictionary<Keys, string>();
+        var keyNames = Enum.GetNames(typeof(Keys));
+        var keyValues = (Keys[])Enum.GetValues(typeof(Keys));
         for (int i = 0; i < keyNames.Length; ++i)
         {
             keys.TryAdd(keyValues[i], keyNames[i]);
@@ -68,26 +70,26 @@ public enum HoldableControlType
 public struct HoldableBind
 {
     [FieldOffset(0)]
-    public Key Key;
+    public Keys Key;
     [FieldOffset(0)]
     public MouseButton Button;
     [FieldOffset(4)]
     public HoldableControlType Type;
 
     [FieldOffset(8)]
-    public Key AlternativeKey;
+    public Keys AlternativeKey;
     [FieldOffset(8)]
     public MouseButton AlternativeButton;
     [FieldOffset(12)]
     public HoldableControlType AlternativeType;
 
-    public HoldableBind(Key key)
+    public HoldableBind(Keys key)
         : this()
     {
         Key = key;
         Type = HoldableControlType.Key;
     }
-    public HoldableBind(Key key, Key alternativeKey)
+    public HoldableBind(Keys key, Keys alternativeKey)
         : this()
     {
         Key = key;
@@ -95,7 +97,7 @@ public struct HoldableBind
         AlternativeKey = alternativeKey;
         AlternativeType = HoldableControlType.Key;
     }
-    public HoldableBind(Key key, MouseButton alternativeButton)
+    public HoldableBind(Keys key, MouseButton alternativeButton)
         : this()
     {
         Key = key;
@@ -109,7 +111,7 @@ public struct HoldableBind
         Button = button;
         Type = HoldableControlType.MouseButton;
     }
-    public HoldableBind(MouseButton button, Key alternativeKey)
+    public HoldableBind(MouseButton button, Keys alternativeKey)
         : this()
     {
         Button = button;
@@ -126,15 +128,15 @@ public struct HoldableBind
         AlternativeType = HoldableControlType.MouseButton;
     }
 
-    public static implicit operator HoldableBind(Key key)
+    public static implicit operator HoldableBind(Keys key)
     {
         return new HoldableBind(key);
     }
-    public static implicit operator HoldableBind((Key, Key) binds)
+    public static implicit operator HoldableBind((Keys, Keys) binds)
     {
         return new HoldableBind(binds.Item1, binds.Item2);
     }
-    public static implicit operator HoldableBind((Key, MouseButton) binds)
+    public static implicit operator HoldableBind((Keys, MouseButton) binds)
     {
         return new HoldableBind(binds.Item1, binds.Item2);
     }
@@ -142,7 +144,7 @@ public struct HoldableBind
     {
         return new HoldableBind(button);
     }
-    public static implicit operator HoldableBind((MouseButton, Key) binds)
+    public static implicit operator HoldableBind((MouseButton, Keys) binds)
     {
         return new HoldableBind(binds.Item1, binds.Item2);
     }
@@ -189,7 +191,7 @@ public struct HoldableBind
             if (AlternativeType == HoldableControlType.Key)
                 text.Append(ControlStrings.GetName(AlternativeKey));
             else if (AlternativeType == HoldableControlType.MouseButton)
-                text.Append(ControlStrings.GetName(Button));
+                text.Append(ControlStrings.GetName(AlternativeButton));
         }
         return text;
     }
@@ -215,7 +217,7 @@ public enum MouseWheelAction
 public struct InstantBind
 {
     [FieldOffset(0)]
-    public Key Key;
+    public Keys Key;
     [FieldOffset(0)]
     public MouseButton Button;
     [FieldOffset(0)]
@@ -224,7 +226,7 @@ public struct InstantBind
     public InstantControlType Type;
 
     [FieldOffset(8)]
-    public Key AlternativeKey;
+    public Keys AlternativeKey;
     [FieldOffset(8)]
     public MouseButton AlternativeButton;
     [FieldOffset(8)]
@@ -232,13 +234,13 @@ public struct InstantBind
     [FieldOffset(12)]
     public InstantControlType AlternativeType;
 
-    public InstantBind(Key key)
+    public InstantBind(Keys key)
         : this()
     {
         Key = key;
         Type = InstantControlType.Key;
     }
-    public InstantBind(Key key, Key alternativeKey)
+    public InstantBind(Keys key, Keys alternativeKey)
         : this()
     {
         Key = key;
@@ -246,7 +248,7 @@ public struct InstantBind
         AlternativeKey = alternativeKey;
         AlternativeType = InstantControlType.Key;
     }
-    public InstantBind(Key key, MouseButton button)
+    public InstantBind(Keys key, MouseButton button)
         : this()
     {
         Key = key;
@@ -254,7 +256,7 @@ public struct InstantBind
         AlternativeButton = button;
         AlternativeType = InstantControlType.MouseButton;
     }
-    public InstantBind(Key key, MouseWheelAction wheelAction)
+    public InstantBind(Keys key, MouseWheelAction wheelAction)
         : this()
     {
         Key = key;
@@ -269,7 +271,7 @@ public struct InstantBind
         Button = button;
         Type = InstantControlType.MouseButton;
     }
-    public InstantBind(MouseButton button, Key alternativeKey)
+    public InstantBind(MouseButton button, Keys alternativeKey)
         : this()
     {
         Button = button;
@@ -300,7 +302,7 @@ public struct InstantBind
         Wheel = wheel;
         Type = InstantControlType.MouseWheel;
     }
-    public InstantBind(MouseWheelAction wheel, Key alternativeKey)
+    public InstantBind(MouseWheelAction wheel, Keys alternativeKey)
         : this()
     {
         Wheel = wheel;
@@ -325,19 +327,19 @@ public struct InstantBind
         AlternativeType = InstantControlType.MouseWheel;
     }
 
-    public static implicit operator InstantBind(Key key)
+    public static implicit operator InstantBind(Keys key)
     {
         return new InstantBind(key);
     }
-    public static implicit operator InstantBind((Key, Key) binds)
+    public static implicit operator InstantBind((Keys, Keys) binds)
     {
         return new InstantBind(binds.Item1, binds.Item2);
     }
-    public static implicit operator InstantBind((Key, MouseButton) binds)
+    public static implicit operator InstantBind((Keys, MouseButton) binds)
     {
         return new InstantBind(binds.Item1, binds.Item2);
     }
-    public static implicit operator InstantBind((Key, MouseWheelAction) binds)
+    public static implicit operator InstantBind((Keys, MouseWheelAction) binds)
     {
         return new InstantBind(binds.Item1, binds.Item2);
     }
@@ -346,7 +348,7 @@ public struct InstantBind
     {
         return new InstantBind(button);
     }
-    public static implicit operator InstantBind((MouseButton, Key) binds)
+    public static implicit operator InstantBind((MouseButton, Keys) binds)
     {
         return new InstantBind(binds.Item1, binds.Item2);
     }
@@ -363,7 +365,7 @@ public struct InstantBind
     {
         return new InstantBind(wheel);
     }
-    public static implicit operator InstantBind((MouseWheelAction, Key) binds)
+    public static implicit operator InstantBind((MouseWheelAction, Keys) binds)
     {
         return new InstantBind(binds.Item1, binds.Item2);
     }
@@ -474,30 +476,30 @@ public struct Controls
         {
             return new Controls
             {
-                MoveForward = Key.W,
-                MoveBackward = Key.S,
-                MoveLeft = Key.A,
-                MoveRight = Key.D,
-                MoveDown = Key.ControlLeft,
-                MoveUp = Key.ShiftLeft,
-                MoveSlower = (MouseWheelAction.ScrollDown, Key.Y),
-                MoveFaster = (MouseWheelAction.ScrollUp, Key.U),
+                MoveForward = Keys.W,
+                MoveBackward = Keys.S,
+                MoveLeft = Keys.A,
+                MoveRight = Keys.D,
+                MoveDown = Keys.LeftControl,
+                MoveUp = Keys.LeftShift,
+                MoveSlower = (MouseWheelAction.ScrollDown, Keys.Y),
+                MoveFaster = (MouseWheelAction.ScrollUp, Keys.U),
                 Grab = MouseButton.Right,
-                GrabRotate = Key.Q,
+                GrabRotate = Keys.Q,
                 MouseSensitivity = 1.5e-3f,
                 CameraSlowMoveSpeed = 0.5f,
                 CameraMoveSpeed = 5,
                 CameraFastMoveSpeed = 50,
-                SlowTimesteps = (MouseButton.Middle, Key.O),
+                SlowTimesteps = (MouseButton.Middle, Keys.O),
 
-                LockMouse = Key.Tab,
-                Exit = Key.Escape,
-                ShowConstraints = Key.J,
-                ShowContacts = Key.K,
-                ShowBoundingBoxes = Key.L,
-                ChangeTimingDisplayMode = Key.F2,
-                ChangeDemo = (Key.Tilde, Key.F3),
-                ShowControls = Key.F1,
+                LockMouse = Keys.Tab,
+                Exit = Keys.Escape,
+                ShowConstraints = Keys.J,
+                ShowContacts = Keys.K,
+                ShowBoundingBoxes = Keys.L,
+                ChangeTimingDisplayMode = Keys.F2,
+                ChangeDemo = (Keys.GraveAccent, Keys.F3),
+                ShowControls = Keys.F1,
             };
         }
 

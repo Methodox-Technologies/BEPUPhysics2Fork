@@ -49,7 +49,7 @@ public class CapsuleTestDemo : Demo
 
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        if (input.WasDown(OpenTK.Input.Key.P))
+        if (input.WasDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.P))
             Console.WriteLine("$");
         base.Update(window, camera, input, dt);
     }

@@ -151,7 +151,7 @@ namespace DemoRenderer
 
             //Glyph and screenspace line drawing rely on the same premultiplied alpha blending transparency. We'll handle their state out here.
             GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
             GL.BlendEquation(BlendEquationMode.FuncAdd);
             ImageRenderer.PreparePipeline();
             ImageBatcher.Flush(Surface.Resolution, ImageRenderer);

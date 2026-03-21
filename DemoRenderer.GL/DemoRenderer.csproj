@@ -9,10 +9,6 @@
     <Exec Condition="'$(Configuration)'=='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)$(ProjectName).content&quot; -debug" />
     <Exec Condition="'$(Configuration)'!='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)$(ProjectName).content&quot;" />
   </Target>
-  
-  <ItemGroup>
-    <PackageReference Include="OpenTK.NETCore" Version="1.1.2749.6433" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../BepuPhysics/BepuPhysics.csproj" />
@@ -30,5 +26,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="$(ProjectName).contentarchive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTK" Version="4.9.4" />
   </ItemGroup>
 </Project>

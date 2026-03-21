@@ -1,6 +1,4 @@
-﻿using System;
-using System.Numerics;
-using BepuPhysics;
+﻿using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
@@ -12,6 +10,9 @@ using DemoRenderer.UI;
 using Demos.Demos.Tanks;
 using DemoUtilities;
 using OpenTK.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using System;
+using System.Numerics;
 
 namespace Demos.SpecializedTests.Media;
 
@@ -35,14 +36,15 @@ public class TankSwarmDemo : Demo
     QuickList<Explosion> explosions;
 
     static MouseButton Fire = MouseButton.Left;
-    static Key Forward = Key.W;
-    static Key Backward = Key.S;
-    static Key Right = Key.D;
-    static Key Left = Key.A;
-    static Key Zoom = Key.LShift;
-    static Key Brake = Key.Space;
-    static Key BrakeAlternate = Key.BackSpace; //I have a weird keyboard.
-    static Key ToggleTank = Key.C;
+    static Keys Forward = Keys.W;
+    static Keys Backward = Keys.S;
+    static Keys Right = Keys.D;
+    static Keys Left = Keys.A;
+    static Keys Zoom = Keys.LeftShift;
+    static Keys Brake = Keys.Space;
+    static Keys BrakeAlternate = Keys.Backspace; //I have a weird keyboard.
+    static Keys ToggleTank = Keys.C;
+
     public override void Initialize(ContentArchive content, Camera camera)
     {
         camera.Position = new Vector3(0, 5, 10);
@@ -102,7 +104,6 @@ public class TankSwarmDemo : Demo
 
         playerController = new TankController(Tank.Create(Simulation, bodyProperties, BufferPool, (new Vector3(0, 10, 0), Quaternion.Identity), tankDescription), 20, 5, 2, 1, 3.5f);
 
-
         const int planeWidth = 257;
         const float terrainScale = 3;
         const float inverseTerrainScale = 1f / terrainScale;
@@ -125,10 +126,10 @@ public class TankSwarmDemo : Demo
 
         var planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeWidth,
             (int vX, int vY) =>
-                {
-                    var position2D = new Vector2(vX, vY) * terrainScale + terrainPosition;
-                    return new Vector3(position2D.X, GetHeightForPosition(position2D.X, position2D.Y, planeWidth, inverseTerrainScale, terrainPosition), position2D.Y);
-                }, new Vector3(1, 1, 1), BufferPool);
+            {
+                var position2D = new Vector2(vX, vY) * terrainScale + terrainPosition;
+                return new Vector3(position2D.X, GetHeightForPosition(position2D.X, position2D.Y, planeWidth, inverseTerrainScale, terrainPosition), position2D.Y);
+            }, new Vector3(1, 1, 1), BufferPool);
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, 0, 0), Simulation.Shapes.Add(planeMesh)));
 
         explosions = new QuickList<Explosion>(32, BufferPool);
@@ -179,10 +180,12 @@ public class TankSwarmDemo : Demo
     long frameIndex;
     long lastPlayerShotFrameIndex;
     int projectileCount;
-    public override void Update(Window window, Camera camera, Input input, float dt)
+
+    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         if (input.WasPushed(ToggleTank))
             playerControlActive = !playerControlActive;
+
         if (playerControlActive)
         {
             float leftTargetSpeedFraction = 0;
@@ -260,7 +263,6 @@ public class TankSwarmDemo : Demo
             aiTanks[i].Update(Simulation, bodyProperties, random, frameIndex, playAreaMin, playAreaMax, i, ref aiTanks, ref projectileCount);
         }
 
-
         frameIndex++;
         //Ensure that the callbacks list of exploding projectiles can contain all projectiles that exist.
         //(We cast the narrowphase to the generic subtype so that we can grab the callbacks. This isn't the only way-
@@ -270,6 +272,7 @@ public class TankSwarmDemo : Demo
         ref var projectileImpacts = ref ((NarrowPhase<TankCallbacks>)Simulation.NarrowPhase).Callbacks.ProjectileImpacts;
         projectileImpacts.EnsureCapacity(projectileCount, BufferPool);
         base.Update(window, camera, input, dt);
+
         //Remove any projectile that hit something.
         for (int i = 0; i < projectileImpacts.Count; ++i)
         {
@@ -309,7 +312,6 @@ public class TankSwarmDemo : Demo
         }
         projectileImpacts.Count = 0;
     }
-
 
     void RenderControl(ref Vector2 position, float textHeight, string controlName, string controlValue, TextBuilder text, TextBatcher textBatcher, Font font)
     {
