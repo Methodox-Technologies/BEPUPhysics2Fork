@@ -2,6 +2,7 @@
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
+using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
@@ -68,8 +69,8 @@ public class BouncinessDemo : Demo
         public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
         {
             //For the purposes of this demo, we'll use multiplicative blending for the friction and choose spring properties according to which collidable has a higher maximum recovery velocity.
-            var a = CollidableMaterials[pair.A];
-            var b = CollidableMaterials[pair.B];
+            SimpleMaterial a = CollidableMaterials[pair.A];
+            SimpleMaterial b = CollidableMaterials[pair.B];
             pairMaterial.FrictionCoefficient = a.FrictionCoefficient * b.FrictionCoefficient;
             pairMaterial.MaximumRecoveryVelocity = MathF.Max(a.MaximumRecoveryVelocity, b.MaximumRecoveryVelocity);
             pairMaterial.SpringSettings = pairMaterial.MaximumRecoveryVelocity == a.MaximumRecoveryVelocity ? a.SpringSettings : b.SpringSettings;
@@ -97,11 +98,11 @@ public class BouncinessDemo : Demo
         //To counteract this, a substepping timestepper is used. In the demos, we update the simulation at 60hz, so a substep count of 8 means the solver and integrator will run at 480hz.
         //That allows higher stiffnesses to be used since collisions last longer relative to the solver timestep duration.
         //(Note that substepping tends to be an extremely strong simulation stabilizer, so you can usually get away with lower solver iteration counts for better performance. It defaults to 1 velocity iteration per substep.)
-        var collidableMaterials = new CollidableProperty<SimpleMaterial>();
+        CollidableProperty<SimpleMaterial> collidableMaterials = new();
         Simulation = Simulation.Create(BufferPool, new BounceCallbacks() { CollidableMaterials = collidableMaterials }, new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0), 0, 0), new SolveDescription(1, 8));
 
-        var shape = new Sphere(1);
-        var ballDescription = BodyDescription.CreateDynamic(RigidPose.Identity, shape.ComputeInertia(1), Simulation.Shapes.Add(shape), 1e-2f);
+        Sphere shape = new(1);
+        BodyDescription ballDescription = BodyDescription.CreateDynamic(RigidPose.Identity, shape.ComputeInertia(1), Simulation.Shapes.Add(shape), 1e-2f);
 
         for (int i = 0; i < 100; ++i)
         {
@@ -121,7 +122,7 @@ public class BouncinessDemo : Demo
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("The library does not use a coefficient of restitution."), new Vector2(16, resolution.Y - 192), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Traditional implementations of restitution don't work well with speculative contacts (which are used aggressively)."), new Vector2(16, resolution.Y - 176), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("All contact constraints, however, are springs."), new Vector2(16, resolution.Y - 160), 16, Vector3.One, font);

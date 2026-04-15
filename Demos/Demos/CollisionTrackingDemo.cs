@@ -212,8 +212,8 @@ public class CollisionTrackingDemo : Demo
             //That fires *after* the sleeper runs and before the narrowphase, so we get an accurate picture of what pairs will end up providing contacts during the upcoming tests.
             for (int i = 0; i < Tracked.Count; ++i)
             {
-                ref var tracked = ref Tracked.Values[i];
-                var collidable = Tracked.Keys[i].Collidable;
+                ref TrackedPairs tracked = ref Tracked.Values[i];
+                CollidableReference collidable = Tracked.Keys[i].Collidable;
                 if (collidable.Mobility != CollidableMobility.Static && simulation.Bodies[collidable.BodyHandle].Awake)
                 {
                     //There is no need to consider the sleeping state of the other body when the tracked object is awake; flip the buffers and clear the new front buffer.
@@ -235,7 +235,7 @@ public class CollisionTrackingDemo : Demo
                     //       This demo just does the most frequently desired thing with no configuration for simplicity's sake.
                     for (int j = tracked.Pairs.Count - 1; j >= 0; --j)
                     {
-                        var other = tracked.Pairs.Keys[j];
+                        ContactSource other = tracked.Pairs.Keys[j];
                         if (other.Collidable.Mobility != CollidableMobility.Static && simulation.Bodies[other.Collidable.BodyHandle].Awake)
                         {
                             //Wakeful body! Push the current values into the previous buffer and remove the entry from the current.
@@ -270,7 +270,7 @@ public class CollisionTrackingDemo : Demo
         {
             for (int j = 0; j < cache.Count; ++j)
             {
-                ref var entry = ref cache[j];
+                ref WorkerPairContacts entry = ref cache[j];
                 Tracked.GetTableIndices(ref entry.Self, out _, out var elementIndex);
                 Tracked.Values[elementIndex].Pairs.Add(entry.Other, entry.Collision, pool);
             }
@@ -304,7 +304,7 @@ public class CollisionTrackingDemo : Demo
             if (Tracked.ContainsKey(self))
             {
                 //A is a listener, add it.            
-                ref var pairContacts = ref workerCaches[workerIndex].Allocate(dispatcher != null ? dispatcher.WorkerPools[workerIndex] : pool);
+                ref WorkerPairContacts pairContacts = ref workerCaches[workerIndex].Allocate(dispatcher != null ? dispatcher.WorkerPools[workerIndex] : pool);
                 pairContacts.Self = self;
                 pairContacts.Other = other;
                 pairContacts.Collision.OtherIsAInPair = otherIsA;
@@ -312,10 +312,10 @@ public class CollisionTrackingDemo : Demo
                 {
                     //The pairContacts representation just uses a NonconvexContactManifold for simplicity- we can just rearrange convex contacts to fit.
                     //(Without doing this, the post-analysis would constantly have to check an "IsConvex" flag and so forth. It would be quite stinky.)
-                    ref var convex = ref Unsafe.As<TContacts, ConvexContactManifold>(ref contacts);
+                    ref ConvexContactManifold convex = ref Unsafe.As<TContacts, ConvexContactManifold>(ref contacts);
                     for (int i = 0; i < contacts.Count; ++i)
                     {
-                        ref var targetContact = ref Unsafe.Add(ref pairContacts.Collision.Contacts.Contact0, i);
+                        ref Contact targetContact = ref Unsafe.Add(ref pairContacts.Collision.Contacts.Contact0, i);
                         convex.GetContact(i, out targetContact.Offset, out targetContact.Normal, out targetContact.Depth, out targetContact.FeatureId);
                     }
                     pairContacts.Collision.Contacts.Count = contacts.Count;
@@ -340,8 +340,8 @@ public class CollisionTrackingDemo : Demo
         public void ReportChildContacts(CollidableReference collidableA, int childIndexA, CollidableReference collidableB, int childIndexB, int workerIndex, ref ConvexContactManifold contacts)
         {
             Debug.Assert(workerCaches.Allocated, "The worker caches must be allocated in order to report contacts. Make sure PrepareForNextTimestep was called.");
-            var a = new ContactSource { Collidable = collidableA, ChildIndex = childIndexA };
-            var b = new ContactSource { Collidable = collidableB, ChildIndex = childIndexB };
+            ContactSource a = new() { Collidable = collidableA, ChildIndex = childIndexA };
+            ContactSource b = new() { Collidable = collidableB, ChildIndex = childIndexB };
             ReportContacts(workerIndex, a, b, false, ref contacts);
             ReportContacts(workerIndex, b, a, true, ref contacts);
         }
@@ -359,8 +359,8 @@ public class CollisionTrackingDemo : Demo
         {
             Debug.Assert(workerCaches.Allocated, "The worker caches must be allocated in order to report contacts. Make sure PrepareForNextTimestep was called.");
             Debug.Assert(workerCaches.Allocated, "The worker caches must be allocated in order to report contacts. Make sure PrepareForNextTimestep was called.");
-            var a = new ContactSource { Collidable = collidableA, ChildIndex = -1 };
-            var b = new ContactSource { Collidable = collidableB, ChildIndex = -1 };
+            ContactSource a = new() { Collidable = collidableA, ChildIndex = -1 };
+            ContactSource b = new() { Collidable = collidableB, ChildIndex = -1 };
             ReportContacts(workerIndex, a, b, false, ref contacts);
             ReportContacts(workerIndex, b, a, true, ref contacts);
         }
@@ -444,10 +444,10 @@ public class CollisionTrackingDemo : Demo
         Simulation = Simulation.Create(BufferPool, new CollisionTrackingCallbacks(collisionTracker), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
 
-        var listenedBody1 = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0, 5, 0), 1, Simulation.Shapes, new Box(1, 2, 3)));
+        BodyHandle listenedBody1 = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0, 5, 0), 1, Simulation.Shapes, new Box(1, 2, 3)));
         collisionTracker.Track(Simulation.Bodies[listenedBody1].CollidableReference);
 
-        var listenedBody2 = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0.5f, 10, 0), 1, Simulation.Shapes, new Capsule(0.25f, 0.7f)));
+        BodyHandle listenedBody2 = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0.5f, 10, 0), 1, Simulation.Shapes, new Capsule(0.25f, 0.7f)));
         collisionTracker.Track(Simulation.Bodies[listenedBody2].CollidableReference);
 
 
@@ -457,7 +457,7 @@ public class CollisionTrackingDemo : Demo
 
     void AddParticle(Vector3 contactOffset, Vector3 contactNormal, CollidableReference firstCollidableInPair)
     {
-        ref var particle = ref particles.Allocate(BufferPool);
+        ref ContactResponseParticle particle = ref particles.Allocate(BufferPool);
         //Contact data is calibrated according to the order of the pair, so using A's position is important.
         particle.Position = contactOffset + (firstCollidableInPair.Mobility == CollidableMobility.Static ?
             new StaticReference(firstCollidableInPair.StaticHandle, Simulation.Statics).Pose.Position :
@@ -488,16 +488,16 @@ public class CollisionTrackingDemo : Demo
         //(The analysis is exactly where you do it, not inside some other thread's execution in the middle of the physics engine!)
         for (int trackedIndex = 0; trackedIndex < collisionTracker.Tracked.Count; ++trackedIndex)
         {
-            ref var collisions = ref collisionTracker.Tracked.Values[trackedIndex];
-            var self = collisionTracker.Tracked.Keys[trackedIndex];
+            ref CollisionTracker.TrackedPairs collisions = ref collisionTracker.Tracked.Values[trackedIndex];
+            ContactSource self = collisionTracker.Tracked.Keys[trackedIndex];
             for (int pairIndex = 0; pairIndex < collisions.Pairs.Count; ++pairIndex)
             {
-                ref var pair = ref collisions.Pairs.Values[pairIndex];
-                var other = collisions.Pairs.Keys[pairIndex];
+                ref PairCollision pair = ref collisions.Pairs.Values[pairIndex];
+                ContactSource other = collisions.Pairs.Keys[pairIndex];
                 if (collisions.PreviousPairs.GetTableIndices(ref other, out _, out int otherIndexInPrevious))
                 {
                     //There exists a previous collision.
-                    ref var previous = ref collisions.PreviousPairs.Values[otherIndexInPrevious];
+                    ref PairCollision previous = ref collisions.PreviousPairs.Values[otherIndexInPrevious];
                     for (int i = 0; i < pair.Contacts.Count; ++i)
                     {
                         if (pair.Contacts.GetDepth(i) >= 0)
@@ -522,7 +522,7 @@ public class CollisionTrackingDemo : Demo
         //Age and scoot the particles we created for new contacts for the animation.
         for (int i = particles.Count - 1; i >= 0; --i)
         {
-            ref var particle = ref particles[i];
+            ref ContactResponseParticle particle = ref particles[i];
             particle.Age += dt;
             if (particle.Age > 0.7325f)
             {
@@ -540,13 +540,13 @@ public class CollisionTrackingDemo : Demo
     {
         for (int i = particles.Count - 1; i >= 0; --i)
         {
-            ref var particle = ref particles[i];
+            ref ContactResponseParticle particle = ref particles[i];
             var radius = particle.Age * (particle.Age * (0.135f - 2.7f * particle.Age) + 1.35f);
-            var pose = new RigidPose(particle.Position);
+            RigidPose pose = new(particle.Position);
             renderer.Shapes.AddShape(new Sphere(radius), Simulation.Shapes, pose, new Vector3(0, 1, 0));
         }
 
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("Collision events aren't the only way to interact with contacts!"), new Vector2(16, resolution.Y - 80), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("This demo collects contacts in the INarrowPhaseCallbacks implementation and hands them off to a CollisionTracker type."), new Vector2(16, resolution.Y - 64), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Tracked collidables keep the current and previous collision state around."), new Vector2(16, resolution.Y - 48), 16, Vector3.One, font);

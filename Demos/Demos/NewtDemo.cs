@@ -100,9 +100,9 @@ public static class BoxTriangleCollider
         //Test the triangle face.
         //Note that we don't use the axis overlap test here.
         //We can do better since we know that all triangle vertices have the same value.
-        var ab = b - a;
-        var ac = c - a;
-        var normal = Vector3.Cross(ab, ac);
+        Vector3 ab = b - a;
+        Vector3 ac = c - a;
+        Vector3 normal = Vector3.Cross(ab, ac);
         var d = Vector3.Dot(normal, a);
         if (d < 0)
         {
@@ -136,7 +136,7 @@ public static class BoxTriangleCollider
 
         //Test every edge direction.
         //The three box directions all have two zeroes and one one, so the cross product simplifies a lot.
-        var bc = c - b;
+        Vector3 bc = c - b;
         Vector3 direction;
         //(1,0,0) x ab:
         direction = new Vector3(0, -ab.Z, ab.Y);
@@ -185,15 +185,15 @@ internal static class TriangleRasterizer
 {
     public static void RasterizeTriangle(ref Vector3 a, ref Vector3 b, ref Vector3 c, float cellSize, ref Vector3 gridOrigin, BufferPool pool, ref QuickSet<Cell, CellComparer> cells)
     {
-        var gridA = a - gridOrigin;
-        var gridB = b - gridOrigin;
-        var gridC = c - gridOrigin;
+        Vector3 gridA = a - gridOrigin;
+        Vector3 gridB = b - gridOrigin;
+        Vector3 gridC = c - gridOrigin;
 
         //Compute the bounding box of the triangle.
-        var max = Vector3.Max(Vector3.Max(gridA, gridB), gridC);
-        var min = Vector3.Min(Vector3.Min(gridA, gridB), gridC);
+        Vector3 max = Vector3.Max(Vector3.Max(gridA, gridB), gridC);
+        Vector3 min = Vector3.Min(Vector3.Min(gridA, gridB), gridC);
 
-        var epsilon = new Vector3(1e-5f);
+        Vector3 epsilon = new(1e-5f);
         min -= epsilon;
         max += epsilon;
 
@@ -209,18 +209,18 @@ internal static class TriangleRasterizer
         endZ = (int)Math.Floor(max.Z * inverseCellSize);
 
         //Test the triangle against each cell.
-        var halfExtents = new Vector3(cellSize * 0.5f);
+        Vector3 halfExtents = new(cellSize * 0.5f);
         for (int i = startX; i <= endX; ++i)
         {
             for (int j = startY; j <= endY; ++j)
             {
                 for (int k = startZ; k <= endZ; ++k)
                 {
-                    var cellIndex = new Vector3(i, j, k);
-                    var cellOrigin = cellSize * cellIndex + halfExtents;
-                    var shiftedA = gridA - cellOrigin;
-                    var shiftedB = gridB - cellOrigin;
-                    var shiftedC = gridC - cellOrigin;
+                    Vector3 cellIndex = new(i, j, k);
+                    Vector3 cellOrigin = cellSize * cellIndex + halfExtents;
+                    Vector3 shiftedA = gridA - cellOrigin;
+                    Vector3 shiftedB = gridB - cellOrigin;
+                    Vector3 shiftedC = gridC - cellOrigin;
 
                     if (BoxTriangleCollider.Intersecting(ref halfExtents, ref shiftedA, ref shiftedB, ref shiftedC))
                     {
@@ -374,7 +374,7 @@ public static class DumbTetrahedralizer
         Vector3 min = new(float.MaxValue), max = new(float.MinValue);
         for (int i = 0; i < triangles.Length; ++i)
         {
-            ref var triangle = ref triangles[i];
+            ref TriangleContent triangle = ref triangles[i];
             min = Vector3.Min(min, triangle.A);
             min = Vector3.Min(min, triangle.B);
             min = Vector3.Min(min, triangle.C);
@@ -383,13 +383,13 @@ public static class DumbTetrahedralizer
             max = Vector3.Max(max, triangle.C);
         }
         //Add a little buffer.
-        var buffer = new Vector3(cellSize);
+        Vector3 buffer = new(cellSize);
         min -= buffer;
 
-        var cells = new CellSet(triangles.Length, pool);
+        CellSet cells = new(triangles.Length, pool);
         for (int i = 0; i < triangles.Length; ++i)
         {
-            ref var triangle = ref triangles[i];
+            ref TriangleContent triangle = ref triangles[i];
             //Rasterize each triangle onto the grid.
             TriangleRasterizer.RasterizeTriangle(ref triangle.A, ref triangle.B, ref triangle.C, cellSize, ref min, pool, ref cells);
 
@@ -406,11 +406,11 @@ public static class DumbTetrahedralizer
         bounds.Z = (int)(Math.Ceiling(inverseCellSize * size.Z));
         //Perform a flood fill on every surface vertex.
         //We can use the cells set directly, since it behaves like a regular list with regard to element placement (always at the end).
-        var floodFilledCells = new CellSet(32, pool);
-        var cellsToVisit = new CellList(32, pool);
+        CellSet floodFilledCells = new(32, pool);
+        CellList cellsToVisit = new(32, pool);
         for (int i = cells.Count - 1; i >= 0; --i)
         {
-            ref var cell = ref cells[i];
+            ref Cell cell = ref cells[i];
             FloodFillAdjacentCells(cell, ref bounds, pool, ref cells, ref floodFilledCells, ref cellsToVisit);
         }
 
@@ -420,9 +420,9 @@ public static class DumbTetrahedralizer
         pool.Take(cells.Count, out cellVertexIndices);
         for (int i = 0; i < cells.Count; ++i)
         {
-            ref var cell = ref cells[i];
+            ref Cell cell = ref cells[i];
             CellVertexIndices cellIndices;
-            var vertexSpatialIndex = cell;
+            Cell vertexSpatialIndex = cell;
             AddVertexSpatialIndex(ref vertexSpatialIndex, pool, ref vertexSpatialIndices, out cellIndices.V000);
             vertexSpatialIndex.X = cell.X;
             vertexSpatialIndex.Y = cell.Y;
@@ -462,7 +462,7 @@ public static class DumbTetrahedralizer
         int tetrahedronIndex = 0;
         for (int i = 0; i < cellVertexIndices.Length; ++i)
         {
-            var cellIndices = cellVertexIndices[i];
+            CellVertexIndices cellIndices = cellVertexIndices[i];
             tetrahedraVertexIndices[tetrahedronIndex++] = new TetrahedronVertices(cellIndices.V010, cellIndices.V111, cellIndices.V001, cellIndices.V100); //Central tetrahedron
             tetrahedraVertexIndices[tetrahedronIndex++] = new TetrahedronVertices(cellIndices.V000, cellIndices.V001, cellIndices.V010, cellIndices.V100); //Origin tetrahedron
             tetrahedraVertexIndices[tetrahedronIndex++] = new TetrahedronVertices(cellIndices.V010, cellIndices.V100, cellIndices.V111, cellIndices.V110);
@@ -474,7 +474,7 @@ public static class DumbTetrahedralizer
         pool.Take(vertexSpatialIndices.Count, out vertices);
         for (int i = 0; i < vertices.Length; ++i)
         {
-            ref var index = ref vertexSpatialIndices[i];
+            ref Cell index = ref vertexSpatialIndices[i];
             vertices[i] = new Vector3(index.X, index.Y, index.Z) * cellSize + min;
         }
 
@@ -631,7 +631,7 @@ public class NewtDemo : Demo
         for (int i = 0; i < tetrahedraVertices.Length; ++i)
         {
             //Collect all unique hexahedral edges. We're going to stick welds between all of them.
-            ref var tetrahedron = ref tetrahedraVertices[i];
+            ref TetrahedronVertices tetrahedron = ref tetrahedraVertices[i];
 
             TryAddEdge(tetrahedron.A, tetrahedron.B, ref cellEdges, ref vertexEdgeCounts, pool);
             TryAddEdge(tetrahedron.A, tetrahedron.C, ref cellEdges, ref vertexEdgeCounts, pool);
@@ -649,7 +649,7 @@ public class NewtDemo : Demo
         for (int i = 0; i < cellVertexIndices.Length; ++i)
         {
             //Collect all unique hexahedral edges. We're going to stick welds between all of them.
-            ref var cell = ref cellVertexIndices[i];
+            ref CellVertexIndices cell = ref cellVertexIndices[i];
             TryAddEdge(cell.V000, cell.V001, ref cellEdges, ref vertexEdgeCounts, pool);
             TryAddEdge(cell.V000, cell.V010, ref cellEdges, ref vertexEdgeCounts, pool);
             TryAddEdge(cell.V000, cell.V100, ref cellEdges, ref vertexEdgeCounts, pool);
@@ -669,31 +669,31 @@ public class NewtDemo : Demo
     internal static void CreateDeformable(Simulation simulation, Vector3 position, Quaternion orientation, float density, float cellSize, in SpringSettings weldSpringiness, in SpringSettings volumeSpringiness, int instanceId, CollidableProperty<DeformableCollisionFilter> filters,
         ref Buffer<Vector3> vertices, ref CellSet vertexSpatialIndices, ref Buffer<CellVertexIndices> cellVertexIndices, ref Buffer<TetrahedronVertices> tetrahedraVertexIndices)
     {
-        var pool = simulation.BufferPool;
-        pool.TakeAtLeast<int>(vertices.Length, out var vertexEdgeCounts);
+        BufferPool pool = simulation.BufferPool;
+        pool.TakeAtLeast<int>(vertices.Length, out Buffer<int> vertexEdgeCounts);
         vertexEdgeCounts.Clear(0, vertices.Length);
-        var edges = new QuickSet<Edge, Edge>(vertices.Length * 3, pool);
+        QuickSet<Edge, Edge> edges = new(vertices.Length * 3, pool);
         var edgeCountForInternalVertex = CreateHexahedralUniqueEdgesList(ref cellVertexIndices, ref vertexEdgeCounts, pool, ref edges);
         //var edgeCountForInternalVertex = CreateTetrahedralUniqueEdgesList(ref tetrahedraVertexIndices, ref vertexEdgeCounts, ref cellEdgePool, ref intPool, ref edges);
 
-        pool.TakeAtLeast<BodyHandle>(vertices.Length, out var vertexHandles);
-        var vertexShape = new Sphere(cellSize * 0.7f);
+        pool.TakeAtLeast<BodyHandle>(vertices.Length, out Buffer<BodyHandle> vertexHandles);
+        Sphere vertexShape = new(cellSize * 0.7f);
         var massPerVertex = density * (cellSize * cellSize * cellSize);
-        var vertexInertia = vertexShape.ComputeInertia(massPerVertex);
-        var vertexShapeIndex = simulation.Shapes.Add(vertexShape);
+        BodyInertia vertexInertia = vertexShape.ComputeInertia(massPerVertex);
+        TypedIndex vertexShapeIndex = simulation.Shapes.Add(vertexShape);
         for (int i = 0; i < vertices.Length; ++i)
         {
             vertexHandles[i] = simulation.Bodies.Add(BodyDescription.CreateDynamic((position + QuaternionEx.Transform(vertices[i], orientation), orientation), vertexInertia,
                 //Bodies don't have to have collidables. Take advantage of this for all the internal vertices.
                 vertexEdgeCounts[i] == edgeCountForInternalVertex ? new TypedIndex() : vertexShapeIndex, 0.01f));
-            ref var vertexSpatialIndex = ref vertexSpatialIndices[i];
+            ref Cell vertexSpatialIndex = ref vertexSpatialIndices[i];
             filters.Allocate(vertexHandles[i]) = new DeformableCollisionFilter(vertexSpatialIndex.X, vertexSpatialIndex.Y, vertexSpatialIndex.Z, instanceId);
         }
 
         for (int i = 0; i < edges.Count; ++i)
         {
-            ref var edge = ref edges[i];
-            var offset = vertices[edge.B] - vertices[edge.A];
+            ref Edge edge = ref edges[i];
+            Vector3 offset = vertices[edge.B] - vertices[edge.A];
             simulation.Solver.Add(vertexHandles[edge.A], vertexHandles[edge.B],
                 new Weld
                 {
@@ -707,7 +707,7 @@ public class NewtDemo : Demo
         //There, we're primarily concerned about scaling up simulations to many characters, so adding tons of additional constraints for minimal behavioral difference doesn't make sense.
         for (int i = 0; i < tetrahedraVertexIndices.Length; ++i)
         {
-            ref var tetrahedron = ref tetrahedraVertexIndices[i];
+            ref TetrahedronVertices tetrahedron = ref tetrahedraVertexIndices[i];
             simulation.Solver.Add(vertexHandles[tetrahedron.A], vertexHandles[tetrahedron.B], vertexHandles[tetrahedron.C], vertexHandles[tetrahedron.D],
                 new VolumeConstraint(vertices[tetrahedron.A], vertices[tetrahedron.B], vertices[tetrahedron.C], vertices[tetrahedron.D], volumeSpringiness));
         }
@@ -723,15 +723,15 @@ public class NewtDemo : Demo
         camera.Yaw = MathHelper.Pi / 4;
         camera.Pitch = MathHelper.Pi * 0.15f;
 
-        var filters = new CollidableProperty<DeformableCollisionFilter>();
+        CollidableProperty<DeformableCollisionFilter> filters = new();
         Simulation = Simulation.Create(BufferPool, new DeformableCallbacks(filters, new PairMaterialProperties(1f, 2f, new SpringSettings(30, 1))), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0), 0, 0), new SolveDescription(8, 1));
 
-        var meshContent = content.Load<MeshContent>("Content\\newt.obj");
+        MeshContent meshContent = content.Load<MeshContent>("Content\\newt.obj");
         float cellSize = 0.1f;
         DumbTetrahedralizer.Tetrahedralize(meshContent.Triangles, cellSize, BufferPool,
-            out var vertices, out var vertexSpatialIndices, out var cellVertexIndices, out var tetrahedraVertexIndices);
-        var weldSpringiness = new SpringSettings(30f, 1f);
-        var volumeSpringiness = new SpringSettings(30f, 1);
+            out Buffer<Vector3> vertices, out CellSet vertexSpatialIndices, out Buffer<CellVertexIndices> cellVertexIndices, out Buffer<TetrahedronVertices> tetrahedraVertexIndices);
+        SpringSettings weldSpringiness = new(30f, 1f);
+        SpringSettings volumeSpringiness = new(30f, 1);
 
         for (int i = 0; i < 8; ++i)
         {
@@ -754,7 +754,7 @@ public class NewtDemo : Demo
     }
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("The library does not include any special cases for deformable simulation, but standard bodies and springy constraints work well."), new Vector2(16, resolution.Y - 64), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Here, welds and volume constraints are used to make squishy newts. The PlumpDancerDemo is similar, but doesn't have volume constraints."), new Vector2(16, resolution.Y - 48), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("The difference is subtle- for example, volume constraints make the newt squish outward more when the ball falls on it."), new Vector2(16, resolution.Y - 32), 16, Vector3.One, font);

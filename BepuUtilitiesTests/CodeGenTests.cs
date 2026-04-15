@@ -10,17 +10,15 @@ namespace BEPUutilitiesTests
         [MethodImpl(MethodImplOptions.NoInlining)]
         static void TestPrimitiveComparer()
         {
-            var comparer = default(PrimitiveComparer<int>);
+            PrimitiveComparer<int> comparer = default(PrimitiveComparer<int>);
             int a = 2;
             int b = 4;
 
-            var equal = comparer.Equals(ref a, ref b);
-            var hashcode = comparer.Hash(ref a);
-            var isPrimitive = SpanHelper.IsPrimitive<int>();
+            bool equal = comparer.Equals(ref a, ref b);
+            int hashcode = comparer.Hash(ref a);
+            bool isPrimitive = SpanHelper.IsPrimitive<int>();
             if (SpanHelper.IsPrimitive<bool>())
-            {
                 Console.WriteLine("prim prim");
-            }
 
             Console.WriteLine($"Equality: {equal}, hash: {hashcode}");
         }
@@ -28,14 +26,12 @@ namespace BEPUutilitiesTests
         [MethodImpl(MethodImplOptions.NoInlining)]
         static void TestDefaultComparer<T>(T a, T b)
         {
-            WrapperEqualityComparer<T>.CreateDefault(out var comparer);
+            WrapperEqualityComparer<T>.CreateDefault(out WrapperEqualityComparer<T> comparer);
 
-            var equal = comparer.Equals(ref a, ref b);
-            var hashcode = comparer.Hash(ref a);
+            bool equal = comparer.Equals(ref a, ref b);
+            int hashcode = comparer.Hash(ref a);
             if (SpanHelper.IsPrimitive<T>())
-            {
                 Console.WriteLine("prim prom");
-            }
 
             Console.WriteLine($"Equality: {equal}, hash: {hashcode}");
         }
@@ -44,29 +40,29 @@ namespace BEPUutilitiesTests
         unsafe static void TestQuickInlining(BufferPool pool)
         {
             {
-                var set = new QuickSet<double, PrimitiveComparer<double>>(4, pool);
+                QuickSet<double, PrimitiveComparer<double>> set = new(4, pool);
                 set.AddUnsafely(5);
-                var item = set[0];
+                double item = set[0];
                 Console.WriteLine($"Managed Item: {item}");
 
-                var comparer = default(PrimitiveComparer<double>);
-                var hash = comparer.Hash(ref item);
+                PrimitiveComparer<double> comparer = default(PrimitiveComparer<double>);
+                int hash = comparer.Hash(ref item);
 
                 Console.WriteLine($"Hash: {hash}");
             }
 
             {
 
-                var set = new QuickSet<int, PrimitiveComparer<int>>(4, pool);
+                QuickSet<int, PrimitiveComparer<int>> set = new(4, pool);
                 set.AddUnsafely(5);
-                var item = set[0];
+                int item = set[0];
             }
 
         }
 
         public static void Test()
         {
-            var pool = new BufferPool();
+            BufferPool pool = new();
             TestPrimitiveComparer();
 
             TestDefaultComparer(2, 4);

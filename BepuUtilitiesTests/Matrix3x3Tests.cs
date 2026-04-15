@@ -34,7 +34,7 @@ namespace BEPUutilitiesTests
         //}
         public static float TestSIMDTransformTranspose(int iterationCount)
         {
-            Vector3 v = new Vector3(1, 2, 3);
+            Vector3 v = new(1, 2, 3);
             Matrix3x3 m = Matrix3x3.Identity;
             float accumulator = 0;
             for (int i = 0; i < iterationCount; ++i)
@@ -57,7 +57,7 @@ namespace BEPUutilitiesTests
 
         public static float TestSIMDTransform(int iterationCount)
         {
-            Vector3 v = new Vector3(1, 2, 3);
+            Vector3 v = new(1, 2, 3);
             Matrix3x3 m = Matrix3x3.Identity;
             float accumulator = 0;
             for (int i = 0; i < iterationCount; ++i)

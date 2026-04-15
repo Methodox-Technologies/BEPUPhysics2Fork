@@ -23,9 +23,9 @@ public class PyramidDemo : Demo
         camera.Pitch = 0;
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var boxShape = new Box(1, 1, 1);
-        var boxInertia = boxShape.ComputeInertia(1);
-        var boxIndex = Simulation.Shapes.Add(boxShape);
+        Box boxShape = new(1, 1, 1);
+        BodyInertia boxInertia = boxShape.ComputeInertia(1);
+        TypedIndex boxIndex = Simulation.Shapes.Add(boxShape);
         const int pyramidCount = 40;
         for (int pyramidIndex = 0; pyramidIndex < pyramidCount; ++pyramidIndex)
         {
@@ -54,7 +54,7 @@ public class PyramidDemo : Demo
         if (input != null && input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
         {
             //Create the shape that we'll launch at the pyramids when the user presses a button.
-            var bulletShape = new Sphere(0.5f + 5 * random.NextSingle());
+            Sphere bulletShape = new(0.5f + 5 * random.NextSingle());
             //Note that the use of radius^3 for mass can produce some pretty serious mass ratios. 
             //Observe what happens when a large ball sits on top of a few boxes with a fraction of the mass-
             //the collision appears much squishier and less stable. For most games, if you want to maintain rigidity, you'll want to use some combination of:
@@ -64,7 +64,7 @@ public class PyramidDemo : Demo
             //#2 and #3 can become very expensive. In pathological cases, it can end up slower than using a quality-focused solver for the same simulation.
             //Unfortunately, at the moment, bepuphysics v2 does not contain any alternative solvers, so if you can't afford to brute force the the problem away,
             //the best solution is to cheat as much as possible to avoid the corner cases.
-            var bodyDescription = BodyDescription.CreateConvexDynamic(
+            BodyDescription bodyDescription = BodyDescription.CreateConvexDynamic(
                 new Vector3(0, 8, -130), new Vector3(0, 0, 150), bulletShape.Radius * bulletShape.Radius * bulletShape.Radius, Simulation.Shapes, bulletShape);
             Simulation.Bodies.Add(bodyDescription);
         }

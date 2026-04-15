@@ -24,7 +24,7 @@ public class CylinderTestDemo : Demo
         for (int i = 0; i < sampleCount; ++i)
         {
             var t = (float)(halfLength * (i * inverseSampleCount * 2 - 1));
-            var point = lineOrigin + lineDirection * t;
+            Vector3 point = lineOrigin + lineDirection * t;
             var horizontalLengthSquared = point.X * point.X + point.Z * point.Z;
             Vector3 clamped;
             if (horizontalLengthSquared > radiusSquared)
@@ -51,10 +51,10 @@ public class CylinderTestDemo : Demo
 
     private static void TestSegmentCylinder()
     {
-        var cylinder = new Cylinder(0.5f, 1);
+        Cylinder cylinder = new(0.5f, 1);
         CylinderWide cylinderWide = default;
         cylinderWide.Broadcast(cylinder);
-        Random random = new Random(5);
+        Random random = new(5);
         //double totalIntervalError = 0;
         //double sumOfSquaredIntervalError = 0;
 
@@ -74,15 +74,15 @@ public class CylinderTestDemo : Demo
         for (int i = 0; i < warmupCount + capsuleTests; ++i)
         {
             Vector3 randomPointNearCylinder;
-            var capsule = new Capsule(0.2f + .8f * random.NextSingle(), 0.2f + 0.8f * random.NextSingle());
+            Capsule capsule = new(0.2f + .8f * random.NextSingle(), 0.2f + 0.8f * random.NextSingle());
             var minimumDistance = 1f * (cylinder.Radius + cylinder.HalfLength);
             var minimumDistanceSquared = minimumDistance * minimumDistance;
             while (true)
             {
                 randomPointNearCylinder = new Vector3((cylinder.Radius + capsule.HalfLength) * 2, (cylinder.HalfLength + capsule.HalfLength) * 2, (cylinder.Radius + capsule.HalfLength) * 2) *
                     (new Vector3(2) * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) - Vector3.One);
-                var pointOnCylinderAxis = new Vector3(0, MathF.Max(-cylinder.HalfLength, MathF.Min(cylinder.HalfLength, randomPointNearCylinder.Y)), 0);
-                var offset = randomPointNearCylinder - pointOnCylinderAxis;
+                Vector3 pointOnCylinderAxis = new(0, MathF.Max(-cylinder.HalfLength, MathF.Min(cylinder.HalfLength, randomPointNearCylinder.Y)), 0);
+                Vector3 offset = randomPointNearCylinder - pointOnCylinderAxis;
                 var lengthSquared = offset.LengthSquared();
                 if (lengthSquared > minimumDistanceSquared)
                     break;
@@ -98,8 +98,8 @@ public class CylinderTestDemo : Demo
             direction /= MathF.Sqrt(directionLengthSquared);
 
 
-            Vector3Wide.Broadcast(randomPointNearCylinder, out var capsuleOrigin);
-            Vector3Wide.Broadcast(direction, out var capsuleY);
+            Vector3Wide.Broadcast(randomPointNearCylinder, out Vector3Wide capsuleOrigin);
+            Vector3Wide.Broadcast(direction, out Vector3Wide capsuleY);
 
             //CapsuleCylinderTester.GetClosestPointBetweenLineSegmentAndCylinder(capsuleOrigin, capsuleY, new Vector<float>(capsule.HalfLength), cylinderWide, out var t, out var min, out var max, out var offsetFromCylindertoLineSegment, out var iterationsRequired);
 
@@ -116,7 +116,7 @@ public class CylinderTestDemo : Demo
             {
                 testTicks += innerStop - innerStart;
             }
-            Vector3Wide.LengthSquared(offsetFromCylinderToLineSegment, out var distanceSquaredWide);
+            Vector3Wide.LengthSquared(offsetFromCylinderToLineSegment, out Vector<float> distanceSquaredWide);
             var distanceSquared = distanceSquaredWide[0];
 
             //iterationsSum += iterationsRequired[0];
@@ -173,8 +173,8 @@ public class CylinderTestDemo : Demo
 
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, 0f, 0)), new SolveDescription(8, 1));
 
-        var cylinderShape = new Cylinder(1f, .2f);
-        var cylinder = BodyDescription.CreateDynamic(new Vector3(10f, 3, 0), cylinderShape.ComputeInertia(1), new(Simulation.Shapes.Add(cylinderShape), 1000f, 1000f, ContinuousDetection.Passive), 0.01f);
+        Cylinder cylinderShape = new(1f, .2f);
+        BodyDescription cylinder = BodyDescription.CreateDynamic(new Vector3(10f, 3, 0), cylinderShape.ComputeInertia(1), new(Simulation.Shapes.Add(cylinderShape), 1000f, 1000f, ContinuousDetection.Passive), 0.01f);
         Simulation.Bodies.Add(cylinder);
         Simulation.Bodies.Add(BodyDescription.CreateConvexKinematic((new Vector3(0, -6, 0), QuaternionEx.CreateFromAxisAngle(Vector3.Normalize(new Vector3(1, 0, 1)), MathHelper.PiOver4)), Simulation.Shapes, new Sphere(2)));
         Simulation.Bodies.Add(BodyDescription.CreateConvexKinematic((new Vector3(7, -6, 0), QuaternionEx.CreateFromAxisAngle(Vector3.Normalize(new Vector3(1, 0, 1)), MathHelper.PiOver4)), Simulation.Shapes, new Capsule(0.5f, 1f)));
@@ -185,8 +185,8 @@ public class CylinderTestDemo : Demo
 
 
         cylinderShape = new Cylinder(1f, 3);
-        var cylinderShapeIndex = Simulation.Shapes.Add(cylinderShape);
-        var cylinderInertia = cylinderShape.ComputeInertia(1);
+        TypedIndex cylinderShapeIndex = Simulation.Shapes.Add(cylinderShape);
+        BodyInertia cylinderInertia = cylinderShape.ComputeInertia(1);
         //const int rowCount = 15;
         //for (int rowIndex = 0; rowIndex < rowCount; ++rowIndex)
         //{
@@ -202,15 +202,15 @@ public class CylinderTestDemo : Demo
         //    }
         //}
 
-        var box = new Box(1f, 3f, 2f);
-        var capsule = new Capsule(1f, 1f);
-        var sphere = new Sphere(1.5f);
-        var boxInertia = box.ComputeInertia(1);
-        var capsuleInertia = capsule.ComputeInertia(1);
-        var sphereInertia = sphere.ComputeInertia(1);
-        var boxIndex = Simulation.Shapes.Add(box);
-        var capsuleIndex = Simulation.Shapes.Add(capsule);
-        var sphereIndex = Simulation.Shapes.Add(sphere);
+        Box box = new(1f, 3f, 2f);
+        Capsule capsule = new(1f, 1f);
+        Sphere sphere = new(1.5f);
+        BodyInertia boxInertia = box.ComputeInertia(1);
+        BodyInertia capsuleInertia = capsule.ComputeInertia(1);
+        BodyInertia sphereInertia = sphere.ComputeInertia(1);
+        TypedIndex boxIndex = Simulation.Shapes.Add(box);
+        TypedIndex capsuleIndex = Simulation.Shapes.Add(capsule);
+        TypedIndex sphereIndex = Simulation.Shapes.Add(sphere);
         const int width = 2;
         const int height = 1;
         const int length = 2;
@@ -220,8 +220,8 @@ public class CylinderTestDemo : Demo
             {
                 for (int k = 0; k < length; ++k)
                 {
-                    var location = new Vector3(5, 3, 5) * new Vector3(i, j, k) + new Vector3(-width * 1.5f, 2.5f, -30 - length * 1.5f);
-                    var bodyDescription = BodyDescription.CreateDynamic(location, default, default, -0.01f);
+                    Vector3 location = new Vector3(5, 3, 5) * new Vector3(i, j, k) + new Vector3(-width * 1.5f, 2.5f, -30 - length * 1.5f);
+                    BodyDescription bodyDescription = BodyDescription.CreateDynamic(location, default, default, -0.01f);
                     switch (j % 4)
                     {
                         case 0:
@@ -249,7 +249,7 @@ public class CylinderTestDemo : Demo
 
         const int planeWidth = 50;
         const int planeHeight = 50;
-        var planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
+        Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
             (int x, int y) =>
             {
                 var octave0 = (MathF.Sin((x + 5f) * 0.05f) + MathF.Sin((y + 11) * 0.05f)) * 3f;

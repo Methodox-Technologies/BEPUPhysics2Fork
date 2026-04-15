@@ -32,10 +32,10 @@ public struct AITank
 
     public void Update(Simulation simulation, CollidableProperty<TankDemoBodyProperties> bodyProperties, Random random, long frameIndex, in Vector2 playAreaMin, in Vector2 playAreaMax, int aiIndex, ref QuickList<AITank> aiTanks, ref int projectileCount)
     {
-        ref var currentPose = ref simulation.Bodies[Controller.Tank.Body].Pose;
+        ref RigidPose currentPose = ref simulation.Bodies[Controller.Tank.Body].Pose;
         //tankBodyPose = localTankBodyPose * tankPose
         //tankPose = inverse(localTankBodyPose) * tankBodyPose
-        QuaternionEx.TransformUnitY(QuaternionEx.Concatenate(QuaternionEx.Conjugate(Controller.Tank.BodyLocalOrientation), currentPose.Orientation), out var tankUp);
+        QuaternionEx.TransformUnitY(QuaternionEx.Concatenate(QuaternionEx.Conjugate(Controller.Tank.BodyLocalOrientation), currentPose.Orientation), out Vector3 tankUp);
         if (tankUp.Y < -0.5f)
         {
             //The tank is upside down. Don't bother doing anything.
@@ -50,12 +50,12 @@ public struct AITank
                 do { Target = random.Next(0, aiTanks.Count); } while (Target == aiIndex);
             }
         }
-        ref var targetTank = ref aiTanks[Target];
-        var targetTankBody = simulation.Bodies[targetTank.Controller.Tank.Body];
-        ref var targetTankPosition = ref targetTankBody.Pose.Position;
-        var currentTankPosition2D = new Vector2(currentPose.Position.X, currentPose.Position.Z);
-        var targetTankPosition2D = new Vector2(targetTankPosition.X, targetTankPosition.Z);
-        var currentToTargetTank2D = targetTankPosition2D - currentTankPosition2D;
+        ref AITank targetTank = ref aiTanks[Target];
+        BodyReference targetTankBody = simulation.Bodies[targetTank.Controller.Tank.Body];
+        ref Vector3 targetTankPosition = ref targetTankBody.Pose.Position;
+        Vector2 currentTankPosition2D = new(currentPose.Position.X, currentPose.Position.Z);
+        Vector2 targetTankPosition2D = new(targetTankPosition.X, targetTankPosition.Z);
+        Vector2 currentToTargetTank2D = targetTankPosition2D - currentTankPosition2D;
         if (random.NextDouble() < 1f / 250f)
         {
             //Change movement target. Pick a random point around the target's current location.
@@ -72,10 +72,10 @@ public struct AITank
             MovementTarget = Vector2.Min(playAreaMax, Vector2.Max(playAreaMin, targetTankPosition2D + movementTargetOffset));
         }
 
-        var offset = new Vector3(MovementTarget.X - currentTankPosition2D.X, 0, MovementTarget.Y - currentTankPosition2D.Y);
-        QuaternionEx.Transform(offset, QuaternionEx.Concatenate(QuaternionEx.Conjugate(currentPose.Orientation), Controller.Tank.BodyLocalOrientation), out var localMovementOffset);
+        Vector3 offset = new(MovementTarget.X - currentTankPosition2D.X, 0, MovementTarget.Y - currentTankPosition2D.Y);
+        QuaternionEx.Transform(offset, QuaternionEx.Concatenate(QuaternionEx.Conjugate(currentPose.Orientation), Controller.Tank.BodyLocalOrientation), out Vector3 localMovementOffset);
 
-        var targetHorizontalMovementDirection = new Vector2(localMovementOffset.X, -localMovementOffset.Z);
+        Vector2 targetHorizontalMovementDirection = new(localMovementOffset.X, -localMovementOffset.Z);
         var targetDirectionLength = targetHorizontalMovementDirection.Length();
         targetHorizontalMovementDirection = targetDirectionLength > 1e-10f ? targetHorizontalMovementDirection / targetDirectionLength : new Vector2(0, 1);
         var turnWeight = targetHorizontalMovementDirection.Y > 0 ? targetHorizontalMovementDirection.X : targetHorizontalMovementDirection.X > 0 ? 1f : -1f;
@@ -91,8 +91,8 @@ public struct AITank
         //If we're far away from the target but are pointing in the right direction, zoom.
         var zoom = targetDirectionLength > 50 && targetHorizontalMovementDirection.Y > 0.8f;
         //We're not going to compute an optimal firing solution- just aim directly at the middle of the other tank. Pretty poor choice, but that's fine.
-        ref var barrelPosition = ref simulation.Bodies[Controller.Tank.Barrel].Pose.Position;
-        var barrelToTarget = targetTankPosition - barrelPosition;
+        ref Vector3 barrelPosition = ref simulation.Bodies[Controller.Tank.Barrel].Pose.Position;
+        Vector3 barrelToTarget = targetTankPosition - barrelPosition;
         var barrelToTargetLength = barrelToTarget.Length();
         barrelToTarget = barrelToTargetLength > 1e-10f ? barrelToTarget / barrelToTargetLength : new Vector3(0, 1, 0);
         Controller.UpdateMovementAndAim(simulation, leftTrack, rightTrack, zoom, false, false, barrelToTarget);
@@ -101,7 +101,7 @@ public struct AITank
             //Are we aiming reasonably close to the target?
             if (barrelToTargetLength > 1e-10f && barrelToTargetLength < 100)
             {
-                Controller.Tank.ComputeBarrelDirection(simulation, out var barrelDirection);
+                Controller.Tank.ComputeBarrelDirection(simulation, out Vector3 barrelDirection);
                 var dot = Vector3.Dot(barrelDirection, barrelToTarget);
                 if (dot > 0.98f)
                 {

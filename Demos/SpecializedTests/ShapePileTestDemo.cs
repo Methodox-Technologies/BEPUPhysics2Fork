@@ -21,11 +21,11 @@ public class ShapePileTestDemo : Demo
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(4, 1));
         Simulation.Deterministic = true;
 
-        var sphere = new Sphere(1.5f);
-        var capsule = new Capsule(1f, 1f);
-        var box = new Box(1f, 3f, 2f);
-        var cylinder = new Cylinder(1.5f, 0.3f);
-        var points = new QuickList<Vector3>(32, BufferPool);
+        Sphere sphere = new(1.5f);
+        Capsule capsule = new(1f, 1f);
+        Box box = new(1f, 3f, 2f);
+        Cylinder cylinder = new(1.5f, 0.3f);
+        QuickList<Vector3> points = new(32, BufferPool);
         //Boxlike point cloud.
         //points.Allocate(BufferPool) = new Vector3(0, 0, 0);
         //points.Allocate(BufferPool) = new Vector3(0, 0, 1);
@@ -71,17 +71,17 @@ public class ShapePileTestDemo : Demo
         points.Allocate(BufferPool) = new Vector3(-goldenRatio, oogr, 0);
         points.Allocate(BufferPool) = new Vector3(-goldenRatio, -oogr, 0);
 
-        var convexHull = new ConvexHull(points.Span.Slice(points.Count), BufferPool, out _);
-        var boxInertia = box.ComputeInertia(1);
-        var capsuleInertia = capsule.ComputeInertia(1);
-        var sphereInertia = sphere.ComputeInertia(1);
-        var cylinderInertia = cylinder.ComputeInertia(1);
-        var hullInertia = convexHull.ComputeInertia(1);
-        var boxIndex = Simulation.Shapes.Add(box);
-        var capsuleIndex = Simulation.Shapes.Add(capsule);
-        var sphereIndex = Simulation.Shapes.Add(sphere);
-        var cylinderIndex = Simulation.Shapes.Add(cylinder);
-        var hullIndex = Simulation.Shapes.Add(convexHull);
+        ConvexHull convexHull = new(points.Span.Slice(points.Count), BufferPool, out _);
+        BodyInertia boxInertia = box.ComputeInertia(1);
+        BodyInertia capsuleInertia = capsule.ComputeInertia(1);
+        BodyInertia sphereInertia = sphere.ComputeInertia(1);
+        BodyInertia cylinderInertia = cylinder.ComputeInertia(1);
+        BodyInertia hullInertia = convexHull.ComputeInertia(1);
+        TypedIndex boxIndex = Simulation.Shapes.Add(box);
+        TypedIndex capsuleIndex = Simulation.Shapes.Add(capsule);
+        TypedIndex sphereIndex = Simulation.Shapes.Add(sphere);
+        TypedIndex cylinderIndex = Simulation.Shapes.Add(cylinder);
+        TypedIndex hullIndex = Simulation.Shapes.Add(convexHull);
         const int width = 16;
         const int height = 16;
         const int length = 16;
@@ -92,8 +92,8 @@ public class ShapePileTestDemo : Demo
             {
                 for (int k = 0; k < length; ++k)
                 {
-                    var location = new Vector3(6, 3, 6) * new Vector3(i, j, k) + new Vector3(-width * 3, 5.5f, -length * 3);
-                    var bodyDescription = BodyDescription.CreateKinematic(location, new(default, ContinuousDetection.Passive), 0.01f);
+                    Vector3 location = new Vector3(6, 3, 6) * new Vector3(i, j, k) + new Vector3(-width * 3, 5.5f, -length * 3);
+                    BodyDescription bodyDescription = BodyDescription.CreateKinematic(location, new(default, ContinuousDetection.Passive), 0.01f);
                     var index = shapeCount++;
                     switch (index % 5)
                     {
@@ -126,7 +126,7 @@ public class ShapePileTestDemo : Demo
         }
 
         //Simulation.Statics.Add(new StaticDescription(new Vector3(), Simulation.Shapes.Add(new Box(500, 1, 500))));
-        var mesh = DemoMeshHelper.CreateDeformedPlane(128, 128, (x, y) => new Vector3(x - 64, 2f * (float)(Math.Sin(x * 0.5f) * Math.Sin(y * 0.5f)), y - 64), new Vector3(4, 1, 4), BufferPool);
+        Mesh mesh = DemoMeshHelper.CreateDeformedPlane(128, 128, (x, y) => new Vector3(x - 64, 2f * (float)(Math.Sin(x * 0.5f) * Math.Sin(y * 0.5f)), y - 64), new Vector3(4, 1, 4), BufferPool);
         Simulation.Statics.Add(new StaticDescription(new Vector3(), Simulation.Shapes.Add(mesh)));
     }
 

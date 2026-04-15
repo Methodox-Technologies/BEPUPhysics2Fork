@@ -4,12 +4,12 @@ using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using BepuUtilities;
 using BepuUtilities.Collections;
+using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
 using Demos.Demos.Tanks;
 using DemoUtilities;
-using OpenTK.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Numerics;
@@ -59,20 +59,20 @@ public class TankSwarmDemo : Demo
         //(I'd like to address this issue more directly to make substepping an unconditional win.)
         Simulation = Simulation.Create(BufferPool, new TankCallbacks() { Properties = bodyProperties }, new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(6, 1));
 
-        var builder = new CompoundBuilder(BufferPool, Simulation.Shapes, 2);
+        CompoundBuilder builder = new(BufferPool, Simulation.Shapes, 2);
         builder.Add(new Box(1.85f, 0.7f, 4.73f), RigidPose.Identity, 10);
         builder.Add(new Box(1.85f, 0.6f, 2.5f), new Vector3(0, 0.65f, -0.35f), 0.5f);
-        builder.BuildDynamicCompound(out var children, out var bodyInertia, out _);
+        builder.BuildDynamicCompound(out Buffer<CompoundChild> children, out BodyInertia bodyInertia, out _);
         builder.Dispose();
-        var bodyShape = new Compound(children);
-        var bodyShapeIndex = Simulation.Shapes.Add(bodyShape);
-        var wheelShape = new Cylinder(0.4f, .18f);
-        var wheelInertia = wheelShape.ComputeInertia(0.25f);
-        var wheelShapeIndex = Simulation.Shapes.Add(wheelShape);
+        Compound bodyShape = new(children);
+        TypedIndex bodyShapeIndex = Simulation.Shapes.Add(bodyShape);
+        Cylinder wheelShape = new(0.4f, .18f);
+        BodyInertia wheelInertia = wheelShape.ComputeInertia(0.25f);
+        TypedIndex wheelShapeIndex = Simulation.Shapes.Add(wheelShape);
 
-        var projectileShape = new Sphere(0.1f);
-        var projectileInertia = projectileShape.ComputeInertia(0.2f);
-        var tankDescription = new TankDescription
+        Sphere projectileShape = new(0.1f);
+        BodyInertia projectileInertia = projectileShape.ComputeInertia(0.2f);
+        TankDescription tankDescription = new()
         {
             Body = TankPartDescription.Create(10, new Box(4f, 1, 5), RigidPose.Identity, 0.5f, Simulation.Shapes),
             Turret = TankPartDescription.Create(1, new Box(1.5f, 0.7f, 2f), new Vector3(0, 0.85f, 0.4f), 0.5f, Simulation.Shapes),
@@ -107,27 +107,27 @@ public class TankSwarmDemo : Demo
         const int planeWidth = 257;
         const float terrainScale = 3;
         const float inverseTerrainScale = 1f / terrainScale;
-        var terrainPosition = new Vector2(1 - planeWidth, 1 - planeWidth) * terrainScale * 0.5f;
+        Vector2 terrainPosition = new Vector2(1 - planeWidth, 1 - planeWidth) * terrainScale * 0.5f;
         random = new Random(5);
 
         //Add some building-ish landmarks.
-        var landmarkMin = new Vector3(planeWidth * terrainScale * -0.45f, 0, planeWidth * terrainScale * -0.45f);
-        var landmarkMax = new Vector3(planeWidth * terrainScale * 0.45f, 0, planeWidth * terrainScale * 0.45f);
-        var landmarkSpan = landmarkMax - landmarkMin;
+        Vector3 landmarkMin = new(planeWidth * terrainScale * -0.45f, 0, planeWidth * terrainScale * -0.45f);
+        Vector3 landmarkMax = new(planeWidth * terrainScale * 0.45f, 0, planeWidth * terrainScale * 0.45f);
+        Vector3 landmarkSpan = landmarkMax - landmarkMin;
         for (int j = 0; j < 25; ++j)
         {
-            var buildingShape = new Box(10 + random.NextSingle() * 10, 20 + random.NextSingle() * 20, 10 + random.NextSingle() * 10);
-            var position = landmarkMin + landmarkSpan * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
+            Box buildingShape = new(10 + random.NextSingle() * 10, 20 + random.NextSingle() * 20, 10 + random.NextSingle() * 10);
+            Vector3 position = landmarkMin + landmarkSpan * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
             Simulation.Statics.Add(new StaticDescription(
                 new Vector3(0, buildingShape.HalfHeight - 4f + GetHeightForPosition(position.X, position.Z, planeWidth, inverseTerrainScale, terrainPosition), 0) + position,
                 QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, random.NextSingle() * MathF.PI),
                 Simulation.Shapes.Add(buildingShape)));
         }
 
-        var planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeWidth,
+        Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeWidth,
             (int vX, int vY) =>
             {
-                var position2D = new Vector2(vX, vY) * terrainScale + terrainPosition;
+                Vector2 position2D = new Vector2(vX, vY) * terrainScale + terrainPosition;
                 return new Vector3(position2D.X, GetHeightForPosition(position2D.X, position2D.Y, planeWidth, inverseTerrainScale, terrainPosition), position2D.Y);
             }, new Vector3(1, 1, 1), BufferPool);
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, 0, 0), Simulation.Shapes.Add(planeMesh)));
@@ -139,10 +139,10 @@ public class TankSwarmDemo : Demo
         aiTanks = new QuickList<AITank>(aiTankCount, BufferPool);
         playAreaMin = new Vector2(landmarkMin.X, landmarkMin.Z);
         playAreaMax = new Vector2(landmarkMax.X, landmarkMax.Z);
-        var playAreaSpan = playAreaMax - playAreaMin;
+        Vector2 playAreaSpan = playAreaMax - playAreaMin;
         for (int i = 0; i < aiTankCount; ++i)
         {
-            var horizontalPosition = playAreaMin + new Vector2(random.NextSingle(), random.NextSingle()) * playAreaSpan;
+            Vector2 horizontalPosition = playAreaMin + new Vector2(random.NextSingle(), random.NextSingle()) * playAreaSpan;
             aiTanks.AllocateUnsafely() = new AITank
             {
                 Controller = new TankController(
@@ -269,15 +269,15 @@ public class TankSwarmDemo : Demo
         //notice that we cached the bodyProperties reference outside of the callbacks for direct access.
         //The exploding projectiles list, however, is a QuickList<int> value type. If we tried to cache it outside we'd only have a copy of it.
         //So, rather than trying to set up some pinned memory or replacing it with a reference type, we just cast our way in.)
-        ref var projectileImpacts = ref ((NarrowPhase<TankCallbacks>)Simulation.NarrowPhase).Callbacks.ProjectileImpacts;
+        ref QuickList<ProjectileImpact> projectileImpacts = ref ((NarrowPhase<TankCallbacks>)Simulation.NarrowPhase).Callbacks.ProjectileImpacts;
         projectileImpacts.EnsureCapacity(projectileCount, BufferPool);
         base.Update(window, camera, input, dt);
 
         //Remove any projectile that hit something.
         for (int i = 0; i < projectileImpacts.Count; ++i)
         {
-            ref var impact = ref projectileImpacts[i];
-            ref var explosion = ref explosions.Allocate(BufferPool);
+            ref ProjectileImpact impact = ref projectileImpacts[i];
+            ref Explosion explosion = ref explosions.Allocate(BufferPool);
             explosion.Age = 0;
             explosion.Position = Simulation.Bodies[impact.ProjectileHandle].Pose.Position;
             explosion.Scale = 1f;
@@ -288,13 +288,13 @@ public class TankSwarmDemo : Demo
                 //The projectile hit a tank. Hurt it!
                 for (int aiIndex = 0; aiIndex < aiTanks.Count; ++aiIndex)
                 {
-                    ref var aiTank = ref aiTanks[aiIndex];
+                    ref AITank aiTank = ref aiTanks[aiIndex];
                     if (aiTank.Controller.Tank.Body.Value == impact.ImpactedTankBodyHandle.Value)
                     {
                         --aiTank.HitPoints;
                         if (aiTank.HitPoints == 0)
                         {
-                            ref var deathExplosion = ref explosions.Allocate(BufferPool);
+                            ref Explosion deathExplosion = ref explosions.Allocate(BufferPool);
                             deathExplosion.Position = Simulation.Bodies[aiTank.Controller.Tank.Turret].Pose.Position;
                             deathExplosion.Scale = 3;
                             deathExplosion.Age = 0;
@@ -324,10 +324,10 @@ public class TankSwarmDemo : Demo
     {
         if (playerControlActive)
         {
-            var tankBody = new BodyReference(playerController.Tank.Body, Simulation.Bodies);
-            QuaternionEx.TransformUnitY(tankBody.Pose.Orientation, out var tankUp);
-            QuaternionEx.TransformUnitZ(tankBody.Pose.Orientation, out var tankBackward);
-            var backwardDirection = camera.Backward;
+            BodyReference tankBody = new(playerController.Tank.Body, Simulation.Bodies);
+            QuaternionEx.TransformUnitY(tankBody.Pose.Orientation, out Vector3 tankUp);
+            QuaternionEx.TransformUnitZ(tankBody.Pose.Orientation, out Vector3 tankBackward);
+            Vector3 backwardDirection = camera.Backward;
             backwardDirection.Y = MathF.Max(backwardDirection.Y, -0.2f);
             camera.Position = tankBody.Pose.Position + tankUp * 3f + tankBackward * 0.4f + backwardDirection * 8;
         }
@@ -335,8 +335,8 @@ public class TankSwarmDemo : Demo
         //Draw explosions and remove old ones.
         for (int i = explosions.Count - 1; i >= 0; --i)
         {
-            ref var explosion = ref explosions[i];
-            var pose = new RigidPose(explosion.Position);
+            ref Explosion explosion = ref explosions[i];
+            RigidPose pose = new(explosion.Position);
             //The age is measured in frames, so it's not framerate independent. That's fine for a demo.
             renderer.Shapes.AddShape(new Sphere(explosion.Scale * (0.25f + MathF.Sqrt(explosion.Age))), Simulation.Shapes, pose, explosion.Color);
             if (explosion.Age > 5)
@@ -347,7 +347,7 @@ public class TankSwarmDemo : Demo
         }
 
         var textHeight = 16;
-        var position = new Vector2(32, renderer.Surface.Resolution.Y - 144);
+        Vector2 position = new(32, renderer.Surface.Resolution.Y - 144);
         RenderControl(ref position, textHeight, nameof(Fire), ControlStrings.GetName(Fire), text, renderer.TextBatcher, font);
         RenderControl(ref position, textHeight, nameof(Forward), ControlStrings.GetName(Forward), text, renderer.TextBatcher, font);
         RenderControl(ref position, textHeight, nameof(Backward), ControlStrings.GetName(Backward), text, renderer.TextBatcher, font);

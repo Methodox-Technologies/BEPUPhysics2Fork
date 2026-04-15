@@ -59,8 +59,8 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
         pool.Take(voxelIndices.Count, out Buffer<BoundingBox> bounds);
         for (int i = 0; i < voxelIndices.Count; ++i)
         {
-            ref var voxel = ref voxelIndices[i];
-            ref var voxelBounds = ref bounds[i];
+            ref Vector3 voxel = ref voxelIndices[i];
+            ref BoundingBox voxelBounds = ref bounds[i];
             //Note that the voxel scale is baked into the tree. That's different than the Mesh, which allows sharing the same tree across different scaled shapes.
             //You could do something similar with the voxel set if you wanted to; check ou tthe Mesh for an example.
             voxelBounds.Min = voxel * VoxelSize;
@@ -82,19 +82,19 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
 
     public readonly void ComputeBounds(Quaternion orientation, out Vector3 min, out Vector3 max)
     {
-        Matrix3x3.CreateFromQuaternion(orientation, out var basis);
+        Matrix3x3.CreateFromQuaternion(orientation, out Matrix3x3 basis);
         min = new Vector3(float.MaxValue);
         max = new Vector3(float.MinValue);
         for (int i = 0; i < VoxelIndices.Count; ++i)
         {
-            var localVoxelPosition = (VoxelIndices[i] + new Vector3(0.5f)) * VoxelSize;
-            Matrix3x3.Transform(localVoxelPosition, basis, out var rotatedPosition);
+            Vector3 localVoxelPosition = (VoxelIndices[i] + new Vector3(0.5f)) * VoxelSize;
+            Matrix3x3.Transform(localVoxelPosition, basis, out Vector3 rotatedPosition);
             min = Vector3.Min(rotatedPosition, min);
             max = Vector3.Max(rotatedPosition, max);
         }
         //All children have the same shape and orientation, so we can simply expand the centroids bounding box.
-        var box = new Box(VoxelSize.X, VoxelSize.Y, VoxelSize.Z);
-        box.ComputeBounds(orientation, out var childLocalMin, out var childLocalMax);
+        Box box = new(VoxelSize.X, VoxelSize.Y, VoxelSize.Z);
+        box.ComputeBounds(orientation, out Vector3 childLocalMin, out Vector3 childLocalMax);
         min += childLocalMin;
         max += childLocalMax;
     }
@@ -111,9 +111,9 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void TestLeaf(int leafIndex, RayData* ray, float* maximumT, BufferPool pool)
         {
-            ref var voxelIndex = ref VoxelIndices[leafIndex];
+            ref Vector3 voxelIndex = ref VoxelIndices[leafIndex];
             //Note that you could make use of the voxel grid's regular structure to save some work dealing with orientations.
-            if (VoxelShape.RayTest(voxelIndex + new Vector3(0.5f) * VoxelSize, ray->Origin, ray->Direction, out var t, out var normal) && t <= *maximumT)
+            if (VoxelShape.RayTest(voxelIndex + new Vector3(0.5f) * VoxelSize, ray->Origin, ray->Direction, out var t, out Vector3 normal) && t <= *maximumT)
             {
                 //Bring the ray normal back into world space.
                 Matrix3x3.Transform(normal, Orientation, out normal);
@@ -141,8 +141,8 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
         leafTester.HitHandler = hitHandler;
         Matrix3x3.CreateFromQuaternion(pose.Orientation, out leafTester.Orientation);
         leafTester.OriginalRay = ray;
-        Matrix3x3.TransformTranspose(ray.Origin - pose.Position, leafTester.Orientation, out var localOrigin);
-        Matrix3x3.TransformTranspose(ray.Direction, leafTester.Orientation, out var localDirection);
+        Matrix3x3.TransformTranspose(ray.Origin - pose.Position, leafTester.Orientation, out Vector3 localOrigin);
+        Matrix3x3.TransformTranspose(ray.Direction, leafTester.Orientation, out Vector3 localDirection);
         Tree.RayCast(localOrigin, localDirection, ref maximumT, pool, ref leafTester);
         //The leaf tester could have mutated the hit handler; copy it back over.
         hitHandler = leafTester.HitHandler;
@@ -166,13 +166,13 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
         leafTester.VoxelShape = new Box(VoxelSize.X, VoxelSize.Y, VoxelSize.Z);
         leafTester.HitHandler = hitHandler;
         Matrix3x3.CreateFromQuaternion(pose.Orientation, out leafTester.Orientation);
-        Matrix3x3.Transpose(leafTester.Orientation, out var inverseOrientation);
+        Matrix3x3.Transpose(leafTester.Orientation, out Matrix3x3 inverseOrientation);
         for (int i = 0; i < rays.RayCount; ++i)
         {
-            rays.GetRay(i, out var ray, out var maximumT);
+            rays.GetRay(i, out RayData* ray, out var maximumT);
             leafTester.OriginalRay = *ray;
-            Matrix3x3.Transform(ray->Origin - pose.Position, inverseOrientation, out var localOrigin);
-            Matrix3x3.Transform(ray->Direction, inverseOrientation, out var localDirection);
+            Matrix3x3.Transform(ray->Origin - pose.Position, inverseOrientation, out Vector3 localOrigin);
+            Matrix3x3.Transform(ray->Direction, inverseOrientation, out Vector3 localDirection);
             Tree.RayCast(localOrigin, localDirection, ref *maximumT, pool, ref leafTester);
         }
         //The leaf tester could have mutated the hit handler; copy it back over.
@@ -182,7 +182,7 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void GetLocalChild(int childIndex, out Box childShape)
     {
-        var halfSize = VoxelSize * 0.5f;
+        Vector3 halfSize = VoxelSize * 0.5f;
         childShape.HalfWidth = halfSize.X;
         childShape.HalfHeight = halfSize.Y;
         childShape.HalfLength = halfSize.Z;
@@ -200,7 +200,7 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
     {
         //This function provides a reference to a lane in an AOSOA structure.
         //We are to fill in the first lane and ignore the others.
-        var halfSize = VoxelSize * 0.5f;
+        Vector3 halfSize = VoxelSize * 0.5f;
         GatherScatter.GetFirst(ref shapeWide.HalfWidth) = halfSize.X;
         GatherScatter.GetFirst(ref shapeWide.HalfHeight) = halfSize.Y;
         GatherScatter.GetFirst(ref shapeWide.HalfLength) = halfSize.Z;
@@ -221,8 +221,8 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
         enumerator.Pool = pool;
         for (int i = 0; i < pairs.Length; ++i)
         {
-            ref var pair = ref pairs[i];
-            ref var voxelsSet = ref Unsafe.AsRef<Voxels>(pair.Container);
+            ref OverlapQueryForPair pair = ref pairs[i];
+            ref Voxels voxelsSet = ref Unsafe.AsRef<Voxels>(pair.Container);
             enumerator.Overlaps = Unsafe.AsPointer(ref overlaps.GetOverlapsForPair(i));
             voxelsSet.Tree.GetOverlaps(pair.Min, pair.Max, pool, ref enumerator);
         }
@@ -270,9 +270,9 @@ public struct ConvexVoxelsContinuations : IConvexCompoundContinuationHandler<Non
         in BoundsTestedPair pair, int shapeTypeA, int childIndexB, out RigidPose childPoseB, out int childTypeB, out void* childShapeDataB)
         where TCallbacks : struct, ICollisionCallbacks
     {
-        ref var voxels = ref Unsafe.AsRef<Voxels>(pair.B);
-        ref var voxelIndex = ref voxels.VoxelIndices[childIndexB];
-        var localPosition = (voxelIndex + new Vector3(0.5f)) * voxels.VoxelSize;
+        ref Voxels voxels = ref Unsafe.AsRef<Voxels>(pair.B);
+        ref Vector3 voxelIndex = ref voxels.VoxelIndices[childIndexB];
+        Vector3 localPosition = (voxelIndex + new Vector3(0.5f)) * voxels.VoxelSize;
         QuaternionEx.TransformWithoutOverlap(localPosition, pair.OrientationB, out childPoseB.Position);
         childPoseB.Orientation = Quaternion.Identity;
         childTypeB = Box.Id;
@@ -281,7 +281,7 @@ public struct ConvexVoxelsContinuations : IConvexCompoundContinuationHandler<Non
         //We can't just allocate a shape on the stack and return a pointer to it- the data needs to be valid until the collision batcher flushes that type batch.
         //Fortunately, the collision batcher exposes a handy per-pair-type heap allocated memory blob that we can use to store the shape data.
         //When the collision batcher flushes, it'll automatically get cleaned up.
-        var halfSize = voxels.VoxelSize * 0.5f;
+        Vector3 halfSize = voxels.VoxelSize * 0.5f;
         //This reinterprets the vector3 as a Box to copy into the cache, which is a bit gross.
         //The shape cache doesn't actually have any type information- it's just strategically placed memory.
         //In other words, we're just giving a place for these 12 bytes to live until the flush.
@@ -294,7 +294,7 @@ public struct ConvexVoxelsContinuations : IConvexCompoundContinuationHandler<Non
         out RigidPose childPoseB, out int childTypeB, out void* childShapeDataB)
         where TCallbacks : struct, ICollisionCallbacks
     {
-        ref var continuationChild = ref continuation.Children[continuationChildIndex];
+        ref NonconvexReductionChild continuationChild = ref continuation.Children[continuationChildIndex];
         GetChildData(ref collisionBatcher, ref continuationChild, pair, shapeTypeA, childIndexB, out childPoseB, out childTypeB, out childShapeDataB);
         //Collision processors expect data to be provided in a specific order. The flip mask is used to make sure we're giving the data in the proper order.
         //The collision batcher also takes into account the flip mask when reporting collision data through callbacks to preserve original user order.
@@ -333,8 +333,8 @@ public unsafe struct CompoundVoxelsContinuations<TCompoundA> : ICompoundPairCont
         out RigidPose childPoseA, out int childTypeA, out void* childShapeDataA)
         where TCallbacks : struct, ICollisionCallbacks
     {
-        ref var compoundA = ref Unsafe.AsRef<TCompoundA>(pair.A);
-        ref var compoundChildA = ref compoundA.GetChild(childIndexA);
+        ref TCompoundA compoundA = ref Unsafe.AsRef<TCompoundA>(pair.A);
+        ref CompoundChild compoundChildA = ref compoundA.GetChild(childIndexA);
         Compound.GetRotatedChildPose(compoundChildA.AsPose(), pair.OrientationA, out childPoseA);
         childTypeA = compoundChildA.ShapeIndex.Type;
         collisionBatcher.Shapes[childTypeA].GetShapeData(compoundChildA.ShapeIndex.Index, out childShapeDataA, out _);
@@ -346,7 +346,7 @@ public unsafe struct CompoundVoxelsContinuations<TCompoundA> : ICompoundPairCont
         out RigidPose childPoseB, out int childTypeB, out void* childShapeDataB)
         where TCallbacks : struct, ICollisionCallbacks
     {
-        ref var continuationChild = ref continuation.Children[continuationChildIndex];
+        ref NonconvexReductionChild continuationChild = ref continuation.Children[continuationChildIndex];
 
         ConvexVoxelsContinuations.GetChildData(ref collisionBatcher, ref continuationChild, pair, childTypeA, childIndexB, out childPoseB, out childTypeB, out childShapeDataB);
         if (pair.FlipMask < 0)
@@ -410,7 +410,7 @@ public class CustomVoxelCollidableDemo : Demo
 
         var widthInVoxels = 40;
         var heightInVoxels = 30;
-        var voxelIndices = new QuickList<Vector3>(widthInVoxels * heightInVoxels * widthInVoxels, BufferPool);
+        QuickList<Vector3> voxelIndices = new(widthInVoxels * heightInVoxels * widthInVoxels, BufferPool);
         for (int i = 0; i < widthInVoxels; ++i)
         {
             for (int j = 0; j < heightInVoxels; ++j)
@@ -431,9 +431,9 @@ public class CustomVoxelCollidableDemo : Demo
         voxels = new Voxels(voxelIndices, new Vector3(1, 1, 1), BufferPool);
         handle = Simulation.Statics.Add(new StaticDescription(new Vector3(0, 0, 0), Simulation.Shapes.Add(voxels)));
 
-        var random = new Random(5);
-        var shapeToDrop = new Box(1, 1, 1);
-        var descriptionToDrop = BodyDescription.CreateDynamic(new Vector3(), shapeToDrop.ComputeInertia(1), Simulation.Shapes.Add(shapeToDrop), 0.01f);
+        Random random = new(5);
+        Box shapeToDrop = new(1, 1, 1);
+        BodyDescription descriptionToDrop = BodyDescription.CreateDynamic(new Vector3(), shapeToDrop.ComputeInertia(1), Simulation.Shapes.Add(shapeToDrop), 0.01f);
         for (int i = 0; i < 4096; ++i)
         {
             descriptionToDrop.Pose.Position = new Vector3(15 + 10 * random.NextSingle(), 45 + 150 * random.NextSingle(), 15 + 10 * random.NextSingle());
@@ -446,13 +446,13 @@ public class CustomVoxelCollidableDemo : Demo
     public override unsafe void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
         //The renderer doesn't have a super flexible drawing system, so we'll instead just directly add the voxel shapes. Not super efficient, but it works!
-        var shape = new Box(voxels.VoxelSize.X, voxels.VoxelSize.Y, voxels.VoxelSize.Z);
-        var shapeDataPointer = &shape;
-        ref var voxelsPose = ref Simulation.Statics[handle].Pose;
+        Box shape = new(voxels.VoxelSize.X, voxels.VoxelSize.Y, voxels.VoxelSize.Z);
+        Box* shapeDataPointer = &shape;
+        ref RigidPose voxelsPose = ref Simulation.Statics[handle].Pose;
         for (int i = 0; i < voxels.ChildCount; ++i)
         {
-            var localPose = (voxels.VoxelIndices[i] + new Vector3(0.5f) * voxels.VoxelSize);
-            Compound.GetRotatedChildPose(localPose, voxelsPose.Orientation, out var childPose);
+            Vector3 localPose = (voxels.VoxelIndices[i] + new Vector3(0.5f) * voxels.VoxelSize);
+            Compound.GetRotatedChildPose(localPose, voxelsPose.Orientation, out RigidPose childPose);
             childPose.Position += voxelsPose.Position;
             renderer.Shapes.AddShape(shapeDataPointer, Box.Id, Simulation.Shapes, childPose, new Vector3(0.8f, 0.2f, 0.2f));
         }

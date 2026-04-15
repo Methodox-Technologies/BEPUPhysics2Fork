@@ -93,14 +93,14 @@ public class SolverContactEnumerationDemo : Demo
             where TAccumulatedImpulses : struct, IConvexContactAccumulatedImpulses<TAccumulatedImpulses>
         {
             //Note that we narrow from the raw vectorized reference into a more application-convenient AOS representation.
-            Vector3Wide.ReadFirst(TPrestep.GetNormal(ref prestep), out var normal);
+            Vector3Wide.ReadFirst(TPrestep.GetNormal(ref prestep), out Vector3 normal);
 
             //We'll approximate the per-contact friction by allocating the shared friction impulses to contacts weighted by their penetration impulse.
             float totalPenetrationImpulse = 0;
             for (int i = 0; i < TPrestep.ContactCount; ++i)
             {
-                ref var sourceContact = ref TPrestep.GetContact(ref prestep, i);
-                ref var targetContact = ref constraintContacts.Contacts.AllocateUnsafely();
+                ref ConvexContactWide sourceContact = ref TPrestep.GetContact(ref prestep, i);
+                ref ExtractedContact targetContact = ref constraintContacts.Contacts.AllocateUnsafely();
                 Vector3Wide.ReadFirst(sourceContact.OffsetA, out targetContact.OffsetA);
                 //We can use [0] to access the slot because the prestep bundle memory reference was already offset for us.
                 targetContact.Depth = sourceContact.Depth[0];
@@ -108,14 +108,14 @@ public class SolverContactEnumerationDemo : Demo
                 targetContact.PenetrationImpulse = TAccumulatedImpulses.GetPenetrationImpulseForContact(ref impulses, i)[0];
                 totalPenetrationImpulse += targetContact.PenetrationImpulse;
             }
-            Vector2Wide.ReadFirst(TAccumulatedImpulses.GetTangentFriction(ref impulses), out var tangentFriction);
+            Vector2Wide.ReadFirst(TAccumulatedImpulses.GetTangentFriction(ref impulses), out Vector2 tangentFriction);
             var twistFriction = TAccumulatedImpulses.GetTwistFriction(ref impulses)[0];
             //This isn't a 'correct' allocation of impulses, we just want a rough sense.
             var frictionMagnitudeApproximation = MathF.Sqrt(tangentFriction.LengthSquared() + twistFriction * twistFriction);
             var impulseScale = totalPenetrationImpulse > 0 ? frictionMagnitudeApproximation / totalPenetrationImpulse : 0;
             for (int i = 0; i < TPrestep.ContactCount; ++i)
             {
-                ref var contact = ref constraintContacts.Contacts[i];
+                ref ExtractedContact contact = ref constraintContacts.Contacts[i];
                 contact.FrictionImpulseMagnitude = contact.PenetrationImpulse * impulseScale;
             }
         }
@@ -124,7 +124,7 @@ public class SolverContactEnumerationDemo : Demo
             where TPrestep : struct, IConvexContactPrestep<TPrestep>
             where TAccumulatedImpulses : struct, IConvexContactAccumulatedImpulses<TAccumulatedImpulses>
         {
-            ref var constraintContacts = ref Constraints.Allocate(Pool);
+            ref ExtractedManifold constraintContacts = ref Constraints.Allocate(Pool);
             constraintContacts = new ExtractedManifold(Pool, bodyHandle);
             ExtractConvexData(ref constraintContacts, ref prestep, ref impulses);
         }
@@ -133,7 +133,7 @@ public class SolverContactEnumerationDemo : Demo
             where TPrestep : struct, ITwoBodyConvexContactPrestep<TPrestep>
             where TAccumulatedImpulses : struct, IConvexContactAccumulatedImpulses<TAccumulatedImpulses>
         {
-            ref var constraintContacts = ref Constraints.Allocate(Pool);
+            ref ExtractedManifold constraintContacts = ref Constraints.Allocate(Pool);
             constraintContacts = new ExtractedManifold(Pool, bodyHandleA, bodyHandleB);
             ExtractConvexData(ref constraintContacts, ref prestep, ref impulses);
         }
@@ -145,15 +145,15 @@ public class SolverContactEnumerationDemo : Demo
             //Nonconvex types require no approximation of friction; we can pull it directly from the solved results.
             for (int i = 0; i < TPrestep.ContactCount; ++i)
             {
-                ref var sourceContact = ref TPrestep.GetContact(ref prestep, i);
-                ref var targetContact = ref constraintContacts.Contacts.AllocateUnsafely();
+                ref NonconvexContactPrestepData sourceContact = ref TPrestep.GetContact(ref prestep, i);
+                ref ExtractedContact targetContact = ref constraintContacts.Contacts.AllocateUnsafely();
                 Vector3Wide.ReadFirst(sourceContact.Offset, out targetContact.OffsetA);
                 targetContact.Depth = sourceContact.Depth[0];
                 Vector3Wide.ReadFirst(sourceContact.Normal, out targetContact.Normal);
 
-                ref var contactImpulses = ref TAccumulatedImpulses.GetImpulsesForContact(ref impulses, i);
+                ref NonconvexAccumulatedImpulses contactImpulses = ref TAccumulatedImpulses.GetImpulsesForContact(ref impulses, i);
                 targetContact.PenetrationImpulse = contactImpulses.Penetration[0];
-                Vector2Wide.ReadFirst(contactImpulses.Tangent, out var tangentImpulses);
+                Vector2Wide.ReadFirst(contactImpulses.Tangent, out Vector2 tangentImpulses);
                 targetContact.FrictionImpulseMagnitude = tangentImpulses.Length();
             }
         }
@@ -162,7 +162,7 @@ public class SolverContactEnumerationDemo : Demo
             where TPrestep : struct, INonconvexContactPrestep<TPrestep>
             where TAccumulatedImpulses : struct, INonconvexContactAccumulatedImpulses<TAccumulatedImpulses>
         {
-            ref var constraintContacts = ref Constraints.Allocate(Pool);
+            ref ExtractedManifold constraintContacts = ref Constraints.Allocate(Pool);
             constraintContacts = new ExtractedManifold(Pool, bodyHandle);
             ExtractNonconvexData(ref constraintContacts, ref prestep, ref impulses);
         }
@@ -171,7 +171,7 @@ public class SolverContactEnumerationDemo : Demo
             where TPrestep : struct, ITwoBodyNonconvexContactPrestep<TPrestep>
             where TAccumulatedImpulses : struct, INonconvexContactAccumulatedImpulses<TAccumulatedImpulses>
         {
-            ref var constraintContacts = ref Constraints.Allocate(Pool);
+            ref ExtractedManifold constraintContacts = ref Constraints.Allocate(Pool);
             constraintContacts = new ExtractedManifold(Pool, bodyHandleA, bodyHandleB);
             ExtractNonconvexData(ref constraintContacts, ref prestep, ref impulses);
         }
@@ -202,9 +202,9 @@ public class SolverContactEnumerationDemo : Demo
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
         //Drop a pyramid on top of the sensor so there are more contacts to look at.
-        var boxShape = new Box(1, 1, 1);
-        var boxInertia = boxShape.ComputeInertia(1);
-        var boxIndex = Simulation.Shapes.Add(boxShape);
+        Box boxShape = new(1, 1, 1);
+        BodyInertia boxInertia = boxShape.ComputeInertia(1);
+        TypedIndex boxIndex = Simulation.Shapes.Add(boxShape);
 
         const int rowCount = 20;
         for (int rowIndex = 0; rowIndex < rowCount; ++rowIndex)
@@ -224,7 +224,7 @@ public class SolverContactEnumerationDemo : Demo
         //Put a mesh under the sensor so that nonconvex contacts are shown.
         const int planeWidth = 128;
         const int planeHeight = 128;
-        var planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
+        Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
             (int x, int y) =>
             {
                 return new Vector3(x - planeWidth / 2, 1 * MathF.Cos(x / 2f) * MathF.Sin(y / 2f), y - planeHeight / 2);
@@ -235,8 +235,8 @@ public class SolverContactEnumerationDemo : Demo
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var sensorBody = Simulation.Bodies[sensorBodyHandle];
-        var extractor = new SolverContactDataExtractor(BufferPool, sensorBody.Constraints.Count);
+        BodyReference sensorBody = Simulation.Bodies[sensorBodyHandle];
+        SolverContactDataExtractor extractor = new(BufferPool, sensorBody.Constraints.Count);
         //The basic idea behind the contact extractor is to submit it to a narrow phase contact accessor that is able to understand the solver's layout,
         //which will then call the contact extractor's relevant callbacks for the type of constraint encountered.
         //Here, we'll enumerate over all the constraints currently affecting the sensor body, attempting to extract contact data from each one.
@@ -250,13 +250,13 @@ public class SolverContactEnumerationDemo : Demo
         int sensorContactCount = 0;
         for (int manifoldIndex = 0; manifoldIndex < extractor.Constraints.Count; ++manifoldIndex)
         {
-            ref var constraintContacts = ref extractor.Constraints[manifoldIndex];
-            var bodyA = Simulation.Bodies[constraintContacts.BodyA];
+            ref ExtractedManifold constraintContacts = ref extractor.Constraints[manifoldIndex];
+            BodyReference bodyA = Simulation.Bodies[constraintContacts.BodyA];
             sensorContactCount += constraintContacts.Contacts.Count;
             for (int contactIndex = 0; contactIndex < constraintContacts.Contacts.Count; ++contactIndex)
             {
-                ref var contact = ref constraintContacts.Contacts[contactIndex];
-                var contactPosition = contact.OffsetA + bodyA.Pose.Position;
+                ref ExtractedContact contact = ref constraintContacts.Contacts[contactIndex];
+                Vector3 contactPosition = contact.OffsetA + bodyA.Pose.Position;
                 Matrix3x3 basisPose;
                 //We want to visualize both friction and penetration impulses, so a cylinder is a good choice- radius and length.
                 //The length will be oriented along the contact normal, while the radius will expand along the tangent directions.
@@ -265,7 +265,7 @@ public class SolverContactEnumerationDemo : Demo
                 var baseLength = 0.2f;
                 var baseRadius = 0.1f;
                 //We'll make purely speculative contacts (negative depth) a fixed minimum size and a different color.
-                var contactVisualShape = contact.Depth < 0 ?
+                Cylinder contactVisualShape = contact.Depth < 0 ?
                     new Cylinder(baseRadius, baseLength) :
                     new Cylinder(baseRadius + MathF.Min(5, contact.FrictionImpulseMagnitude * 0.1f), baseLength + MathF.Min(5, contact.PenetrationImpulse * 0.3f));
                 RigidPose contactVisualPose;
@@ -277,7 +277,7 @@ public class SolverContactEnumerationDemo : Demo
 
         extractor.Dispose();
 
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("The solver stores data in an optimized array-of-structures-of-arrays format that makes it difficult to directly read."), new Vector2(16, resolution.Y - 96), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("This demo implements an ISolverContactDataExtractor that pulls data out of the solver and puts it into a simpler format."), new Vector2(16, resolution.Y - 80), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Pulling data this way can sometimes be more convenient than tracking contacts from INarrowPhaseCallbacks."), new Vector2(16, resolution.Y - 64), 16, Vector3.One, font);

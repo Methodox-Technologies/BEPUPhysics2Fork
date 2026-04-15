@@ -41,8 +41,8 @@ public class PlanetDemo : Demo
 
         public void IntegrateVelocity(Vector<int> bodyIndices, Vector3Wide position, QuaternionWide orientation, BodyInertiaWide localInertia, Vector<int> integrationMask, int workerIndex, Vector<float> dt, ref BodyVelocityWide velocity)
         {
-            var offset = position - Vector3Wide.Broadcast(PlanetCenter);
-            var distance = offset.Length();
+            Vector3Wide offset = position - Vector3Wide.Broadcast(PlanetCenter);
+            Vector<float> distance = offset.Length();
             velocity.Linear -= new Vector<float>(gravityDt) * offset / Vector.Max(Vector<float>.One, distance * distance * distance);
         }
     }
@@ -58,17 +58,17 @@ public class PlanetDemo : Demo
 
         Simulation.Statics.Add(new StaticDescription(new Vector3(), Simulation.Shapes.Add(new Sphere(50))));
 
-        var orbiter = new Sphere(1f);
-        var inertia = orbiter.ComputeInertia(1);
-        var orbiterShapeIndex = Simulation.Shapes.Add(orbiter);
-        var spacing = new Vector3(5);
+        Sphere orbiter = new(1f);
+        BodyInertia inertia = orbiter.ComputeInertia(1);
+        TypedIndex orbiterShapeIndex = Simulation.Shapes.Add(orbiter);
+        Vector3 spacing = new(5);
         const int length = 40;
         for (int i = 0; i < length; ++i)
         {
             for (int j = 0; j < 20; ++j)
             {
                 const int width = 40;
-                var origin = new Vector3(-50, 95, 0) + spacing * new Vector3(length * -0.5f, 0, width * -0.5f);
+                Vector3 origin = new Vector3(-50, 95, 0) + spacing * new Vector3(length * -0.5f, 0, width * -0.5f);
                 for (int k = 0; k < width; ++k)
                 {
                     Simulation.Bodies.Add(BodyDescription.CreateDynamic(

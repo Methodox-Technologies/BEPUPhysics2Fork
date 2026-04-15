@@ -88,7 +88,7 @@ public struct Tank
     public void SetSpeed(Simulation simulation, Buffer<ConstraintHandle> motors, float speed, float maximumForce)
     {
         //This sets all properties of a motor at once; it's possible to create a custom description that only assigns a subset of properties if you find this to be somehow expensive.
-        var motorDescription = new AngularAxisMotor
+        AngularAxisMotor motorDescription = new()
         {
             //Assuming the wheels are cylinders oriented in the obvious way.
             LocalAxisA = new Vector3(0, -1, 0),
@@ -113,12 +113,12 @@ public struct Tank
         //Decompose the aim direction into target angles for the turret and barrel servos.
         //First, we need to compute the frame of reference and transform the aim direction into the tank's local space.
         //aimDirection * inverse(body.Pose.Orientation) * Tank.LocalBodyPose.Orientation * inverse(Tank.TurretBasis)
-        QuaternionEx.ConcatenateWithoutOverlap(QuaternionEx.Conjugate(simulation.Bodies[Body].Pose.Orientation), FromBodyLocalToTurretBasisLocal, out var toTurretBasis);
+        QuaternionEx.ConcatenateWithoutOverlap(QuaternionEx.Conjugate(simulation.Bodies[Body].Pose.Orientation), FromBodyLocalToTurretBasisLocal, out Quaternion toTurretBasis);
         //-Z in the turret basis points along the 0 angle direction for both swivel and pitch.
         //+Y is 90 degrees for pitch.
         //+X is 90 degres for swivel.
         //We'll compute the swivel angle first.
-        QuaternionEx.TransformWithoutOverlap(aimDirection, toTurretBasis, out var aimDirectionInTurretBasis);
+        QuaternionEx.TransformWithoutOverlap(aimDirection, toTurretBasis, out Vector3 aimDirectionInTurretBasis);
         var targetSwivelAngle = MathF.Atan2(aimDirectionInTurretBasis.X, -aimDirectionInTurretBasis.Z);
 
         //Barrel pitching is measured against the +Y axis and an axis created from the target swivel angle.
@@ -134,10 +134,10 @@ public struct Tank
     /// <param name="targetPitchAngle">Target pitch angle of the barrel.</param>
     public void SetAim(Simulation simulation, float targetSwivelAngle, float targetPitchAngle)
     {
-        var turretDescription = TurretServoDescription;
+        TwistServo turretDescription = TurretServoDescription;
         turretDescription.TargetAngle = targetSwivelAngle;
         simulation.Solver.ApplyDescription(TurretServo, turretDescription);
-        var barrelDescription = BarrelServoDescription;
+        TwistServo barrelDescription = BarrelServoDescription;
         barrelDescription.TargetAngle = targetPitchAngle;
         simulation.Solver.ApplyDescription(BarrelServo, barrelDescription);
 
@@ -161,14 +161,14 @@ public struct Tank
     /// <returns>Handle of the created projectile body.</returns>
     public BodyHandle Fire(Simulation simulation, CollidableProperty<TankDemoBodyProperties> bodyProperties)
     {
-        var barrel = simulation.Bodies[Barrel];
-        ref var barrelPose = ref barrel.Pose;
-        RigidPose.Transform(BarrelLocalProjectileSpawn, barrelPose, out var projectileSpawn);
-        QuaternionEx.Transform(BarrelLocalDirection, barrelPose.Orientation, out var barrelDirection);
-        var projectileHandle = simulation.Bodies.Add(BodyDescription.CreateDynamic(projectileSpawn, barrelDirection * ProjectileSpeed + barrel.Velocity.Linear, ProjectileInertia,
+        BodyReference barrel = simulation.Bodies[Barrel];
+        ref RigidPose barrelPose = ref barrel.Pose;
+        RigidPose.Transform(BarrelLocalProjectileSpawn, barrelPose, out Vector3 projectileSpawn);
+        QuaternionEx.Transform(BarrelLocalDirection, barrelPose.Orientation, out Vector3 barrelDirection);
+        BodyHandle projectileHandle = simulation.Bodies.Add(BodyDescription.CreateDynamic(projectileSpawn, barrelDirection * ProjectileSpeed + barrel.Velocity.Linear, ProjectileInertia,
             //The projectile moves pretty fast, so we'll use continuous collision detection.
             new(ProjectileShape, 0.1f, ContinuousDetection.Continuous(1e-3f, 1e-3f)), 0.01f));
-        ref var projectileProperties = ref bodyProperties.Allocate(projectileHandle);
+        ref TankDemoBodyProperties projectileProperties = ref bodyProperties.Allocate(projectileHandle);
         projectileProperties.Friction = 1f;
         //Prevent the projectile from colliding with the firing tank.
         projectileProperties.Filter = new SubgroupCollisionFilter(Body.Value);
@@ -187,11 +187,11 @@ public struct Tank
         ref QuickList<BodyHandle> wheelHandles, ref QuickList<ConstraintHandle> constraints, ref QuickList<ConstraintHandle> motors)
     {
         RigidPose wheelPose;
-        QuaternionEx.TransformUnitX(localWheelOrientation, out var suspensionDirection);
+        QuaternionEx.TransformUnitX(localWheelOrientation, out Vector3 suspensionDirection);
         RigidPose.Transform(bodyToWheelSuspension + suspensionDirection * suspensionLength, tankPose, out wheelPose.Position);
         QuaternionEx.ConcatenateWithoutOverlap(localWheelOrientation, tankPose.Orientation, out wheelPose.Orientation);
 
-        var wheelHandle = simulation.Bodies.Add(BodyDescription.CreateDynamic(wheelPose, wheelInertia, wheelShape, 0.01f));
+        BodyHandle wheelHandle = simulation.Bodies.Add(BodyDescription.CreateDynamic(wheelPose, wheelInertia, wheelShape, 0.01f));
         wheelHandles.AllocateUnsafely() = wheelHandle;
 
         //We need a LinearAxisServo to act as the suspension spring, pushing the wheel down.
@@ -215,7 +215,7 @@ public struct Tank
         });
         //The angular component is handled by a hinge. Note that we only use the angular component of a hinge constraint here- the PointOnLineServo handles the linear degrees of freedom.
         //We're assuming the wheels will be cylinders. Pretty safe bet. A cylinder rolls around its local Y axis, so the motor will act along that axis.
-        QuaternionEx.TransformUnitY(localWheelOrientation, out var wheelRotationAxis);
+        QuaternionEx.TransformUnitY(localWheelOrientation, out Vector3 wheelRotationAxis);
         constraints.AllocateUnsafely() = simulation.Solver.Add(bodyHandle, wheelHandle, new AngularHinge
         {
             LocalHingeAxisA = QuaternionEx.Transform(wheelRotationAxis, QuaternionEx.Conjugate(bodyLocalPose.Orientation)),
@@ -223,7 +223,7 @@ public struct Tank
             SpringSettings = new SpringSettings(30, 1)
         });
         //We'll need a velocity motor to actually make the tank move.
-        var motorHandle = simulation.Solver.Add(wheelHandle, bodyHandle, new AngularAxisMotor
+        ConstraintHandle motorHandle = simulation.Solver.Add(wheelHandle, bodyHandle, new AngularAxisMotor
         {
             //(All these are technically set on the fly during the update right now, but a custom constraint description could set only the Settings and TargetVelocity,
             //leaving the LocalAxisA unchanged, so we'll go ahead and set it to a reasonable value.)
@@ -233,7 +233,7 @@ public struct Tank
         });
         motors.AllocateUnsafely() = motorHandle;
         constraints.AllocateUnsafely() = motorHandle;
-        ref var wheelProperties = ref properties.Allocate(wheelHandle);
+        ref TankDemoBodyProperties wheelProperties = ref properties.Allocate(wheelHandle);
         wheelProperties = new TankDemoBodyProperties { Filter = new SubgroupCollisionFilter(bodyHandle.Value, 3), Friction = wheelFriction, TankPart = true };
         //The wheels don't need to be tested against the body or each other.
         SubgroupCollisionFilter.DisableCollision(ref wheelProperties.Filter, ref bodyFilter);
@@ -243,9 +243,9 @@ public struct Tank
 
     static ref SubgroupCollisionFilter CreatePart(Simulation simulation, in TankPartDescription part, RigidPose pose, CollidableProperty<TankDemoBodyProperties> properties, out BodyHandle handle)
     {
-        RigidPose.MultiplyWithoutOverlap(part.Pose, pose, out var bodyPose);
+        RigidPose.MultiplyWithoutOverlap(part.Pose, pose, out RigidPose bodyPose);
         handle = simulation.Bodies.Add(BodyDescription.CreateDynamic(bodyPose, part.Inertia, part.Shape, 0.01f));
-        ref var partProperties = ref properties.Allocate(handle);
+        ref TankDemoBodyProperties partProperties = ref properties.Allocate(handle);
         partProperties = new TankDemoBodyProperties { Friction = part.Friction, TankPart = true };
         return ref partProperties.Filter;
     }
@@ -261,14 +261,14 @@ public struct Tank
     /// <returns>Tank instance containing references to the simulation tank parts.</returns>
     public static Tank Create(Simulation simulation, CollidableProperty<TankDemoBodyProperties> properties, BufferPool pool, in RigidPose pose, in TankDescription description)
     {
-        var wheelHandles = new QuickList<BodyHandle>(description.WheelCountPerTread * 2, pool);
-        var constraints = new QuickList<ConstraintHandle>(description.WheelCountPerTread * 2 * 6 + 4, pool);
-        var leftMotors = new QuickList<ConstraintHandle>(description.WheelCountPerTread, pool);
-        var rightMotors = new QuickList<ConstraintHandle>(description.WheelCountPerTread, pool);
+        QuickList<BodyHandle> wheelHandles = new(description.WheelCountPerTread * 2, pool);
+        QuickList<ConstraintHandle> constraints = new(description.WheelCountPerTread * 2 * 6 + 4, pool);
+        QuickList<ConstraintHandle> leftMotors = new(description.WheelCountPerTread, pool);
+        QuickList<ConstraintHandle> rightMotors = new(description.WheelCountPerTread, pool);
         Tank tank;
-        ref var bodyFilter = ref CreatePart(simulation, description.Body, pose, properties, out tank.Body);
-        ref var turretFilter = ref CreatePart(simulation, description.Turret, pose, properties, out tank.Turret);
-        ref var barrelFilter = ref CreatePart(simulation, description.Barrel, pose, properties, out tank.Barrel);
+        ref SubgroupCollisionFilter bodyFilter = ref CreatePart(simulation, description.Body, pose, properties, out tank.Body);
+        ref SubgroupCollisionFilter turretFilter = ref CreatePart(simulation, description.Turret, pose, properties, out tank.Turret);
+        ref SubgroupCollisionFilter barrelFilter = ref CreatePart(simulation, description.Barrel, pose, properties, out tank.Barrel);
         //Use the tank's body handle as the group id for collision filters.
         bodyFilter = new SubgroupCollisionFilter(tank.Body.Value, 0);
         turretFilter = new SubgroupCollisionFilter(tank.Body.Value, 1);
@@ -276,13 +276,13 @@ public struct Tank
         SubgroupCollisionFilter.DisableCollision(ref bodyFilter, ref turretFilter);
         SubgroupCollisionFilter.DisableCollision(ref turretFilter, ref barrelFilter);
 
-        Matrix3x3.CreateFromQuaternion(description.TurretBasis, out var turretBasis);
+        Matrix3x3.CreateFromQuaternion(description.TurretBasis, out Matrix3x3 turretBasis);
 
         //Attach the turret to the body.
-        QuaternionEx.Transform(turretBasis.Y, QuaternionEx.Conjugate(description.Body.Pose.Orientation), out var bodyLocalSwivelAxis);
-        QuaternionEx.Transform(turretBasis.Y, QuaternionEx.Conjugate(description.Turret.Pose.Orientation), out var turretLocalSwivelAxis);
-        RigidPose.TransformByInverse(description.TurretAnchor, description.Body.Pose, out var bodyLocalTurretAnchor);
-        RigidPose.TransformByInverse(description.TurretAnchor, description.Turret.Pose, out var turretLocalTurretAnchor);
+        QuaternionEx.Transform(turretBasis.Y, QuaternionEx.Conjugate(description.Body.Pose.Orientation), out Vector3 bodyLocalSwivelAxis);
+        QuaternionEx.Transform(turretBasis.Y, QuaternionEx.Conjugate(description.Turret.Pose.Orientation), out Vector3 turretLocalSwivelAxis);
+        RigidPose.TransformByInverse(description.TurretAnchor, description.Body.Pose, out Vector3 bodyLocalTurretAnchor);
+        RigidPose.TransformByInverse(description.TurretAnchor, description.Turret.Pose, out Vector3 turretLocalTurretAnchor);
         constraints.AllocateUnsafely() = simulation.Solver.Add(tank.Body, tank.Turret,
             new Hinge
             {
@@ -299,9 +299,9 @@ public struct Tank
         turretSwivelBasis.X = -turretBasis.Z;
         turretSwivelBasis.Y = turretBasis.X;
         Debug.Assert(turretSwivelBasis.Determinant() > 0.999f && turretSwivelBasis.Determinant() < 1.0001f, "The turret swivel axis and forward axis should be perpendicular and unit length.");
-        QuaternionEx.CreateFromRotationMatrix(turretSwivelBasis, out var turretSwivelBasisQuaternion);
-        QuaternionEx.ConcatenateWithoutOverlap(turretSwivelBasisQuaternion, QuaternionEx.Conjugate(description.Body.Pose.Orientation), out var bodyLocalTurretBasis);
-        QuaternionEx.ConcatenateWithoutOverlap(turretSwivelBasisQuaternion, QuaternionEx.Conjugate(description.Turret.Pose.Orientation), out var turretLocalTurretBasis);
+        QuaternionEx.CreateFromRotationMatrix(turretSwivelBasis, out Quaternion turretSwivelBasisQuaternion);
+        QuaternionEx.ConcatenateWithoutOverlap(turretSwivelBasisQuaternion, QuaternionEx.Conjugate(description.Body.Pose.Orientation), out Quaternion bodyLocalTurretBasis);
+        QuaternionEx.ConcatenateWithoutOverlap(turretSwivelBasisQuaternion, QuaternionEx.Conjugate(description.Turret.Pose.Orientation), out Quaternion turretLocalTurretBasis);
         tank.TurretServoDescription = new TwistServo
         {
             LocalBasisA = bodyLocalTurretBasis,
@@ -313,10 +313,10 @@ public struct Tank
         constraints.AllocateUnsafely() = tank.TurretServo;
 
         //Attach the barrel to the turret.
-        QuaternionEx.Transform(turretBasis.X, QuaternionEx.Conjugate(description.Turret.Pose.Orientation), out var turretLocalPitchAxis);
-        QuaternionEx.Transform(turretBasis.X, QuaternionEx.Conjugate(description.Barrel.Pose.Orientation), out var barrelLocalPitchAxis);
-        RigidPose.TransformByInverse(description.BarrelAnchor, description.Turret.Pose, out var turretLocalBarrelAnchor);
-        RigidPose.TransformByInverse(description.BarrelAnchor, description.Barrel.Pose, out var barrelLocalBarrelAnchor);
+        QuaternionEx.Transform(turretBasis.X, QuaternionEx.Conjugate(description.Turret.Pose.Orientation), out Vector3 turretLocalPitchAxis);
+        QuaternionEx.Transform(turretBasis.X, QuaternionEx.Conjugate(description.Barrel.Pose.Orientation), out Vector3 barrelLocalPitchAxis);
+        RigidPose.TransformByInverse(description.BarrelAnchor, description.Turret.Pose, out Vector3 turretLocalBarrelAnchor);
+        RigidPose.TransformByInverse(description.BarrelAnchor, description.Barrel.Pose, out Vector3 barrelLocalBarrelAnchor);
         constraints.AllocateUnsafely() = simulation.Solver.Add(tank.Turret, tank.Barrel,
             new Hinge
             {
@@ -333,9 +333,9 @@ public struct Tank
         barrelPitchBasis.X = -turretBasis.Z;
         barrelPitchBasis.Y = -turretBasis.Y;
         Debug.Assert(barrelPitchBasis.Determinant() > 0.999f && barrelPitchBasis.Determinant() < 1.0001f, "The barrel axis and forward axis should be perpendicular and unit length.");
-        QuaternionEx.CreateFromRotationMatrix(barrelPitchBasis, out var barrelPitchBasisQuaternion);
-        QuaternionEx.ConcatenateWithoutOverlap(barrelPitchBasisQuaternion, QuaternionEx.Conjugate(description.Turret.Pose.Orientation), out var turretLocalBarrelBasis);
-        QuaternionEx.ConcatenateWithoutOverlap(barrelPitchBasisQuaternion, QuaternionEx.Conjugate(description.Barrel.Pose.Orientation), out var barrelLocalBarrelBasis);
+        QuaternionEx.CreateFromRotationMatrix(barrelPitchBasis, out Quaternion barrelPitchBasisQuaternion);
+        QuaternionEx.ConcatenateWithoutOverlap(barrelPitchBasisQuaternion, QuaternionEx.Conjugate(description.Turret.Pose.Orientation), out Quaternion turretLocalBarrelBasis);
+        QuaternionEx.ConcatenateWithoutOverlap(barrelPitchBasisQuaternion, QuaternionEx.Conjugate(description.Barrel.Pose.Orientation), out Quaternion barrelLocalBarrelBasis);
         tank.BarrelServoDescription = new TwistServo
         {
             LocalBasisA = turretLocalBarrelBasis,
@@ -346,19 +346,19 @@ public struct Tank
         tank.BarrelServo = simulation.Solver.Add(tank.Turret, tank.Barrel, tank.BarrelServoDescription);
         constraints.AllocateUnsafely() = tank.BarrelServo;
 
-        QuaternionEx.TransformUnitY(description.WheelOrientation, out var wheelAxis);
-        QuaternionEx.TransformUnitZ(description.WheelOrientation, out var treadDirection);
+        QuaternionEx.TransformUnitY(description.WheelOrientation, out Vector3 wheelAxis);
+        QuaternionEx.TransformUnitZ(description.WheelOrientation, out Vector3 treadDirection);
         var treadStart = description.TreadSpacing * (description.WheelCountPerTread - 1) * -0.5f;
         BodyHandle previousLeftWheelHandle = default, previousRightWheelHandle = default;
         for (int i = 0; i < description.WheelCountPerTread; ++i)
         {
-            var wheelOffsetFromTread = treadDirection * (treadStart + i * description.TreadSpacing);
-            var rightWheelHandle = CreateWheel(simulation, properties, pose, description.Body.Pose,
+            Vector3 wheelOffsetFromTread = treadDirection * (treadStart + i * description.TreadSpacing);
+            BodyHandle rightWheelHandle = CreateWheel(simulation, properties, pose, description.Body.Pose,
                 description.WheelShape, description.WheelInertia, description.WheelFriction, tank.Body, ref properties[tank.Body].Filter,
                 description.RightTreadOffset + wheelOffsetFromTread - description.Body.Pose.Position,
                 description.SuspensionLength, description.SuspensionSettings, description.WheelOrientation,
                 ref wheelHandles, ref constraints, ref rightMotors);
-            var leftWheelHandle = CreateWheel(simulation, properties, pose, description.Body.Pose,
+            BodyHandle leftWheelHandle = CreateWheel(simulation, properties, pose, description.Body.Pose,
                 description.WheelShape, description.WheelInertia, description.WheelFriction, tank.Body, ref properties[tank.Body].Filter,
                 description.LeftTreadOffset + wheelOffsetFromTread - description.Body.Pose.Position,
                 description.SuspensionLength, description.SuspensionSettings, description.WheelOrientation,
@@ -369,7 +369,7 @@ public struct Tank
                 //Connect wheels in a tread to each other to distribute the drive forces.
                 //The motor will always just target 0 velocity. The wheel orientations will be allowed to drift from each other.
                 //(If you didn't want to allow drift, you could use an AngularServo or TwistServo. AngularServo constrains all 3 degrees of freedom, but for these purposes, that'd be fine.)
-                var motorDescription = new AngularAxisMotor { LocalAxisA = new Vector3(0, 1, 0), Settings = new MotorSettings(float.MaxValue, 1e-4f) };
+                AngularAxisMotor motorDescription = new() { LocalAxisA = new Vector3(0, 1, 0), Settings = new MotorSettings(float.MaxValue, 1e-4f) };
                 constraints.AllocateUnsafely() = simulation.Solver.Add(previousLeftWheelHandle, leftWheelHandle, motorDescription);
                 constraints.AllocateUnsafely() = simulation.Solver.Add(previousRightWheelHandle, rightWheelHandle, motorDescription);
             }
@@ -413,7 +413,7 @@ public struct Tank
         ClearBodyProperties(ref properties[Body]);
         ClearBodyProperties(ref properties[Turret]);
         ClearBodyProperties(ref properties[Barrel]);
-        var turret = simulation.Bodies[Turret];
+        BodyReference turret = simulation.Bodies[Turret];
         turret.Awake = true;
         turret.Velocity.Linear += new Vector3(0, 10, 0);
         for (int i = 0; i < Constraints.Length; ++i)

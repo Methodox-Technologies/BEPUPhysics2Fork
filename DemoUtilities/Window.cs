@@ -1,8 +1,5 @@
 ﻿using BepuUtilities;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Mathematics;
-using OpenTK.Platform;
 using OpenTK.Windowing.Desktop;
 using System;
 using System.ComponentModel;

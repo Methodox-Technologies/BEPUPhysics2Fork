@@ -2,6 +2,7 @@
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
+using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
@@ -48,8 +49,8 @@ struct RopeNarrowPhaseCallbacks : INarrowPhaseCallbacks
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AllowContactGeneration(int workerIndex, CollidableReference a, CollidableReference b, ref float speculativeMargin)
     {
-        var aFilter = Filters[a];
-        var bFilter = Filters[b];
+        RopeFilter aFilter = Filters[a];
+        RopeFilter bFilter = Filters[b];
         return (aFilter.RopeIndex != bFilter.RopeIndex || Math.Abs(aFilter.IndexInRope - bFilter.IndexInRope) > MinimumDistanceForCollisions) && (a.Mobility == CollidableMobility.Dynamic || b.Mobility == CollidableMobility.Dynamic);
     }
 
@@ -88,7 +89,7 @@ public class RopeTwistDemo : Demo
         camera.Yaw = 0;
         camera.Pitch = 0;
 
-        var filters = new CollidableProperty<RopeFilter>();
+        CollidableProperty<RopeFilter> filters = new();
         Simulation = Simulation.Create(BufferPool,
             new RopeNarrowPhaseCallbacks(filters, new PairMaterialProperties(0.0f, float.MaxValue, new SpringSettings(1200, 1))),
             new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(1, 60));
@@ -96,19 +97,19 @@ public class RopeTwistDemo : Demo
         for (int twistIndex = 0; twistIndex < 1; ++twistIndex)
         {
             const int ropeCount = 4;
-            var startLocation = new Vector3(0 + twistIndex * 15, 30, 0);
+            Vector3 startLocation = new(0 + twistIndex * 15, 30, 0);
 
-            var bigWreckingBall = new Sphere(3);
+            Sphere bigWreckingBall = new(3);
             //This wrecking ball is much, much heavier.
-            var bigWreckingBallInertia = bigWreckingBall.ComputeInertia(10000);
-            var bigWreckingBallIndex = Simulation.Shapes.Add(bigWreckingBall);
+            BodyInertia bigWreckingBallInertia = bigWreckingBall.ComputeInertia(10000);
+            TypedIndex bigWreckingBallIndex = Simulation.Shapes.Add(bigWreckingBall);
             const float ropeBodySpacing = -0.1f;
             const float ropeBodyRadius = 0.1f;
             const int ropeBodyCount = 130;
-            var wreckingBallPosition = startLocation - new Vector3(0, ropeBodyRadius + (ropeBodyRadius * 2 + ropeBodySpacing) * ropeBodyCount + bigWreckingBall.Radius, 0);
-            var description = BodyDescription.CreateDynamic(wreckingBallPosition, bigWreckingBallInertia, bigWreckingBallIndex, 0.01f);
-            var wreckingBallBodyHandle = Simulation.Bodies.Add(description);
-            var wreckingBallBody = Simulation.Bodies[wreckingBallBodyHandle];
+            Vector3 wreckingBallPosition = startLocation - new Vector3(0, ropeBodyRadius + (ropeBodyRadius * 2 + ropeBodySpacing) * ropeBodyCount + bigWreckingBall.Radius, 0);
+            BodyDescription description = BodyDescription.CreateDynamic(wreckingBallPosition, bigWreckingBallInertia, bigWreckingBallIndex, 0.01f);
+            BodyHandle wreckingBallBodyHandle = Simulation.Bodies.Add(description);
+            BodyReference wreckingBallBody = Simulation.Bodies[wreckingBallBodyHandle];
             wreckingBallBody.Velocity.Angular = new Vector3(0, 20, 0);
             filters.Allocate(wreckingBallBodyHandle) = new RopeFilter { RopeIndex = (short)(16384 + twistIndex), IndexInRope = ropeBodyCount };
 
@@ -116,11 +117,11 @@ public class RopeTwistDemo : Demo
             {
                 var angle = ropeIndex * MathF.PI * 2 / ropeCount;
                 const float ropeDistributionRadius = 1f;
-                var horizontalOffset = ropeDistributionRadius * new Vector3(MathF.Sin(angle), 0, MathF.Cos(angle));
-                var ropeStartLocation = startLocation + horizontalOffset;
+                Vector3 horizontalOffset = ropeDistributionRadius * new Vector3(MathF.Sin(angle), 0, MathF.Cos(angle));
+                Vector3 ropeStartLocation = startLocation + horizontalOffset;
 
-                var springSettings = new SpringSettings(600, 100);
-                var bodyHandles = RopeStabilityDemo.BuildRopeBodies(Simulation, ropeStartLocation, ropeBodyCount, ropeBodyRadius, ropeBodySpacing, 1f, 0);
+                SpringSettings springSettings = new(600, 100);
+                BodyHandle[] bodyHandles = RopeStabilityDemo.BuildRopeBodies(Simulation, ropeStartLocation, ropeBodyCount, ropeBodyRadius, ropeBodySpacing, 1f, 0);
                 for (int i = 0; i < bodyHandles.Length; ++i)
                 {
                     filters.Allocate(bodyHandles[i]) = new RopeFilter { RopeIndex = (short)ropeIndex, IndexInRope = (short)i };
@@ -148,8 +149,8 @@ public class RopeTwistDemo : Demo
                     }
                 }
 
-                var wreckingBallConnectionOffset = horizontalOffset + new Vector3(0, bigWreckingBall.Radius, 0);
-                var ropeConnectionToBall = wreckingBallBody.Pose.Position + wreckingBallConnectionOffset;
+                Vector3 wreckingBallConnectionOffset = horizontalOffset + new Vector3(0, bigWreckingBall.Radius, 0);
+                Vector3 ropeConnectionToBall = wreckingBallBody.Pose.Position + wreckingBallConnectionOffset;
                 for (int i = 1; i <= constraintsPerBody; ++i)
                 {
                     var targetBodyHandleIndex = bodyHandles.Length - i;
@@ -171,7 +172,7 @@ public class RopeTwistDemo : Demo
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("The ball is 10,000 times heavier than the rope bodies, and the ropes use no skip connections."), new Vector2(16, resolution.Y - 112), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("This is intended as a worst case scenario simulation:"), new Vector2(16, resolution.Y - 96), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("extremely high mass ratios, extremely high stiffness, extremely difficult to parallelize, no cheats."), new Vector2(16, resolution.Y - 80), 16, Vector3.One, font);

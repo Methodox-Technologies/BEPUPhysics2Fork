@@ -295,10 +295,10 @@ public class ContactEvents : IDisposable
         }
         var index = listenerIndices[collidable];
         --listenerCount;
-        ref var removedSlot = ref listeners[index];
+        ref Listener removedSlot = ref listeners[index];
         if (removedSlot.PreviousCollisions.Span.Allocated)
             removedSlot.PreviousCollisions.Dispose(pool);
-        ref var lastSlot = ref listeners[listenerCount];
+        ref Listener lastSlot = ref listeners[listenerCount];
         if (index < listenerCount)
         {
             listenerIndices[lastSlot.Source] = index;
@@ -354,16 +354,16 @@ public class ContactEvents : IDisposable
 
         //This could be multithreaded reasonably easily if there are a ton of listeners or collisions, but that would be a pretty high bar.
         //For simplicity, the demo will keep it single threaded.
-        var bodyHandleToLocation = simulation.Bodies.HandleToLocation;
+        Buffer<BodyMemoryLocation> bodyHandleToLocation = simulation.Bodies.HandleToLocation;
         for (int listenerIndex = 0; listenerIndex < listenerCount; ++listenerIndex)
         {
-            ref var listener = ref listeners[listenerIndex];
-            var source = listener.Source;
+            ref Listener listener = ref listeners[listenerIndex];
+            CollidableReference source = listener.Source;
             //If it's a body, and it's in the active set (index 0), then every pair associated with the listener should expect updates.
             var sourceExpectsUpdates = source.Mobility != CollidableMobility.Static && bodyHandleToLocation[source.BodyHandle.Value].SetIndex == 0;
             if (sourceExpectsUpdates)
             {
-                var previousCollisions = listeners[listenerIndex].PreviousCollisions;
+                QuickList<PreviousCollision> previousCollisions = listeners[listenerIndex].PreviousCollisions;
                 for (int j = 0; j < previousCollisions.Count; ++j)
                 {
                     //Pair updates will set the 'freshness' to true when they happen, so that they won't be considered 'stale' in the flush and removed.
@@ -373,10 +373,10 @@ public class ContactEvents : IDisposable
             else
             {
                 //The listener is either static or sleeping. We should only expect updates if the other collidable is awake.
-                var previousCollisions = listeners[listenerIndex].PreviousCollisions;
+                QuickList<PreviousCollision> previousCollisions = listeners[listenerIndex].PreviousCollisions;
                 for (int j = 0; j < previousCollisions.Count; ++j)
                 {
-                    ref var previousCollision = ref previousCollisions[j];
+                    ref PreviousCollision previousCollision = ref previousCollisions[j];
                     previousCollision.Fresh = previousCollision.Collidable.Mobility == CollidableMobility.Static || bodyHandleToLocation[previousCollision.Collidable.BodyHandle.Value].SetIndex > 0;
                 }
             }
@@ -406,13 +406,13 @@ public class ContactEvents : IDisposable
         {
             var listenerIndex = listenerIndices[source];
             //This collidable is registered. Is the opposing collidable present?
-            ref var listener = ref listeners[listenerIndex];
+            ref Listener listener = ref listeners[listenerIndex];
 
             int previousCollisionIndex = -1;
             bool isTouching = false;
             for (int i = 0; i < listener.PreviousCollisions.Count; ++i)
             {
-                ref var collision = ref listener.PreviousCollisions[i];
+                ref PreviousCollision collision = ref listener.PreviousCollisions[i];
                 //Since the 'Packed' field contains both the handle type (dynamic, kinematic, or static) and the handle index packed into a single bitfield, an equal value guarantees we are dealing with the same collidable.
                 if (collision.Collidable.Packed == other.Packed)
                 {
@@ -436,7 +436,7 @@ public class ContactEvents : IDisposable
                         }
                         if (!featureIdWasInPreviousCollision)
                         {
-                            manifold.GetContact(contactIndex, out var offset, out var normal, out var depth, out _);
+                            manifold.GetContact(contactIndex, out Vector3 offset, out Vector3 normal, out var depth, out _);
                             listener.Handler.OnContactAdded(source, pair, ref manifold, offset, normal, depth, featureId, contactIndex, workerIndex);
                         }
                         if (manifold.GetDepth(contactIndex) >= 0)
@@ -472,17 +472,17 @@ public class ContactEvents : IDisposable
             if (previousCollisionIndex < 0)
             {
                 //There was no collision previously.
-                ref var addsforWorker = ref pendingWorkerAdds[workerIndex];
+                ref QuickList<PendingWorkerAdd> addsforWorker = ref pendingWorkerAdds[workerIndex];
                 //EnsureCapacity will create the list if it doesn't already exist.
                 addsforWorker.EnsureCapacity(Math.Max(addsforWorker.Count + 1, 64), GetPoolForWorker(workerIndex));
-                ref var pendingAdd = ref addsforWorker.AllocateUnsafely();
+                ref PendingWorkerAdd pendingAdd = ref addsforWorker.AllocateUnsafely();
                 pendingAdd.ListenerIndex = listenerIndex;
                 pendingAdd.Collision.Collidable = other;
                 listener.Handler.OnPairCreated(source, pair, ref manifold, workerIndex);
                 //Dispatch events for all contacts in this new manifold.
                 for (int i = 0; i < manifold.Count; ++i)
                 {
-                    manifold.GetContact(i, out var offset, out var normal, out var depth, out var featureId);
+                    manifold.GetContact(i, out Vector3 offset, out Vector3 normal, out var depth, out var featureId);
                     listener.Handler.OnContactAdded(source, pair, ref manifold, offset, normal, depth, featureId, i, workerIndex);
                     if (depth >= 0)
                         isTouching = true;
@@ -535,11 +535,11 @@ public class ContactEvents : IDisposable
         //Remove any stale collisions. Stale collisions are those which should have received a new manifold update but did not because the manifold is no longer active.
         for (int i = 0; i < listenerCount; ++i)
         {
-            ref var listener = ref listeners[i];
+            ref Listener listener = ref listeners[i];
             //Note reverse order. We remove during iteration.
             for (int j = listener.PreviousCollisions.Count - 1; j >= 0; --j)
             {
-                ref var collision = ref listener.PreviousCollisions[j];
+                ref PreviousCollision collision = ref listener.PreviousCollisions[j];
                 if (!collision.Fresh)
                 {
                     //Sort the references to be consistent with the direct narrow phase results.
@@ -547,7 +547,7 @@ public class ContactEvents : IDisposable
                     NarrowPhase.SortCollidableReferencesForPair(listener.Source, collision.Collidable, out _, out _, out pair.A, out pair.B);
                     if (collision.ContactCount > 0)
                     {
-                        var emptyManifold = new EmptyManifold();
+                        EmptyManifold emptyManifold = new();
                         for (int previousContactCount = 0; previousContactCount < collision.ContactCount; ++previousContactCount)
                         {
                             listener.Handler.OnContactRemoved(listener.Source, pair, ref emptyManifold, Unsafe.Add(ref collision.FeatureId0, previousContactCount), 0);
@@ -573,11 +573,11 @@ public class ContactEvents : IDisposable
 
         for (int i = 0; i < pendingWorkerAdds.Length; ++i)
         {
-            ref var pendingAdds = ref pendingWorkerAdds[i];
+            ref QuickList<PendingWorkerAdd> pendingAdds = ref pendingWorkerAdds[i];
             for (int j = 0; j < pendingAdds.Count; ++j)
             {
-                ref var add = ref pendingAdds[j];
-                ref var collisions = ref listeners[add.ListenerIndex].PreviousCollisions;
+                ref PendingWorkerAdd add = ref pendingAdds[j];
+                ref QuickList<PreviousCollision> collisions = ref listeners[add.ListenerIndex].PreviousCollisions;
                 //Ensure capacity will initialize the slot if necessary.
                 collisions.EnsureCapacity(Math.Max(8, collisions.Count + 1), pool);
                 collisions.AllocateUnsafely() = pendingAdds[j].Collision;
@@ -685,7 +685,7 @@ public class ContactEventsDemo : Demo
             var index = Interlocked.Increment(ref Particles.Count) - 1;
             if (index < Particles.Span.Length)
             {
-                ref var particle = ref Particles[index];
+                ref ContactResponseParticle particle = ref Particles[index];
 
                 //Contact data is calibrated according to the order of the pair, so using A's position is important.
                 particle.Position = contactOffset + (pair.A.Mobility == CollidableMobility.Static ?
@@ -717,10 +717,10 @@ public class ContactEventsDemo : Demo
         Simulation = Simulation.Create(BufferPool, new ContactEventCallbacks(events), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
         eventHandler = new EventHandler(Simulation, BufferPool);
 
-        var listenedBody1 = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0, 5, 0), 1, Simulation.Shapes, new Box(1, 2, 3)));
+        BodyHandle listenedBody1 = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0, 5, 0), 1, Simulation.Shapes, new Box(1, 2, 3)));
         events.Register(Simulation.Bodies[listenedBody1].CollidableReference, eventHandler);
 
-        var listenedBody2 = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0.5f, 10, 0), 1, Simulation.Shapes, new Capsule(0.25f, 0.7f)));
+        BodyHandle listenedBody2 = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0.5f, 10, 0), 1, Simulation.Shapes, new Capsule(0.25f, 0.7f)));
         events.Register(Simulation.Bodies[listenedBody2].CollidableReference, eventHandler);
 
 
@@ -737,13 +737,13 @@ public class ContactEventsDemo : Demo
         events.Flush();
 
         //Age and scoot the particles we created for new contacts for the animation.
-        ref var particles = ref eventHandler.Particles;
+        ref QuickList<ContactResponseParticle> particles = ref eventHandler.Particles;
         //The count was incremented across multiple threads; it may have gone beyond the buffer size. Ignore the extra.
         if (particles.Count > particles.Span.Length)
             particles.Count = particles.Span.Length;
         for (int i = particles.Count - 1; i >= 0; --i)
         {
-            ref var particle = ref particles[i];
+            ref ContactResponseParticle particle = ref particles[i];
             particle.Age += dt;
             if (particle.Age > 0.7325f)
             {
@@ -759,16 +759,16 @@ public class ContactEventsDemo : Demo
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        ref var particles = ref eventHandler.Particles;
+        ref QuickList<ContactResponseParticle> particles = ref eventHandler.Particles;
         for (int i = particles.Count - 1; i >= 0; --i)
         {
-            ref var particle = ref particles[i];
+            ref ContactResponseParticle particle = ref particles[i];
             var radius = particle.Age * (particle.Age * (0.135f - 2.7f * particle.Age) + 1.35f);
-            var pose = new RigidPose(particle.Position);
+            RigidPose pose = new(particle.Position);
             renderer.Shapes.AddShape(new Sphere(radius), Simulation.Shapes, pose, new Vector3(0, 1, 0));
         }
 
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("The library does not have a built-in concept of contact events like 'contact added' and 'contact removed'."), new Vector2(16, resolution.Y - 80), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("The INarrowPhaseCallbacks interface exposes callbacks that can be used to create such events."), new Vector2(16, resolution.Y - 64), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("This demo shows how events could be implemented. Green particles are spawned on contact add."), new Vector2(16, resolution.Y - 48), 16, Vector3.One, font);

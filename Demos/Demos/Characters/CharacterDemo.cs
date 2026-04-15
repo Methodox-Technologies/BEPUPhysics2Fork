@@ -8,7 +8,6 @@ using BepuPhysics.Constraints;
 using DemoContentLoader;
 using DemoUtilities;
 using DemoRenderer.UI;
-using OpenTK.Input;
 
 namespace Demos.Demos.Characters;
 
@@ -30,17 +29,17 @@ public class CharacterDemo : Demo
         CreateCharacter(new Vector3(0, 2, -4));
 
         //Create a bunch of legos to hurt your feet on.
-        var random = new Random(5);
-        var origin = new Vector3(-3f, 0.5f, 0);
-        var spacing = new Vector3(0.5f, 0, -0.5f);
+        Random random = new(5);
+        Vector3 origin = new(-3f, 0.5f, 0);
+        Vector3 spacing = new(0.5f, 0, -0.5f);
         for (int i = 0; i < 12; ++i)
         {
             for (int j = 0; j < 12; ++j)
             {
-                var position = origin + new Vector3(i, 0, j) * spacing;
-                var orientation = QuaternionEx.CreateFromAxisAngle(Vector3.Normalize(new Vector3(0.0001f) + new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle())), 10 * random.NextSingle());
-                var shape = new Box(0.1f + 0.3f * random.NextSingle(), 0.1f + 0.3f * random.NextSingle(), 0.1f + 0.3f * random.NextSingle());
-                var shapeIndex = Simulation.Shapes.Add(shape);
+                Vector3 position = origin + new Vector3(i, 0, j) * spacing;
+                Quaternion orientation = QuaternionEx.CreateFromAxisAngle(Vector3.Normalize(new Vector3(0.0001f) + new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle())), 10 * random.NextSingle());
+                Box shape = new(0.1f + 0.3f * random.NextSingle(), 0.1f + 0.3f * random.NextSingle(), 0.1f + 0.3f * random.NextSingle());
+                TypedIndex shapeIndex = Simulation.Shapes.Add(shape);
                 var choice = (i + j) % 3;
                 switch (choice)
                 {
@@ -59,14 +58,14 @@ public class CharacterDemo : Demo
         }
 
         //Add some spinning fans to get slapped by.
-        var bladeDescription = BodyDescription.CreateConvexDynamic(new Vector3(), 3, Simulation.Shapes, new Box(10, 0.2f, 2));
-        var bladeBaseDescription = BodyDescription.CreateConvexKinematic(new Vector3(), Simulation.Shapes, new Box(0.2f, 1, 0.2f));
+        BodyDescription bladeDescription = BodyDescription.CreateConvexDynamic(new Vector3(), 3, Simulation.Shapes, new Box(10, 0.2f, 2));
+        BodyDescription bladeBaseDescription = BodyDescription.CreateConvexKinematic(new Vector3(), Simulation.Shapes, new Box(0.2f, 1, 0.2f));
         for (int i = 0; i < 3; ++i)
         {
             bladeBaseDescription.Pose.Position = new Vector3(-22, 1, i * 11);
             bladeDescription.Pose.Position = new Vector3(-22, 1.7f, i * 11);
-            var baseHandle = Simulation.Bodies.Add(bladeBaseDescription);
-            var bladeHandle = Simulation.Bodies.Add(bladeDescription);
+            BodyHandle baseHandle = Simulation.Bodies.Add(bladeBaseDescription);
+            BodyHandle bladeHandle = Simulation.Bodies.Add(bladeDescription);
             Simulation.Solver.Add(baseHandle, bladeHandle,
                 new Hinge
                 {
@@ -86,12 +85,12 @@ public class CharacterDemo : Demo
         }
 
         //Include a giant newt to test character-newt behavior and to ensure thematic consistency.
-        var newtMesh = DemoMeshHelper.LoadModel(content, BufferPool, @"Content\newt.obj", new Vector3(15, 15, 15));
+        Mesh newtMesh = DemoMeshHelper.LoadModel(content, BufferPool, @"Content\newt.obj", new Vector3(15, 15, 15));
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, 0.5f, 0), Simulation.Shapes.Add(newtMesh)));
 
         //Give the newt a tongue, I guess.
-        var tongueBase = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(0, 8.4f, 24), default, default));
-        var tongue = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0, 8.4f, 27.5f), 1, Simulation.Shapes, new Box(1, 0.1f, 6f)));
+        BodyHandle tongueBase = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(0, 8.4f, 24), default, default));
+        BodyHandle tongue = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0, 8.4f, 27.5f), 1, Simulation.Shapes, new Box(1, 0.1f, 6f)));
         Simulation.Solver.Add(tongueBase, tongue, new Hinge
         {
             LocalHingeAxisA = Vector3.UnitX,
@@ -107,8 +106,8 @@ public class CharacterDemo : Demo
         });
 
         //And a seesaw thing?
-        var seesawBase = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(0, 1f, 34f), Simulation.Shapes.Add(new Box(0.2f, 1, 0.2f)), 0.01f));
-        var seesaw = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0, 1.7f, 34f), 1, Simulation.Shapes, new Box(1, 0.1f, 6f)));
+        BodyHandle seesawBase = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(0, 1f, 34f), Simulation.Shapes.Add(new Box(0.2f, 1, 0.2f)), 0.01f));
+        BodyHandle seesaw = Simulation.Bodies.Add(BodyDescription.CreateConvexDynamic(new Vector3(0, 1.7f, 34f), 1, Simulation.Shapes, new Box(1, 0.1f, 6f)));
         Simulation.Solver.Add(seesawBase, seesaw, new Hinge
         {
             LocalHingeAxisA = Vector3.UnitX,
@@ -135,13 +134,13 @@ public class CharacterDemo : Demo
             pose.Orientation = Quaternion.Identity;
             return pose;
         };
-        var platformShapeIndex = Simulation.Shapes.Add(new Box(5, 1, 5));
+        TypedIndex platformShapeIndex = Simulation.Shapes.Add(new Box(5, 1, 5));
         for (int i = 0; i < movingPlatforms.Length; ++i)
         {
             movingPlatforms[i] = new MovingPlatform(platformShapeIndex, i * 3559, 1f / 60f, Simulation, poseCreator);
         }
-        var box = new Box(4, 1, 4);
-        var boxShapeIndex = Simulation.Shapes.Add(box);
+        Box box = new(4, 1, 4);
+        TypedIndex boxShapeIndex = Simulation.Shapes.Add(box);
         const int width = 8;
         for (int i = 0; i < width; ++i)
         {
@@ -174,13 +173,13 @@ public class CharacterDemo : Demo
 
         public void Update(Simulation simulation, double time)
         {
-            var body = simulation.Bodies[BodyHandle];
-            ref var pose = ref body.Pose;
-            ref var velocity = ref body.Velocity;
-            var targetPose = PoseCreator(time + TimeOffset);
+            BodyReference body = simulation.Bodies[BodyHandle];
+            ref RigidPose pose = ref body.Pose;
+            ref BodyVelocity velocity = ref body.Velocity;
+            RigidPose targetPose = PoseCreator(time + TimeOffset);
             velocity.Linear = (targetPose.Position - pose.Position) * InverseGoalSatisfactionTime;
-            QuaternionEx.GetRelativeRotationWithoutOverlap(pose.Orientation, targetPose.Orientation, out var rotation);
-            QuaternionEx.GetAxisAngleFromQuaternion(rotation, out var axis, out var angle);
+            QuaternionEx.GetRelativeRotationWithoutOverlap(pose.Orientation, targetPose.Orientation, out Quaternion rotation);
+            QuaternionEx.GetAxisAngleFromQuaternion(rotation, out Vector3 axis, out var angle);
             velocity.Angular = axis * (angle * InverseGoalSatisfactionTime);
         }
     }
@@ -226,7 +225,7 @@ public class CharacterDemo : Demo
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
         float textHeight = 16;
-        var position = new Vector2(32, renderer.Surface.Resolution.Y - textHeight * 9);
+        Vector2 position = new(32, renderer.Surface.Resolution.Y - textHeight * 9);
         renderer.TextBatcher.Write(text.Clear().Append("Toggle character: C"), position, textHeight, new Vector3(1), font);
         position.Y += textHeight * 1.2f;
         character.RenderControls(position, textHeight, renderer.TextBatcher, text, font);

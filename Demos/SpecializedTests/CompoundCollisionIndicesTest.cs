@@ -8,6 +8,7 @@ using BepuPhysics.Collidables;
 using System.Runtime.CompilerServices;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
+using BepuUtilities.Memory;
 
 namespace Demos.SpecializedTests;
 
@@ -72,13 +73,13 @@ public class CompoundCollisionIndicesTest : Demo
 
         Simulation = Simulation.Create(BufferPool, new IndexReportingNarrowPhaseCallbacks(), new DemoPoseIntegratorCallbacks(new Vector3(0, 0f, 0)), new SolveDescription(8, 1));
 
-        var builder = new CompoundBuilder(BufferPool, Simulation.Shapes, 4);
+        CompoundBuilder builder = new(BufferPool, Simulation.Shapes, 4);
         builder.Add(new Sphere(0.5f), new Vector3(-1, 0, 0), 1);
         builder.Add(new Capsule(0.5f, 1f), new Vector3(0, 0, 0), 1);
         builder.Add(new Box(1f, 1f, 1f), new Vector3(1, 0, 0), 1);
-        builder.BuildDynamicCompound(out var children, out var inertia, out var center);
+        builder.BuildDynamicCompound(out Buffer<CompoundChild> children, out BodyInertia inertia, out Vector3 center);
 
-        var compoundShapeIndex = Simulation.Shapes.Add(new Compound(children));
+        TypedIndex compoundShapeIndex = Simulation.Shapes.Add(new Compound(children));
 
         Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(0, 2, 0), inertia, compoundShapeIndex, 0.01f));
         Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(0, 4, 0), inertia, compoundShapeIndex, 0.01f));

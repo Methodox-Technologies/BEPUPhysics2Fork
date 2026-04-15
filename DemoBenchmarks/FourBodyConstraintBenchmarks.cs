@@ -1,7 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BepuPhysics;
 using BepuPhysics.Constraints;
-using BepuPhysics.Constraints.Contact;
 using BepuUtilities;
 using System.Numerics;
 

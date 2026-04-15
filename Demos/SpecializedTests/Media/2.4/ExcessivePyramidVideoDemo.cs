@@ -23,9 +23,9 @@ public class ExcessivePyramidVideoDemo : Demo
         camera.Pitch = 0;
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1), frictionCoefficient: 2), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var boxShape = new Box(1, 1, 1);
-        var boxInertia = boxShape.ComputeInertia(1);
-        var boxIndex = Simulation.Shapes.Add(boxShape);
+        Box boxShape = new(1, 1, 1);
+        BodyInertia boxInertia = boxShape.ComputeInertia(1);
+        TypedIndex boxIndex = Simulation.Shapes.Add(boxShape);
         const int pyramidCount = 420;
         for (int pyramidIndex = 0; pyramidIndex < pyramidCount; ++pyramidIndex)
         {
@@ -54,8 +54,8 @@ public class ExcessivePyramidVideoDemo : Demo
         ++frameCount;
         if (frameCount == 128 || (input != null && input.WasPushed(Keys.Z)))
         {
-            var bulletShape = new Sphere(6);
-            var bodyDescription = BodyDescription.CreateDynamic(
+            Sphere bulletShape = new(6);
+            BodyDescription bodyDescription = BodyDescription.CreateDynamic(
                 new Vector3(0, 8, -1200), new Vector3(0, 0, 230), bulletShape.ComputeInertia(5000000), new(Simulation.Shapes.Add(bulletShape), 0.1f), 0.01f);
             Simulation.Bodies.Add(bodyDescription);
         }

@@ -28,21 +28,21 @@ public class NewtonsCradleDemo : Demo
         const float ballHangHeight = 12f;
         const float barSpacing = 3f;
 
-        var barShape = new Box(ballCount * ballRadius * 2 + (ballCount - 1) * ballSpacing, 0.2f, 0.2f);
-        var barShapeIndex = Simulation.Shapes.Add(barShape);
-        var bar0 = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(barShape.HalfWidth, ballHangHeight, barSpacing * -0.5f), barShapeIndex, 0f));
-        var bar1 = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(barShape.HalfWidth, ballHangHeight, barSpacing * 0.5f), barShapeIndex, 0f));
+        Box barShape = new(ballCount * ballRadius * 2 + (ballCount - 1) * ballSpacing, 0.2f, 0.2f);
+        TypedIndex barShapeIndex = Simulation.Shapes.Add(barShape);
+        BodyHandle bar0 = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(barShape.HalfWidth, ballHangHeight, barSpacing * -0.5f), barShapeIndex, 0f));
+        BodyHandle bar1 = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(barShape.HalfWidth, ballHangHeight, barSpacing * 0.5f), barShapeIndex, 0f));
 
         camera.Position = new Vector3(barShape.HalfWidth, ballHangHeight * 0.5f, 2 + Math.Max(ballHangHeight, barShape.HalfWidth));
 
-        var ballShape = new Sphere(ballRadius);
-        var ballShapeIndex = Simulation.Shapes.Add(ballShape);
-        var ballInertia = ballShape.ComputeInertia(1);
-        var ballConstraintSpringSettings = new SpringSettings(300, 1);
+        Sphere ballShape = new(ballRadius);
+        TypedIndex ballShapeIndex = Simulation.Shapes.Add(ballShape);
+        BodyInertia ballInertia = ballShape.ComputeInertia(1);
+        SpringSettings ballConstraintSpringSettings = new(300, 1);
         for (int i = 0; i < ballCount; ++i)
         {
-            var ballPosition = new Vector3(ballRadius + i * (ballSpacing + ballRadius * 2), 0, 0);
-            var ball = Simulation.Bodies.Add(BodyDescription.CreateDynamic(ballPosition, ballInertia, new CollidableDescription(ballShapeIndex, 0), 0.0f));
+            Vector3 ballPosition = new(ballRadius + i * (ballSpacing + ballRadius * 2), 0, 0);
+            BodyHandle ball = Simulation.Bodies.Add(BodyDescription.CreateDynamic(ballPosition, ballInertia, new CollidableDescription(ballShapeIndex, 0), 0.0f));
             Simulation.Solver.Add(ball, bar0, new BallSocket { LocalOffsetA = new Vector3(0, ballHangHeight, -barSpacing * 0.5f), LocalOffsetB = new Vector3(ballPosition.X - barShape.HalfWidth, 0, 0), SpringSettings = ballConstraintSpringSettings });
             Simulation.Solver.Add(ball, bar1, new BallSocket { LocalOffsetA = new Vector3(0, ballHangHeight, barSpacing * 0.5f), LocalOffsetB = new Vector3(ballPosition.X - barShape.HalfWidth, 0, 0), SpringSettings = ballConstraintSpringSettings });
         }

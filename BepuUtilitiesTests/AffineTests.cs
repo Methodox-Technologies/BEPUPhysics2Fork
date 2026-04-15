@@ -37,7 +37,7 @@ namespace BEPUutilitiesTests
 
         public static float TestSIMDTransform(int iterationCount)
         {
-            Vector3 v = new Vector3(1, 2, 3);
+            Vector3 v = new(1, 2, 3);
             AffineTransform m = AffineTransform.Identity;
             float accumulator = 0;
             for (int i = 0; i < iterationCount; ++i)

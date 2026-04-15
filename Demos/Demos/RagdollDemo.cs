@@ -156,8 +156,8 @@ public class RagdollDemo : Demo
     {
         //Note that this always registers a new shape instance. You could be more clever/efficient and share shapes, but the goal here is to show the most basic option.
         //Also, the cost of registering different shapes isn't that high for tiny implicit shapes.
-        var shapeIndex = simulation.Shapes.Add(shape);
-        var description = BodyDescription.CreateDynamic(pose, shape.ComputeInertia(mass), shapeIndex, 0.01f);
+        TypedIndex shapeIndex = simulation.Shapes.Add(shape);
+        BodyDescription description = BodyDescription.CreateDynamic(pose, shape.ComputeInertia(mass), shapeIndex, 0.01f);
         return simulation.Bodies.Add(description);
     }
 
@@ -172,11 +172,11 @@ public class RagdollDemo : Demo
     {
         position = 0.5f * (start + end);
 
-        var offset = end - start;
+        Vector3 offset = end - start;
         capsule.HalfLength = 0.5f * offset.Length();
         capsule.Radius = radius;
         //The capsule shape's length is along its local Y axis, so get the shortest rotation from Y to the current orientation.
-        var cross = Vector3.Cross(offset / capsule.Length, new Vector3(0, 1, 0));
+        Vector3 cross = Vector3.Cross(offset / capsule.Length, new Vector3(0, 1, 0));
         var crossLength = cross.Length();
         orientation = crossLength > 1e-8f ? QuaternionEx.CreateFromAxisAngle(cross / crossLength, (float)Math.Asin(crossLength)) : Quaternion.Identity;
     }
@@ -188,7 +188,7 @@ public class RagdollDemo : Demo
         basis.Z = Vector3.Normalize(z);
         basis.Y = Vector3.Normalize(Vector3.Cross(basis.Z, x));
         basis.X = Vector3.Cross(basis.Y, basis.Z);
-        QuaternionEx.CreateFromRotationMatrix(basis, out var toReturn);
+        QuaternionEx.CreateFromRotationMatrix(basis, out Quaternion toReturn);
         return toReturn;
     }
 
@@ -204,12 +204,12 @@ public class RagdollDemo : Demo
         int limbBaseBitIndex, int ragdollIndex, RigidPose ragdollPose, CollidableProperty<SubgroupCollisionFilter> filters, SpringSettings constraintSpringSettings, Simulation simulation)
     {
         RagdollArmHandles handles;
-        var localElbow = localShoulder + new Vector3(sign * 0.45f, 0, 0);
-        var localWrist = localElbow + new Vector3(sign * 0.45f, 0, 0);
-        var handPosition = localWrist + new Vector3(sign * 0.1f, 0, 0);
-        GetCapsuleForLineSegment(localShoulder, localElbow, 0.1f, out var upperArmShape, out var upperArmPosition, out var upperArmOrientation);
+        Vector3 localElbow = localShoulder + new Vector3(sign * 0.45f, 0, 0);
+        Vector3 localWrist = localElbow + new Vector3(sign * 0.45f, 0, 0);
+        Vector3 handPosition = localWrist + new Vector3(sign * 0.1f, 0, 0);
+        GetCapsuleForLineSegment(localShoulder, localElbow, 0.1f, out Capsule upperArmShape, out Vector3 upperArmPosition, out Quaternion upperArmOrientation);
         handles.UpperArm = AddBody(upperArmShape, 5, GetWorldPose(upperArmPosition, upperArmOrientation, ragdollPose), simulation);
-        GetCapsuleForLineSegment(localElbow, localWrist, 0.09f, out var lowerArmShape, out var lowerArmPosition, out var lowerArmOrientation);
+        GetCapsuleForLineSegment(localElbow, localWrist, 0.09f, out Capsule lowerArmShape, out Vector3 lowerArmPosition, out Quaternion lowerArmOrientation);
         handles.LowerArm = AddBody(lowerArmShape, 5, GetWorldPose(lowerArmPosition, lowerArmOrientation, ragdollPose), simulation);
         handles.Hand = AddBody(new Box(0.2f, 0.1f, 0.2f), 2, GetWorldPose(handPosition, Quaternion.Identity, ragdollPose), simulation);
 
@@ -292,9 +292,9 @@ public class RagdollDemo : Demo
         var upperArmLocalIndex = limbBaseBitIndex;
         var lowerArmLocalIndex = limbBaseBitIndex + 1;
         var handLocalIndex = limbBaseBitIndex + 2;
-        ref var upperArmFilter = ref filters.Allocate(handles.UpperArm);
-        ref var lowerArmFilter = ref filters.Allocate(handles.LowerArm);
-        ref var handFilter = ref filters.Allocate(handles.Hand);
+        ref SubgroupCollisionFilter upperArmFilter = ref filters.Allocate(handles.UpperArm);
+        ref SubgroupCollisionFilter lowerArmFilter = ref filters.Allocate(handles.LowerArm);
+        ref SubgroupCollisionFilter handFilter = ref filters.Allocate(handles.Hand);
         upperArmFilter = new SubgroupCollisionFilter(ragdollIndex, upperArmLocalIndex);
         lowerArmFilter = new SubgroupCollisionFilter(ragdollIndex, lowerArmLocalIndex);
         handFilter = new SubgroupCollisionFilter(ragdollIndex, handLocalIndex);
@@ -309,12 +309,12 @@ public class RagdollDemo : Demo
         int limbBaseBitIndex, int ragdollIndex, RigidPose ragdollPose, CollidableProperty<SubgroupCollisionFilter> filters, SpringSettings constraintSpringSettings, Simulation simulation)
     {
         RagdollLegHandles handles;
-        var localKnee = localHip - new Vector3(0, 0.5f, 0);
-        var localAnkle = localKnee - new Vector3(0, 0.5f, 0);
-        var localFoot = localAnkle + new Vector3(0, -0.075f, 0.05f);
-        GetCapsuleForLineSegment(localHip, localKnee, 0.12f, out var upperLegShape, out var upperLegPosition, out var upperLegOrientation);
+        Vector3 localKnee = localHip - new Vector3(0, 0.5f, 0);
+        Vector3 localAnkle = localKnee - new Vector3(0, 0.5f, 0);
+        Vector3 localFoot = localAnkle + new Vector3(0, -0.075f, 0.05f);
+        GetCapsuleForLineSegment(localHip, localKnee, 0.12f, out Capsule upperLegShape, out Vector3 upperLegPosition, out Quaternion upperLegOrientation);
         handles.UpperLeg = AddBody(upperLegShape, 5, GetWorldPose(upperLegPosition, upperLegOrientation, ragdollPose), simulation);
-        GetCapsuleForLineSegment(localKnee, localAnkle, 0.11f, out var lowerLegShape, out var lowerLegPosition, out var lowerLegOrientation);
+        GetCapsuleForLineSegment(localKnee, localAnkle, 0.11f, out Capsule lowerLegShape, out Vector3 lowerLegPosition, out Quaternion lowerLegOrientation);
         handles.LowerLeg = AddBody(lowerLegShape, 5, GetWorldPose(lowerLegPosition, lowerLegOrientation, ragdollPose), simulation);
         handles.Foot = AddBody(new Box(0.2f, 0.15f, 0.3f), 2, GetWorldPose(localFoot, Quaternion.Identity, ragdollPose), simulation);
 
@@ -389,9 +389,9 @@ public class RagdollDemo : Demo
         var upperLegLocalIndex = limbBaseBitIndex;
         var lowerLegLocalIndex = limbBaseBitIndex + 1;
         var footLocalIndex = limbBaseBitIndex + 2;
-        ref var upperLegFilter = ref filters.Allocate(handles.UpperLeg);
-        ref var lowerLegFilter = ref filters.Allocate(handles.LowerLeg);
-        ref var footFilter = ref filters.Allocate(handles.Foot);
+        ref SubgroupCollisionFilter upperLegFilter = ref filters.Allocate(handles.UpperLeg);
+        ref SubgroupCollisionFilter lowerLegFilter = ref filters.Allocate(handles.LowerLeg);
+        ref SubgroupCollisionFilter footFilter = ref filters.Allocate(handles.Foot);
         upperLegFilter = new SubgroupCollisionFilter(ragdollIndex, upperLegLocalIndex);
         lowerLegFilter = new SubgroupCollisionFilter(ragdollIndex, lowerLegLocalIndex);
         footFilter = new SubgroupCollisionFilter(ragdollIndex, footLocalIndex);
@@ -427,21 +427,21 @@ public class RagdollDemo : Demo
 
     public static RagdollHandles AddRagdoll(Vector3 position, Quaternion orientation, int ragdollIndex, CollidableProperty<SubgroupCollisionFilter> collisionFilters, Simulation simulation)
     {
-        var ragdollPose = new RigidPose { Position = position, Orientation = orientation };
-        var horizontalOrientation = QuaternionEx.CreateFromAxisAngle(new Vector3(0, 0, 1), MathHelper.PiOver2);
+        RigidPose ragdollPose = new() { Position = position, Orientation = orientation };
+        Quaternion horizontalOrientation = QuaternionEx.CreateFromAxisAngle(new Vector3(0, 0, 1), MathHelper.PiOver2);
         RagdollHandles handles;
-        var hipsPose = new RigidPose { Position = new Vector3(0, 1.1f, 0), Orientation = horizontalOrientation };
+        RigidPose hipsPose = new() { Position = new Vector3(0, 1.1f, 0), Orientation = horizontalOrientation };
         handles.Hips = AddBody(new Capsule(0.17f, 0.25f), 8, GetWorldPose(hipsPose.Position, hipsPose.Orientation, ragdollPose), simulation);
-        var abdomenPose = new RigidPose { Position = new Vector3(0, 1.3f, 0), Orientation = horizontalOrientation };
+        RigidPose abdomenPose = new() { Position = new Vector3(0, 1.3f, 0), Orientation = horizontalOrientation };
         handles.Abdomen = AddBody(new Capsule(0.17f, 0.22f), 7, GetWorldPose(abdomenPose.Position, abdomenPose.Orientation, ragdollPose), simulation);
-        var chestPose = new RigidPose { Position = new Vector3(0, 1.6f, 0), Orientation = horizontalOrientation };
+        RigidPose chestPose = new() { Position = new Vector3(0, 1.6f, 0), Orientation = horizontalOrientation };
         handles.Chest = AddBody(new Capsule(0.21f, 0.3f), 10, GetWorldPose(chestPose.Position, chestPose.Orientation, ragdollPose), simulation);
-        var headPose = new RigidPose { Position = new Vector3(0, 2.05f, 0), Orientation = Quaternion.Identity };
+        RigidPose headPose = new() { Position = new Vector3(0, 2.05f, 0), Orientation = Quaternion.Identity };
         handles.Head = AddBody(new Sphere(0.2f), 5, GetWorldPose(headPose.Position, headPose.Orientation, ragdollPose), simulation);
 
         //Attach constraints between torso pieces.
-        var springSettings = new SpringSettings(15f, 1f);
-        var lowerSpine = (hipsPose.Position + abdomenPose.Position) * 0.5f;
+        SpringSettings springSettings = new(15f, 1f);
+        Vector3 lowerSpine = (hipsPose.Position + abdomenPose.Position) * 0.5f;
         //Hips-Abdomen
         simulation.Solver.Add(handles.Hips, handles.Abdomen, new BallSocket
         {
@@ -467,7 +467,7 @@ public class RagdollDemo : Demo
         simulation.Solver.Add(handles.Hips, handles.Abdomen, BuildAngularMotor());
 
         //Abdomen-Chest
-        var upperSpine = (abdomenPose.Position + chestPose.Position) * 0.5f;
+        Vector3 upperSpine = (abdomenPose.Position + chestPose.Position) * 0.5f;
         simulation.Solver.Add(handles.Abdomen, handles.Chest, new BallSocket
         {
             LocalOffsetA = QuaternionEx.Transform(upperSpine - abdomenPose.Position, QuaternionEx.Conjugate(abdomenPose.Orientation)),
@@ -492,7 +492,7 @@ public class RagdollDemo : Demo
         simulation.Solver.Add(handles.Abdomen, handles.Chest, BuildAngularMotor());
 
         //Chest-Head
-        var neck = (headPose.Position + chestPose.Position) * 0.5f;
+        Vector3 neck = (headPose.Position + chestPose.Position) * 0.5f;
         simulation.Solver.Add(handles.Chest, handles.Head, new BallSocket
         {
             LocalOffsetA = QuaternionEx.Transform(neck - chestPose.Position, QuaternionEx.Conjugate(chestPose.Orientation)),
@@ -520,10 +520,10 @@ public class RagdollDemo : Demo
         var abdomenLocalIndex = 1;
         var chestLocalIndex = 2;
         var headLocalIndex = 3;
-        ref var hipsFilter = ref collisionFilters.Allocate(handles.Hips);
-        ref var abdomenFilter = ref collisionFilters.Allocate(handles.Abdomen);
-        ref var chestFilter = ref collisionFilters.Allocate(handles.Chest);
-        ref var headFilter = ref collisionFilters.Allocate(handles.Head);
+        ref SubgroupCollisionFilter hipsFilter = ref collisionFilters.Allocate(handles.Hips);
+        ref SubgroupCollisionFilter abdomenFilter = ref collisionFilters.Allocate(handles.Abdomen);
+        ref SubgroupCollisionFilter chestFilter = ref collisionFilters.Allocate(handles.Chest);
+        ref SubgroupCollisionFilter headFilter = ref collisionFilters.Allocate(handles.Head);
         hipsFilter = new SubgroupCollisionFilter(ragdollIndex, hipsLocalIndex);
         abdomenFilter = new SubgroupCollisionFilter(ragdollIndex, abdomenLocalIndex);
         chestFilter = new SubgroupCollisionFilter(ragdollIndex, chestLocalIndex);
@@ -546,15 +546,15 @@ public class RagdollDemo : Demo
         camera.Position = new Vector3(-20, 10, -20);
         camera.Yaw = MathHelper.Pi * 3f / 4;
         camera.Pitch = MathHelper.Pi * 0.05f;
-        var collisionFilters = new CollidableProperty<SubgroupCollisionFilter>();
+        CollidableProperty<SubgroupCollisionFilter> collisionFilters = new();
         Simulation = Simulation.Create(BufferPool, new SubgroupFilteredCallbacks(collisionFilters), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
         int ragdollIndex = 0;
-        var spacing = new Vector3(2f, 3, 1);
+        Vector3 spacing = new(2f, 3, 1);
         int width = 8;
         int height = 8;
         int length = 8;
-        var origin = -0.5f * spacing * new Vector3(width, 0, length) + new Vector3(0, 0.2f, 0);
+        Vector3 origin = -0.5f * spacing * new Vector3(width, 0, length) + new Vector3(0, 0.2f, 0);
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)

@@ -30,9 +30,9 @@ public class CollisionQueryDemo : Demo
 
         Simulation.Statics.Add(new StaticDescription(new Vector3(), Simulation.Shapes.Add(new Box(100, 1, 100))));
 
-        var random = new Random(5);
-        var shapeToDrop = new Box(1, 1, 1);
-        var descriptionToDrop = BodyDescription.CreateDynamic(new Vector3(), shapeToDrop.ComputeInertia(1), Simulation.Shapes.Add(shapeToDrop), 0.01f);
+        Random random = new(5);
+        Box shapeToDrop = new(1, 1, 1);
+        BodyDescription descriptionToDrop = BodyDescription.CreateDynamic(new Vector3(), shapeToDrop.ComputeInertia(1), Simulation.Shapes.Add(shapeToDrop), 0.01f);
         for (int i = 0; i < 128; ++i)
         {
             descriptionToDrop.Pose.Position = new Vector3(-5 + 10 * random.NextSingle(), 45 + 150 * random.NextSingle(), -5 + 10 * random.NextSingle());
@@ -40,7 +40,7 @@ public class CollisionQueryDemo : Demo
         }
 
         //Add in a static object to test against. Note that the mesh triangles are one sided, so some of the queries whose centers are beneath the mesh do not generate any contacts.
-        var mesh = DemoMeshHelper.CreateDeformedPlane(20, 20, (x, y) => { return new Vector3(x * 5 - 50, 3 * MathF.Sin(x) * MathF.Sin(y), y * 5 - 50); }, Vector3.One, BufferPool);
+        Mesh mesh = DemoMeshHelper.CreateDeformedPlane(20, 20, (x, y) => { return new Vector3(x * 5 - 50, 3 * MathF.Sin(x) * MathF.Sin(y), y * 5 - 50); }, Vector3.One, BufferPool);
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, 0, 0), Simulation.Shapes.Add(mesh)));
     }
 
@@ -112,13 +112,13 @@ public class CollisionQueryDemo : Demo
         //Collidables can be associated with either bodies or statics. We have to look in a different place depending on which it is.
         if (reference.Mobility == CollidableMobility.Static)
         {
-            var collidable = Simulation.Statics[reference.StaticHandle];
+            StaticReference collidable = Simulation.Statics[reference.StaticHandle];
             pose = collidable.Pose;
             shapeIndex = collidable.Shape;
         }
         else
         {
-            var bodyReference = Simulation.Bodies[reference.BodyHandle];
+            BodyReference bodyReference = Simulation.Bodies[reference.BodyHandle];
             pose = bodyReference.Pose;
             shapeIndex = bodyReference.Collidable.Shape;
         }
@@ -137,11 +137,11 @@ public class CollisionQueryDemo : Demo
     /// <param name="batcher">Batcher to add the query's tests to.</param>
     public unsafe void AddQueryToBatch(int queryShapeType, void* queryShapeData, int queryShapeSize, Vector3 queryBoundsMin, Vector3 queryBoundsMax, in RigidPose queryPose, int queryId, ref CollisionBatcher<BatcherCallbacks> batcher)
     {
-        var broadPhaseEnumerator = new BroadPhaseOverlapEnumerator { Pool = BufferPool, References = new QuickList<CollidableReference>(16, BufferPool) };
+        BroadPhaseOverlapEnumerator broadPhaseEnumerator = new() { Pool = BufferPool, References = new QuickList<CollidableReference>(16, BufferPool) };
         Simulation.BroadPhase.GetOverlaps(queryBoundsMin, queryBoundsMax, BufferPool, ref broadPhaseEnumerator);
         for (int overlapIndex = 0; overlapIndex < broadPhaseEnumerator.References.Count; ++overlapIndex)
         {
-            GetPoseAndShape(broadPhaseEnumerator.References[overlapIndex], out var pose, out var shapeIndex);
+            GetPoseAndShape(broadPhaseEnumerator.References[overlapIndex], out RigidPose pose, out TypedIndex shapeIndex);
             Simulation.Shapes[shapeIndex.Type].GetShapeData(shapeIndex.Index, out var shapeData, out _);
             //In this path, we assume that the incoming shape data is ephemeral. The collision batcher may last longer than the data pointer.
             //To avoid undefined access, we cache the query data into the collision batcher and use a pointer to the cache instead.
@@ -167,7 +167,7 @@ public class CollisionQueryDemo : Demo
     {
         var queryShapeData = Unsafe.AsPointer(ref shape);
         var queryShapeSize = Unsafe.SizeOf<TShape>();
-        shape.ComputeBounds(pose.Orientation, out var boundingBoxMin, out var boundingBoxMax);
+        shape.ComputeBounds(pose.Orientation, out Vector3 boundingBoxMin, out Vector3 boundingBoxMax);
         boundingBoxMin += pose.Position;
         boundingBoxMax += pose.Position;
         AddQueryToBatch(TShape.TypeId, queryShapeData, queryShapeSize, boundingBoxMin, boundingBoxMax, pose, queryId, ref batcher);
@@ -184,14 +184,14 @@ public class CollisionQueryDemo : Demo
     /// <param name="batcher">Batcher to add the query's tests to.</param>
     public unsafe void AddQueryToBatch(Shapes shapes, TypedIndex queryShapeIndex, in RigidPose queryPose, int queryId, ref CollisionBatcher<BatcherCallbacks> batcher)
     {
-        var shapeBatch = shapes[queryShapeIndex.Type];
-        shapeBatch.ComputeBounds(queryShapeIndex.Index, queryPose, out var queryBoundsMin, out var queryBoundsMax);
+        ShapeBatch shapeBatch = shapes[queryShapeIndex.Type];
+        shapeBatch.ComputeBounds(queryShapeIndex.Index, queryPose, out Vector3 queryBoundsMin, out Vector3 queryBoundsMax);
         Simulation.Shapes[queryShapeIndex.Type].GetShapeData(queryShapeIndex.Index, out var queryShapeData, out _);
-        var broadPhaseEnumerator = new BroadPhaseOverlapEnumerator { Pool = BufferPool, References = new QuickList<CollidableReference>(16, BufferPool) };
+        BroadPhaseOverlapEnumerator broadPhaseEnumerator = new() { Pool = BufferPool, References = new QuickList<CollidableReference>(16, BufferPool) };
         Simulation.BroadPhase.GetOverlaps(queryBoundsMin, queryBoundsMax, BufferPool, ref broadPhaseEnumerator);
         for (int overlapIndex = 0; overlapIndex < broadPhaseEnumerator.References.Count; ++overlapIndex)
         {
-            GetPoseAndShape(broadPhaseEnumerator.References[overlapIndex], out var pose, out var shapeIndex);
+            GetPoseAndShape(broadPhaseEnumerator.References[overlapIndex], out RigidPose pose, out TypedIndex shapeIndex);
             //Since both involved shapes are from the simulation cache, we don't need to cache them ourselves.
             Simulation.Shapes[shapeIndex.Type].GetShapeData(shapeIndex.Index, out var shapeData, out _);
             batcher.AddDirectly(
@@ -213,13 +213,13 @@ public class CollisionQueryDemo : Demo
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
         //The collision batcher vectorizes over multiple tests at once, so for optimal performance, you'll want to feed it a bunch of tests.
-        var collisionBatcher = new CollisionBatcher<BatcherCallbacks>(BufferPool, Simulation.Shapes, Simulation.NarrowPhase.CollisionTaskRegistry, 0, new BatcherCallbacks());
+        CollisionBatcher<BatcherCallbacks> collisionBatcher = new(BufferPool, Simulation.Shapes, Simulation.NarrowPhase.CollisionTaskRegistry, 0, new BatcherCallbacks());
 
         //Create a set of queries up front. We store them so that we can render them after the fact with colors according to their touched states.
         const int widthInQueries = 5;
-        var queries = new QuickList<Query>(widthInQueries * widthInQueries, BufferPool);
-        var querySpacing = new Vector3(3, 0, 3);
-        var basePosition = new Vector3(0, 2, 0) - new Vector3(widthInQueries - 1) * querySpacing * 0.5f;
+        QuickList<Query> queries = new(widthInQueries * widthInQueries, BufferPool);
+        Vector3 querySpacing = new(3, 0, 3);
+        Vector3 basePosition = new Vector3(0, 2, 0) - new Vector3(widthInQueries - 1) * querySpacing * 0.5f;
         for (int i = 0; i < widthInQueries; ++i)
         {
             for (int j = 0; j < widthInQueries; ++j)
@@ -232,13 +232,13 @@ public class CollisionQueryDemo : Demo
             }
         }
         //Note that the callbacks and set are value types, so you have to be a little careful about copying.
-        ref var queryWasTouched = ref collisionBatcher.Callbacks.QueryWasTouched;
+        ref Buffer<bool> queryWasTouched = ref collisionBatcher.Callbacks.QueryWasTouched;
         BufferPool.Take(queries.Count, out queryWasTouched);
         queryWasTouched.Clear(0, queryWasTouched.Length);
 
         for (int queryIndex = 0; queryIndex < queries.Count; ++queryIndex)
         {
-            ref var query = ref queries[queryIndex];
+            ref Query query = ref queries[queryIndex];
             AddQueryToBatch(query.Box, query.Pose, queryIndex, ref collisionBatcher);
         }
         //While the collision batcher may flush batches here and there when a new test is added if it fills a batch, 
@@ -249,7 +249,7 @@ public class CollisionQueryDemo : Demo
         //Render the query boxes with the proper color.
         for (int i = 0; i < queries.Count; ++i)
         {
-            ref var query = ref queries[i];
+            ref Query query = ref queries[i];
             renderer.Shapes.AddShape(query.Box, Simulation.Shapes, query.Pose, queryWasTouched[i] ? new Vector3(0, 1, 0) : new Vector3(1, 0, 0));
         }
 

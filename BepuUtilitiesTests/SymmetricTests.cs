@@ -89,13 +89,13 @@ namespace BEPUutilitiesTests
             Console.WriteLine($"Size: {sizeof(Symmetric3x3)}");
             const int iterationCount = 10000000;
 
-            var a = new Matrix3x3 { X = new Vector3(1, 2, 3), Y = new Vector3(2, 3, 4), Z = new Vector3(-3, -4, -5) };
-            var b = new Symmetric3x3 { XX = 1, YX = 2, ZX = 3, YY = 4, ZY = 5, ZZ = 6 };
-            var c = a * b;
-            Symmetric3x3.Multiply(a, b, out var c2);
-            var d = b * a;
-            var b2 = new Matrix3x3 { X = new Vector3(b.XX, b.YX, b.ZX), Y = new Vector3(b.YX, b.YY, b.ZY), Z = new Vector3(b.ZX, b.ZY, b.ZZ) };
-            var d2 = b2 * a;
+            Matrix3x3 a = new() { X = new Vector3(1, 2, 3), Y = new Vector3(2, 3, 4), Z = new Vector3(-3, -4, -5) };
+            Symmetric3x3 b = new() { XX = 1, YX = 2, ZX = 3, YY = 4, ZY = 5, ZZ = 6 };
+            Matrix3x3 c = a * b;
+            Symmetric3x3.Multiply(a, b, out Matrix3x3 c2);
+            Matrix3x3 d = b * a;
+            Matrix3x3 b2 = new() { X = new Vector3(b.XX, b.YX, b.ZX), Y = new Vector3(b.YX, b.YY, b.ZY), Z = new Vector3(b.ZX, b.ZY, b.ZZ) };
+            Matrix3x3 d2 = b2 * a;
 
             Helper.Test("Symmetric3x3.Add", TestAddition, iterationCount);
             Helper.Test("Symmetric3x3.+", TestOperatorAddition, iterationCount);

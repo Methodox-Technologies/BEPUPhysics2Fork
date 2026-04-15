@@ -67,10 +67,10 @@ public class ColosseumDemo : Demo
 
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var ringBoxShape = new Box(0.5f, 1, 3);
-        var boxDescription = BodyDescription.CreateDynamic(new Vector3(), ringBoxShape.ComputeInertia(1), Simulation.Shapes.Add(ringBoxShape), 0.01f);
+        Box ringBoxShape = new(0.5f, 1, 3);
+        BodyDescription boxDescription = BodyDescription.CreateDynamic(new Vector3(), ringBoxShape.ComputeInertia(1), Simulation.Shapes.Add(ringBoxShape), 0.01f);
 
-        var layerPosition = new Vector3();
+        Vector3 layerPosition = new();
         const int layerCount = 6;
         var innerRadius = 15f;
         var heightPerPlatform = 3;
@@ -88,10 +88,10 @@ public class ColosseumDemo : Demo
         //Console.WriteLine($"box count: {Simulation.Bodies.ActiveSet.Count}");
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, -0.5f, 0), Simulation.Shapes.Add(new Box(500, 1, 500))));
 
-        var bulletShape = new Sphere(0.5f);
+        Sphere bulletShape = new(0.5f);
         bulletDescription = BodyDescription.CreateDynamic(new Vector3(), bulletShape.ComputeInertia(.1f), Simulation.Shapes.Add(bulletShape), 0.01f);
 
-        var shootiePatootieShape = new Sphere(3f);
+        Sphere shootiePatootieShape = new(3f);
         shootiePatootieDescription = BodyDescription.CreateDynamic(new Vector3(), shootiePatootieShape.ComputeInertia(100), new(Simulation.Shapes.Add(shootiePatootieShape), 0.1f), 0.01f);
     }
 

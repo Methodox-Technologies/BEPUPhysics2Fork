@@ -1,4 +1,5 @@
-﻿using DemoRenderer;
+﻿using BepuUtilities;
+using DemoRenderer;
 using DemoRenderer.UI;
 using DemoUtilities;
 using System;
@@ -31,15 +32,15 @@ public class RolloverInfo
 
     public unsafe void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var resolution = new Vector2(renderer.Surface.Resolution.X, renderer.Surface.Resolution.Y);
-        var screenLocations = stackalloc Vector2[descriptions.Count];
+        Vector2 resolution = new(renderer.Surface.Resolution.X, renderer.Surface.Resolution.Y);
+        Vector2* screenLocations = stackalloc Vector2[descriptions.Count];
         int closestIndex = -1;
         float closestDistance = MathF.Max(resolution.X, resolution.Y) * 0.1f;
         for (int i = 0; i < descriptions.Count; ++i)
         {
-            var textPosition = descriptions[i].Position;
+            Vector3 textPosition = descriptions[i].Position;
             Helpers.GetScreenLocation(textPosition, camera.ViewProjection, resolution, out screenLocations[i]);
-            var mouse = input.MousePosition;
+            Int2 mouse = input.MousePosition;
             var distance = Vector2.Distance(new Vector2(mouse.X, mouse.Y), screenLocations[i]);
             if (distance < closestDistance)
             {

@@ -19,12 +19,12 @@ public class RopeStabilityDemo : Demo
     public static BodyHandle[] BuildRopeBodies(Simulation simulation, Vector3 start, int bodyCount, float bodySize, float bodySpacing, float massPerBody, float inverseInertiaScale)
     {
         BodyHandle[] handles = new BodyHandle[bodyCount + 1];
-        var ropeShape = new Sphere(bodySize);
-        var ropeInertia = ropeShape.ComputeInertia(massPerBody);
+        Sphere ropeShape = new(bodySize);
+        BodyInertia ropeInertia = ropeShape.ComputeInertia(massPerBody);
         Symmetric3x3.Scale(ropeInertia.InverseInertiaTensor, inverseInertiaScale, out ropeInertia.InverseInertiaTensor);
-        var ropeShapeIndex = simulation.Shapes.Add(ropeShape);
+        TypedIndex ropeShapeIndex = simulation.Shapes.Add(ropeShape);
         //Build the links.
-        var bodyDescription = new BodyDescription
+        BodyDescription bodyDescription = new()
         {
             Activity = .01f,
             Collidable = ropeShapeIndex
@@ -41,7 +41,7 @@ public class RopeStabilityDemo : Demo
     }
     public static BodyHandle[] BuildRope(Simulation simulation, Vector3 start, int bodyCount, float bodySize, float bodySpacing, float constraintOffsetLength, float massPerBody, float inverseInertiaScale, SpringSettings springSettings)
     {
-        var handles = BuildRopeBodies(simulation, start, bodyCount, bodySize, bodySpacing, massPerBody, inverseInertiaScale);
+        BodyHandle[] handles = BuildRopeBodies(simulation, start, bodyCount, bodySize, bodySpacing, massPerBody, inverseInertiaScale);
         var maximumDistance = 2 * bodySize + bodySpacing - 2 * constraintOffsetLength;
         for (int i = 0; i < handles.Length - 1; ++i)
         {
@@ -53,12 +53,12 @@ public class RopeStabilityDemo : Demo
 
     static BodyHandle CreateWreckingBall(Simulation simulation, BodyHandle[] bodyHandles, float ropeBodyRadius, float bodySpacing, float wreckingBallRadius, BodyInertia wreckingBallInertia, TypedIndex wreckingBallShapeIndex)
     {
-        var lastBodyReference = new BodyReference(bodyHandles[bodyHandles.Length - 1], simulation.Bodies);
-        var wreckingBallPosition = lastBodyReference.Pose.Position - new Vector3(0, ropeBodyRadius + bodySpacing + wreckingBallRadius, 0);
-        var description = BodyDescription.CreateDynamic(wreckingBallPosition, wreckingBallInertia, wreckingBallShapeIndex, 0.01f);
+        BodyReference lastBodyReference = new(bodyHandles[bodyHandles.Length - 1], simulation.Bodies);
+        Vector3 wreckingBallPosition = lastBodyReference.Pose.Position - new Vector3(0, ropeBodyRadius + bodySpacing + wreckingBallRadius, 0);
+        BodyDescription description = BodyDescription.CreateDynamic(wreckingBallPosition, wreckingBallInertia, wreckingBallShapeIndex, 0.01f);
         //Give it a little bump.
         description.Velocity = new Vector3(-10, 0, 0);
-        var wreckingBallBodyHandle = simulation.Bodies.Add(description);
+        BodyHandle wreckingBallBodyHandle = simulation.Bodies.Add(description);
         return wreckingBallBodyHandle;
     }
 
@@ -94,36 +94,36 @@ public class RopeStabilityDemo : Demo
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1), 20), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
         rolloverInfo = new RolloverInfo();
-        var smallWreckingBall = new Sphere(1);
-        var smallWreckingBallInertia = smallWreckingBall.ComputeInertia(5);
-        var smallWreckingBallIndex = Simulation.Shapes.Add(smallWreckingBall);
+        Sphere smallWreckingBall = new(1);
+        BodyInertia smallWreckingBallInertia = smallWreckingBall.ComputeInertia(5);
+        TypedIndex smallWreckingBallIndex = Simulation.Shapes.Add(smallWreckingBall);
         {
             //The first thing you might try when building a rope is a simple chain of low mass bodies connected by distance limits with the wrecking ball attached at the end in a natural way.
-            var startLocation = new Vector3(-55, 35, 0);
+            Vector3 startLocation = new(-55, 35, 0);
             const float bodySpacing = 0.3f;
             const float bodyRadius = 0.5f;
-            var springSettings = new SpringSettings(30, 1);
-            var bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 1, 1, springSettings);
+            SpringSettings springSettings = new(30, 1);
+            BodyHandle[] bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 1, 1, springSettings);
 
             //With a small wrecking ball, this actually works fine with reasonable spring settings.
             AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, bodyRadius, smallWreckingBall.Radius, smallWreckingBallInertia, smallWreckingBallIndex, springSettings);
             rolloverInfo.Add(startLocation + new Vector3(0, 2, 0), "Naive, 5:1 mass ratio");
         }
-        var bigWreckingBall = new Sphere(3);
+        Sphere bigWreckingBall = new(3);
         //This wrecking ball is much, much heavier.
-        var bigWreckingBallInertia = bigWreckingBall.ComputeInertia(100);
-        var bigWreckingBallIndex = Simulation.Shapes.Add(bigWreckingBall);
+        BodyInertia bigWreckingBallInertia = bigWreckingBall.ComputeInertia(100);
+        TypedIndex bigWreckingBallIndex = Simulation.Shapes.Add(bigWreckingBall);
         {
             //Everything identical to the first rope, but now with a heavier wrecking ball.
             //This is going to behave very poorly. The extremely heavy wrecking ball depends on the much lighter rope bodies.
             //The force required to keep the wrecking ball in place needs to propagate through the rope to the kinematic at the top, but the low mass of the rope 
             //makes that a very time consuming process. 
             //Stabilizing this without changing the constraint configuration requires either an absurd number of solver iterations or increasing the update rate.
-            var startLocation = new Vector3(-35, 35, 0);
+            Vector3 startLocation = new(-35, 35, 0);
             const float bodySpacing = 0.3f;
             const float bodyRadius = 0.5f;
-            var springSettings = new SpringSettings(30, 1);
-            var bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 1, 1, springSettings);
+            SpringSettings springSettings = new(30, 1);
+            BodyHandle[] bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 1, 1, springSettings);
 
             AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, bodyRadius, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex, springSettings);
             rolloverInfo.Add(startLocation + new Vector3(0, 2, 0), "Naive, 100:1 mass ratio");
@@ -132,11 +132,11 @@ public class RopeStabilityDemo : Demo
             //If stiffness is causing a problem, how about we reduce the stiffness by adjusting the spring settings frequency? 
             //This certainly makes it more stable, but it behaves more like loose elastic than a rope.
             //If you have a simulation where softness is actually okay, this is often the quickest and easiest fix.
-            var startLocation = new Vector3(-15, 35, 0);
+            Vector3 startLocation = new(-15, 35, 0);
             const float bodySpacing = 0.3f;
             const float bodyRadius = 0.5f;
-            var springSettings = new SpringSettings(3, 1);
-            var bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 1, 1, springSettings);
+            SpringSettings springSettings = new(3, 1);
+            BodyHandle[] bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 1, 1, springSettings);
 
             AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, bodyRadius, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex, springSettings);
             rolloverInfo.Add(startLocation + new Vector3(0, 2, 0), "Softer constraints");
@@ -144,11 +144,11 @@ public class RopeStabilityDemo : Demo
         {
             //If the mass ratio between the wrecking ball and rope bodies make it hard to propagate impulses, how about increasing the mass of the rope?
             //It does help, but now the rope is really heavy. That's not really the behavior we want, and it's still not perfect.
-            var startLocation = new Vector3(-5, 35, 0);
+            Vector3 startLocation = new(-5, 35, 0);
             const float bodySpacing = 0.3f;
             const float bodyRadius = 0.5f;
-            var springSettings = new SpringSettings(30, 1);
-            var bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 20, 1, springSettings);
+            SpringSettings springSettings = new(30, 1);
+            BodyHandle[] bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 20, 1, springSettings);
 
             AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, bodyRadius, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex, springSettings);
             rolloverInfo.Add(startLocation + new Vector3(0, 2, 0), "20x rope mass boost");
@@ -157,11 +157,11 @@ public class RopeStabilityDemo : Demo
             //The difficulty of propagating impulses isn't just a matter of mass alone. The constraint lever arms and body inertia tensors are also very important.
             //How about we treat the bodies as having way more rotational inertia than their shape would imply, and don't increase the mass as much?
             //This helps about as much as using the higher mass without quite as much negative impact on behavior.
-            var startLocation = new Vector3(5, 35, 0);
+            Vector3 startLocation = new(5, 35, 0);
             const float bodySpacing = 0.3f;
             const float bodyRadius = 0.5f;
-            var springSettings = new SpringSettings(30, 1);
-            var bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 5, 0.2f, springSettings);
+            SpringSettings springSettings = new(30, 1);
+            BodyHandle[] bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, bodyRadius, 5, 0.2f, springSettings);
 
             AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, bodyRadius, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex, springSettings);
             rolloverInfo.Add(startLocation + new Vector3(0, 2, 0), "5x rope mass boost, 25x rope inertia boost");
@@ -172,11 +172,11 @@ public class RopeStabilityDemo : Demo
             //(We'll also lock the rope body orientation by setting their rotational inertia to infinity, but since the constraint lever arms are 0 length, that doesn't actually
             //change anything.)
             //This helps a lot. The angular oscillation is completely eliminated, and it takes quite a bit to force linear oscillation.
-            var startLocation = new Vector3(15, 35, 0);
+            Vector3 startLocation = new(15, 35, 0);
             const float bodySpacing = 0.3f;
             const float bodyRadius = 0.5f;
-            var springSettings = new SpringSettings(30, 1);
-            var bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, 0, 1, 0, springSettings);
+            SpringSettings springSettings = new(30, 1);
+            BodyHandle[] bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, 0, 1, 0, springSettings);
 
             AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, 0, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex, springSettings);
             rolloverInfo.Add(startLocation + new Vector3(0, 2, 0), "0 lever arm");
@@ -187,14 +187,14 @@ public class RopeStabilityDemo : Demo
             //This makes the rest of the rope effectively cosmetic when the wrecking ball is freely swinging.
             //The problem is that you can *tell* that the rope is cosmetic. It's not loaded, so it flops around too much.
             //Further, if the rope wraps around something such that the cheat constraint isn't holding the weight anymore, the rope will freak out just as bad as it did in the first attempt.
-            var startLocation = new Vector3(25, 35, 0);
+            Vector3 startLocation = new(25, 35, 0);
             const float bodySpacing = 0.3f;
             const float bodyRadius = 0.5f;
-            var springSettings = new SpringSettings(30, 1);
-            var bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, 0, 1f, 0, springSettings);
+            SpringSettings springSettings = new(30, 1);
+            BodyHandle[] bodyHandles = BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, 0, 1f, 0, springSettings);
 
-            var wreckingBallHandle = AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, 0, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex, springSettings);
-            var wreckingBallConnectionOffset = new Vector3(0, bigWreckingBall.Radius, 0);
+            BodyHandle wreckingBallHandle = AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, 0, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex, springSettings);
+            Vector3 wreckingBallConnectionOffset = new(0, bigWreckingBall.Radius, 0);
             var maximumDistance = Vector3.Distance(
                 new BodyReference(bodyHandles[0], Simulation.Bodies).Pose.Position,
                 new BodyReference(wreckingBallHandle, Simulation.Bodies).Pose.Position + wreckingBallConnectionOffset);
@@ -207,11 +207,11 @@ public class RopeStabilityDemo : Demo
             //these skip constraints allow impulses to propagate through the graph along multiple 'shortcut' paths at the same time. Any one body acting as a bottleneck
             //has its load propagated quickly to all its neighbors.
             //As a result, this is extremely stable. You can choose to increase the number of skip constraints for additional stability. Reducing the rope mass further is very possible.
-            var startLocation = new Vector3(35, 140, 0);
+            Vector3 startLocation = new(35, 140, 0);
             const float bodySpacing = 0.3f;
             const float bodyRadius = 0.5f;
-            var springSettings = new SpringSettings(30, 1);
-            var bodyHandles = BuildRopeBodies(Simulation, startLocation, 100, bodyRadius, bodySpacing, 1f, 0);
+            SpringSettings springSettings = new(30, 1);
+            BodyHandle[] bodyHandles = BuildRopeBodies(Simulation, startLocation, 100, bodyRadius, bodySpacing, 1f, 0);
 
             bool TryCreateConstraint(int handleIndexA, int handleIndexB)
             {
@@ -235,8 +235,8 @@ public class RopeStabilityDemo : Demo
                 }
             }
 
-            var wreckingBallHandle = CreateWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex);
-            var wreckingBallConnectionOffset = new Vector3(0, bigWreckingBall.Radius, 0);
+            BodyHandle wreckingBallHandle = CreateWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex);
+            Vector3 wreckingBallConnectionOffset = new(0, bigWreckingBall.Radius, 0);
             for (int i = 1; i <= constraintsPerBody; ++i)
             {
                 var targetBodyHandleIndex = bodyHandles.Length - i;

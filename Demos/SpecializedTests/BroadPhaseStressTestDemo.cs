@@ -10,7 +10,6 @@ using DemoRenderer.UI;
 using DemoUtilities;
 using System;
 using System.Numerics;
-using static Demos.SpecializedTests.TreeFiddlingTestDemo;
 
 namespace Demos.SpecializedTests;
 
@@ -63,26 +62,26 @@ public class BroadPhaseStressTestDemo : Demo
         camera.Pitch = MathHelper.Pi * 0.1f;
         Simulation = Simulation.Create(BufferPool, new NoNarrowphaseTestingCallbacks(), new DemoPoseIntegratorCallbacks(new Vector3(0, 0, 0)), new SolveDescription(1, 1));
 
-        var shape = new Sphere(0.5f);
-        var sphereInertia = shape.ComputeInertia(1);
-        var shapeIndex = Simulation.Shapes.Add(shape);
+        Sphere shape = new(0.5f);
+        BodyInertia sphereInertia = shape.ComputeInertia(1);
+        TypedIndex shapeIndex = Simulation.Shapes.Add(shape);
         const int width = 2048;
         const int height = 2;
         const int length = 2048;
-        var spacing = new Vector3(16.01f);
+        Vector3 spacing = new(16.01f);
         float randomization = 0.9f;
-        var randomizationSpan = (spacing - new Vector3(1)) * randomization;
-        var randomizationBase = randomizationSpan * -0.5f;
-        var random = new Random(5);
+        Vector3 randomizationSpan = (spacing - new Vector3(1)) * randomization;
+        Vector3 randomizationBase = randomizationSpan * -0.5f;
+        Random random = new(5);
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
             {
                 for (int k = 0; k < length; ++k)
                 {
-                    var r = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
+                    Vector3 r = new(random.NextSingle(), random.NextSingle(), random.NextSingle());
                     //var location = spacing * (new Vector3(i, j, k) + new Vector3(-width, 1, -length)) + randomizationBase + r * randomizationSpan;
-                    var location = (r - new Vector3(0.5f)) * (r - new Vector3(0.5f)) * spacing * new Vector3(width, height, length);
+                    Vector3 location = (r - new Vector3(0.5f)) * (r - new Vector3(0.5f)) * spacing * new Vector3(width, height, length);
                     //var location = (r - new Vector3(0.5f)) * spacing * new Vector3(width, height, length);
                     //var location = new Vector3(15, 15, 15);
                     //var hash = HashHelper.Rehash(HashHelper.Rehash(HashHelper.Rehash(i) + HashHelper.Rehash(j)) + HashHelper.Rehash(k));
@@ -126,13 +125,13 @@ public class BroadPhaseStressTestDemo : Demo
     void PrintPathToRoot(StaticHandle handle)
     {
         var index = Simulation.Statics[handle].Static.BroadPhaseIndex;
-        var leaf = Simulation.BroadPhase.StaticTree.Leaves[index];
+        Leaf leaf = Simulation.BroadPhase.StaticTree.Leaves[index];
         int depth = 0;
         var nodeIndex = leaf.NodeIndex;
         Console.Write($"Starting from {leaf.NodeIndex}:{leaf.ChildIndex}, path: ");
         while (true)
         {
-            ref var node = ref Simulation.BroadPhase.StaticTree.Metanodes[nodeIndex];
+            ref Metanode node = ref Simulation.BroadPhase.StaticTree.Metanodes[nodeIndex];
             Console.Write($"{nodeIndex}, ");
             if (node.Parent >= 0)
             {
@@ -149,7 +148,7 @@ public class BroadPhaseStressTestDemo : Demo
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
         var rotationAngle = frameCount * 1e-3f;
-        var rotation = Matrix3x3.CreateFromAxisAngle(Vector3.UnitY, rotationAngle);
+        Matrix3x3 rotation = Matrix3x3.CreateFromAxisAngle(Vector3.UnitY, rotationAngle);
         //for (int i = 0; i < Simulation.Bodies.ActiveSet.Count / 2; ++i)
         //{
         //    //For every body, set the velocity such that body moves toward some body-specific goal state that evolves over time.
@@ -188,10 +187,10 @@ public class BroadPhaseStressTestDemo : Demo
         {
             Console.WriteLine($"Active Depth {frameCount}: {Simulation.BroadPhase.ActiveTree.ComputeMaximumDepth()}");
             Console.WriteLine($"Static Depth {frameCount}: {Simulation.BroadPhase.StaticTree.ComputeMaximumDepth()}");
-            var updateStats = updateTimes.ComputeStats();
-            var testStats = testTimes.ComputeStats();
-            var test2Stats = test2Times.ComputeStats();
-            var intertreeTest2Stats = intertreeTest2Times.ComputeStats();
+            TimelineStats updateStats = updateTimes.ComputeStats();
+            TimelineStats testStats = testTimes.ComputeStats();
+            TimelineStats test2Stats = test2Times.ComputeStats();
+            TimelineStats intertreeTest2Stats = intertreeTest2Times.ComputeStats();
             Console.WriteLine($"Update: {updateStats.Average * 1000} ms average, {updateStats.StdDev * 1000} stddev");
             Console.WriteLine($"Test:   {testStats.Average * 1000} ms average, {testStats.StdDev * 1000} stddev");
             //Console.WriteLine($"Test2:  {test2Stats.Average * 1000} ms average, {test2Stats.StdDev * 1000} stddev");
@@ -238,17 +237,17 @@ public class BroadPhaseStressTestDemo : Demo
 
     void RenderNodeRecursive(Renderer renderer, Camera camera, TextBuilder text, Font font, ref Tree tree, int nodeIndex, int depth, float horizontalOffset, float levelHeight, float nodeSpacing)
     {
-        var nodePosition = new Vector3(horizontalOffset, depth * levelHeight, 0);
+        Vector3 nodePosition = new(horizontalOffset, depth * levelHeight, 0);
 
-        var nodeColor = new Vector3(0.8f, 0.2f, 0.2f);
+        Vector3 nodeColor = new(0.8f, 0.2f, 0.2f);
         renderer.Shapes.AddShape(new Sphere(0.3f), null, nodePosition, nodeColor);
 
-        if (DemoRenderer.Helpers.GetScreenLocation(nodePosition, camera.ViewProjection, renderer.Surface.Resolution, out var location))
+        if (DemoRenderer.Helpers.GetScreenLocation(nodePosition, camera.ViewProjection, renderer.Surface.Resolution, out Vector2 location))
         {
             renderer.TextBatcher.Write(text.Clear().Append(nodeIndex), location, 10, new Vector3(1), font);
         }
 
-        ref var node = ref tree.Nodes[nodeIndex];
+        ref Node node = ref tree.Nodes[nodeIndex];
 
         // Calculate child spacing (gets tighter with depth)
         float childSpacing = nodeSpacing / float.Pow(1.7f, depth);
@@ -256,7 +255,7 @@ public class BroadPhaseStressTestDemo : Demo
         float rightOffset = horizontalOffset + childSpacing;
 
         // Process child A (left)
-        var childAPosition = new Vector3(leftOffset, (depth + 1) * levelHeight, 0);
+        Vector3 childAPosition = new(leftOffset, (depth + 1) * levelHeight, 0);
         if (node.A.Index >= 0)
         {
             // Internal node - recurse
@@ -268,12 +267,12 @@ public class BroadPhaseStressTestDemo : Demo
             // Leaf node
             renderer.Lines.Allocate() = new LineInstance(nodePosition, childAPosition, new Vector3(0.2f, 0.8f, 0.2f), default);
             renderer.Shapes.AddShape(new Sphere(0.15f), null, childAPosition, new Vector3(0.2f, 1f, 0.2f));
-            if (DemoRenderer.Helpers.GetScreenLocation(childAPosition, camera.ViewProjection, renderer.Surface.Resolution, out var childLocation))
+            if (DemoRenderer.Helpers.GetScreenLocation(childAPosition, camera.ViewProjection, renderer.Surface.Resolution, out Vector2 childLocation))
                 renderer.TextBatcher.Write(text.Clear().Append(Tree.Encode(node.A.Index)), childLocation, 10, new Vector3(1), font);
         }
 
         // Process child B (right)
-        var childBPosition = new Vector3(rightOffset, (depth + 1) * levelHeight, 0);
+        Vector3 childBPosition = new(rightOffset, (depth + 1) * levelHeight, 0);
         if (node.B.Index >= 0)
         {
             // Internal node - recurse
@@ -285,7 +284,7 @@ public class BroadPhaseStressTestDemo : Demo
             // Leaf node
             renderer.Lines.Allocate() = new LineInstance(nodePosition, childBPosition, new Vector3(0.2f, 0.8f, 0.2f), default);
             renderer.Shapes.AddShape(new Sphere(0.15f), null, childBPosition, new Vector3(0.2f, 1f, 0.2f));
-            if (DemoRenderer.Helpers.GetScreenLocation(childBPosition, camera.ViewProjection, renderer.Surface.Resolution, out var childLocation))
+            if (DemoRenderer.Helpers.GetScreenLocation(childBPosition, camera.ViewProjection, renderer.Surface.Resolution, out Vector2 childLocation))
                 renderer.TextBatcher.Write(text.Clear().Append(Tree.Encode(node.B.Index)), childLocation, 10, new Vector3(1), font);
         }
     }

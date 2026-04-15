@@ -61,25 +61,25 @@ public class VolumeQueryTests : Demo
         camera.Pitch = MathHelper.Pi * 0.1f;
         Simulation = Simulation.Create(BufferPool, new NoCollisionCallbacks(), new DemoPoseIntegratorCallbacks(), new SolveDescription(8, 1));
 
-        var sphere = new Sphere(0.5f);
-        var shapeIndex = Simulation.Shapes.Add(sphere);
+        Sphere sphere = new(0.5f);
+        TypedIndex shapeIndex = Simulation.Shapes.Add(sphere);
         const int width = 16;
         const int height = 16;
         const int length = 16;
-        var spacing = new Vector3(2.01f);
-        var halfSpacing = spacing / 2;
+        Vector3 spacing = new(2.01f);
+        Vector3 halfSpacing = spacing / 2;
         float randomizationSubset = 0.9f;
-        var randomizationSpan = (spacing - new Vector3(1)) * randomizationSubset;
-        var randomizationBase = randomizationSpan * -0.5f;
-        var random = new Random(5);
+        Vector3 randomizationSpan = (spacing - new Vector3(1)) * randomizationSubset;
+        Vector3 randomizationBase = randomizationSpan * -0.5f;
+        Random random = new(5);
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
             {
                 for (int k = 0; k < length; ++k)
                 {
-                    var r = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
-                    var location = spacing * (new Vector3(i, j, k) + new Vector3(-width, -height, -length) * 0.5f) + randomizationBase + r * randomizationSpan;
+                    Vector3 r = new(random.NextSingle(), random.NextSingle(), random.NextSingle());
+                    Vector3 location = spacing * (new Vector3(i, j, k) + new Vector3(-width, -height, -length) * 0.5f) + randomizationBase + r * randomizationSpan;
 
                     Quaternion orientation;
                     orientation.X = -1 + 2 * random.NextSingle();
@@ -90,12 +90,12 @@ public class VolumeQueryTests : Demo
 
                     if ((i + j + k) % 2 == 1)
                     {
-                        var bodyDescription = BodyDescription.CreateKinematic((location, orientation), shapeIndex, -1);
+                        BodyDescription bodyDescription = BodyDescription.CreateKinematic((location, orientation), shapeIndex, -1);
                         Simulation.Bodies.Add(bodyDescription);
                     }
                     else
                     {
-                        var staticDescription = new StaticDescription(location, orientation, shapeIndex);
+                        StaticDescription staticDescription = new(location, orientation, shapeIndex);
                         Simulation.Statics.Add(staticDescription);
                     }
 
@@ -105,15 +105,15 @@ public class VolumeQueryTests : Demo
 
 
         int boxCount = 16384;
-        var randomMin = new Vector3(width, height, length) * spacing * -0.5f;
-        var randomSpan = randomMin * -2;
+        Vector3 randomMin = new Vector3(width, height, length) * spacing * -0.5f;
+        Vector3 randomSpan = randomMin * -2;
         queryBoxes = new QuickList<BoundingBox>(boxCount, BufferPool);
         for (int i = 0; i < boxCount; ++i)
         {
-            ref var box = ref queryBoxes.AllocateUnsafely();
-            var r = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
-            var boxOrigin = randomMin + r * randomSpan;
-            var boxHalfSize = new Vector3(0.25f + 0.75f * random.NextSingle());
+            ref BoundingBox box = ref queryBoxes.AllocateUnsafely();
+            Vector3 r = new(random.NextSingle(), random.NextSingle(), random.NextSingle());
+            Vector3 boxOrigin = randomMin + r * randomSpan;
+            Vector3 boxHalfSize = new(0.25f + 0.75f * random.NextSingle());
             box.Min = boxOrigin - boxHalfSize;
             box.Max = boxOrigin + boxHalfSize;
         }
@@ -176,15 +176,15 @@ public class VolumeQueryTests : Demo
     unsafe int Worker1(int workerIndex, BoxQueryAlgorithm algorithm)
     {
         int intersectionCount = 0;
-        var hitHandler = new HitHandler { IntersectionCount = &intersectionCount };
+        HitHandler hitHandler = new() { IntersectionCount = &intersectionCount };
         int claimedIndex;
-        var pool = ThreadDispatcher.WorkerPools[workerIndex];
+        BufferPool pool = ThreadDispatcher.WorkerPools[workerIndex];
         while ((claimedIndex = Interlocked.Increment(ref algorithm.JobIndex)) < jobs.Length)
         {
-            ref var job = ref jobs[claimedIndex];
+            ref QueryJob job = ref jobs[claimedIndex];
             for (int i = job.Start; i < job.End; ++i)
             {
-                ref var box = ref queryBoxes[i];
+                ref BoundingBox box = ref queryBoxes[i];
                 Simulation.BroadPhase.GetOverlaps(box, pool, ref hitHandler);
             }
         }
@@ -231,7 +231,7 @@ public class VolumeQueryTests : Demo
         for (int i = 0; i < jobs.Length; ++i)
         {
             int raysInJob = i < remainder ? raysPerJobBase + 1 : raysPerJobBase;
-            ref var job = ref jobs[i];
+            ref QueryJob job = ref jobs[i];
             job.Start = previousJobEnd;
             job.End = previousJobEnd = previousJobEnd + raysInJob;
         }
@@ -285,11 +285,11 @@ public class VolumeQueryTests : Demo
         renderer.TextBatcher.Write(text.Clear().Append("Boxes per second:"), new Vector2(224, renderer.Surface.Resolution.Y - 64), 16, new Vector3(1), font);
         renderer.TextBatcher.Write(text.Clear().Append("Relative speed:"), new Vector2(350, renderer.Surface.Resolution.Y - 64), 16, new Vector3(1), font);
 
-        var baseStats = algorithms[0].Timings.ComputeStats();
+        TimelineStats baseStats = algorithms[0].Timings.ComputeStats();
         var baseHeight = 48;
         for (int i = 0; i < algorithms.Length; ++i)
         {
-            var stats = algorithms[i].Timings.ComputeStats();
+            TimelineStats stats = algorithms[i].Timings.ComputeStats();
             WriteResults(algorithms[i].Name, stats.Average, baseStats.Average, renderer.Surface.Resolution.Y - (baseHeight - 16 * i), renderer.TextBatcher, text, font);
         }
 

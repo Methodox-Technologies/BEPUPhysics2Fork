@@ -19,8 +19,8 @@ struct SimpleCar
 
     public void Steer(Simulation simulation, in WheelHandles wheel, float angle)
     {
-        var steeredHinge = hingeDescription;
-        Matrix3x3.CreateFromAxisAngle(suspensionDirection, -angle, out var rotation);
+        AngularHinge steeredHinge = hingeDescription;
+        Matrix3x3.CreateFromAxisAngle(suspensionDirection, -angle, out Matrix3x3 rotation);
         Matrix3x3.Transform(hingeDescription.LocalHingeAxisA, rotation, out steeredHinge.LocalHingeAxisA);
         simulation.Solver.ApplyDescription(wheel.Hinge, steeredHinge);
     }
@@ -72,7 +72,7 @@ struct SimpleCar
         });
         handles.Hinge = simulation.Solver.Add(bodyHandle, handles.Wheel, hingeDescription);
         //The demos SubgroupCollisionFilter is pretty simple and only tests one direction, so we make the non-colliding relationship symmetric.
-        ref var wheelProperties = ref properties.Allocate(handles.Wheel);
+        ref CarBodyProperties wheelProperties = ref properties.Allocate(handles.Wheel);
         wheelProperties = new CarBodyProperties { Filter = new SubgroupCollisionFilter(bodyHandle.Value, 1), Friction = wheelFriction };
         SubgroupCollisionFilter.DisableCollision(ref wheelProperties.Filter, ref bodyFilter);
 
@@ -86,9 +86,9 @@ struct SimpleCar
     {
         SimpleCar car;
         car.Body = simulation.Bodies.Add(BodyDescription.CreateDynamic(pose, bodyInertia, new(bodyShape, 0.5f), 0.01f));
-        ref var bodyProperties = ref properties.Allocate(car.Body);
+        ref CarBodyProperties bodyProperties = ref properties.Allocate(car.Body);
         bodyProperties = new CarBodyProperties { Friction = bodyFriction, Filter = new SubgroupCollisionFilter(car.Body.Value, 0) };
-        QuaternionEx.TransformUnitY(localWheelOrientation, out var wheelAxis);
+        QuaternionEx.TransformUnitY(localWheelOrientation, out Vector3 wheelAxis);
         car.hingeDescription = new AngularHinge
         {
             LocalHingeAxisA = wheelAxis,

@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
-using DemoBenchmarks;
 
 public class BepuPhysics2Benchmarks
 {

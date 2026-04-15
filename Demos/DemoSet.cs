@@ -6,7 +6,6 @@ using Demos.Demos.Characters;
 using Demos.Demos.Dancers;
 using Demos.Demos.Sponsors;
 using Demos.Demos.Tanks;
-using Demos.SpecializedTests;
 using System;
 using System.Collections.Generic;
 
@@ -33,7 +32,7 @@ public class DemoSet
                 //Note that the actual work is done in the Initialize function rather than a constructor.
                 //The 'new T()' syntax actually uses reflection and repackages exceptions in an inconvenient way.
                 //By using Initialize instead, the stack trace and debugger will go right to the source.
-                var demo = new T();
+                T demo = new();
                 demo.LoadGraphicalContent(content, surface);
                 demo.Initialize(content, camera);
                 return demo;

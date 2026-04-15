@@ -14,9 +14,6 @@ using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
 using System.Text.Json;
 using System.IO;
-using DemoRenderer.Constraints;
-using DemoUtilities;
-using DemoRenderer.UI;
 using System.Diagnostics;
 
 
@@ -27,8 +24,8 @@ public class ConvexHullTestDemo : Demo
 {
     Vector3[] CreateRandomConvexHullPoints()
     {
-        var points = new Vector3[50];
-        var random = new Random(5);
+        Vector3[] points = new Vector3[50];
+        Random random = new(5);
         for (int i = 0; i < points.Length; ++i)
         {
             points[i] = new(3 * random.NextSingle(), 1 * random.NextSingle(), 3 * random.NextSingle());
@@ -39,7 +36,7 @@ public class ConvexHullTestDemo : Demo
 
     Vector3[] CreateBwaa()
     {
-        var points = new Vector3[]
+        Vector3[] points = new Vector3[]
         {
              new(-0.637357891f, 0.347849399f, -0.303436399f),
              new(-0.636290252f, 0.345867455f, -0.301366687f),
@@ -171,7 +168,7 @@ public class ConvexHullTestDemo : Demo
 
     Vector3[] CreatePlaneish()
     {
-        var points = new Vector3[]
+        Vector3[] points = new Vector3[]
         {
             new(-13.82f, 16.79f, 13.83f),
             new(13.82f, -16.79f, -13.83f),
@@ -191,7 +188,7 @@ public class ConvexHullTestDemo : Demo
 
     Vector3[] CreateDistantPlane()
     {
-        var points = new Vector3[]
+        Vector3[] points = new Vector3[]
         {
             new(-151.0875f, -2.2505488f, 102.17515f),
             new(-151.10571f, 2.1121342f, -17.699797f),
@@ -215,10 +212,10 @@ public class ConvexHullTestDemo : Demo
         //Generating it directly from a graphical data source tends to have way more surface complexity than needed,
         //and it tends to have a lot of near-but-not-quite-coplanar surfaces which can make the contact manifold less stable.
         //Prefer a simpler source with more distinct features, possibly created with an automated content-time tool.
-        var points = new Vector3[meshContent.Triangles.Length * 3];
+        Vector3[] points = new Vector3[meshContent.Triangles.Length * 3];
         for (int i = 0; i < meshContent.Triangles.Length; ++i)
         {
-            ref var triangle = ref meshContent.Triangles[i];
+            ref TriangleContent triangle = ref meshContent.Triangles[i];
             //resisting the urge to just reinterpret the memory
             points[i * 3 + 0] = triangle.A * scale;
             points[i * 3 + 1] = triangle.B * scale;
@@ -229,7 +226,7 @@ public class ConvexHullTestDemo : Demo
 
     Vector3[] CreateBoxConvexHull(float boxScale)
     {
-        var points = new Vector3[]
+        Vector3[] points = new Vector3[]
         {
             new(0, 0, 0),
             new(0, 0, boxScale),
@@ -246,7 +243,7 @@ public class ConvexHullTestDemo : Demo
     //A couple of test point sets from PEEL: https://github.com/Pierre-Terdiman/PEEL_PhysX_Edition
     Vector3[] CreateTestConvexHull()
     {
-        var vertices = new Vector3[]
+        Vector3[] vertices = new Vector3[]
         {
             new(-0.000000f, -0.297120f, -0.000000f),
             new(0.258819f, -0.297120f, 0.965926f),
@@ -304,7 +301,7 @@ public class ConvexHullTestDemo : Demo
 
     Vector3[] CreateTestConvexHull2()
     {
-        var vertices = new Vector3[]
+        Vector3[] vertices = new Vector3[]
         {
             new(0.153478f, 0.993671f, 0.124687f),
             new(0.153478f, 0.993671f, -0.117774f),
@@ -433,7 +430,7 @@ public class ConvexHullTestDemo : Demo
 
     Vector3[] CreateTestConvexHull3()
     {
-        var vertices = new Vector3[]
+        Vector3[] vertices = new Vector3[]
         {
             new(-0.103558f, 1.000000f, -0.490575f),
             new(0.266493f, 0.659794f, -0.363751f),
@@ -464,7 +461,7 @@ public class ConvexHullTestDemo : Demo
     Vector3[] CreateJSONSourcedConvexHull(string filePath)
     {
         //ChatGPT wrote this, of course.
-        List<Vector3> points = new List<Vector3>();
+        List<Vector3> points = new();
         if (File.Exists(filePath))
         {
             string jsonContent = File.ReadAllText(filePath);
@@ -473,7 +470,7 @@ public class ConvexHullTestDemo : Demo
             {
                 if (point.Count == 3)
                 {
-                    Vector3 vector3Point = new Vector3((float)point[0], (float)point[1], (float)point[2]);
+                    Vector3 vector3Point = new((float)point[0], (float)point[1], (float)point[2]);
                     points.Add(vector3Point);
                 }
             }
@@ -494,8 +491,8 @@ public class ConvexHullTestDemo : Demo
             for (int j = 0; j < widthInPoints; ++j)
             {
                 var y = j * step - offset;
-                var localOffset = new Vector3(x, y, localFaceOffset);
-                Matrix3x3.Transform(localOffset, transform, out var worldOffset);
+                Vector3 localOffset = new(x, y, localFaceOffset);
+                Matrix3x3.Transform(localOffset, transform, out Vector3 worldOffset);
                 facePoints[i * widthInPoints + j] = worldOffset;
             }
         }
@@ -503,15 +500,15 @@ public class ConvexHullTestDemo : Demo
     Vector3[] CreateHellCube(int widthInPoints)
     {
         var facePointCount = widthInPoints * widthInPoints;
-        var buffer = new Vector3[facePointCount * 6];
+        Vector3[] buffer = new Vector3[facePointCount * 6];
         var size = 8f;
         var halfSize = size / 2;
         var step = size / (widthInPoints - 1);
-        Matrix3x3.CreateFromAxisAngle(Vector3.Normalize(new Vector3(1f, 1, 1f)), float.Pi / 2, out var cubeTransform);
-        Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), float.Pi / 2, out var zFace);
+        Matrix3x3.CreateFromAxisAngle(Vector3.Normalize(new Vector3(1f, 1, 1f)), float.Pi / 2, out Matrix3x3 cubeTransform);
+        Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), float.Pi / 2, out Matrix3x3 zFace);
         zFace *= cubeTransform;
-        Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), float.Pi, out var localFace2);
-        Matrix3x3.CreateFromAxisAngle(new Vector3(1, 0, 0), -float.Pi / 2, out var yFace);
+        Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), float.Pi, out Matrix3x3 localFace2);
+        Matrix3x3.CreateFromAxisAngle(new Vector3(1, 0, 0), -float.Pi / 2, out Matrix3x3 yFace);
         yFace *= cubeTransform;
         CreateHellCubeFace(widthInPoints, step, buffer.AsSpan(facePointCount * 0, facePointCount), cubeTransform, halfSize);
         CreateHellCubeFace(widthInPoints, step, buffer.AsSpan(facePointCount * 1, facePointCount), zFace, halfSize);
@@ -543,7 +540,7 @@ public class ConvexHullTestDemo : Demo
 
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var hullPointSets = new Vector3[][]
+        Vector3[][] hullPointSets = new Vector3[][]
         {
             CreateRandomConvexHullPoints(),
             CreateMeshConvexHull(content.Load<MeshContent>(@"Content\newt.obj"), new Vector3(1, 1.5f, 1f)),
@@ -561,7 +558,7 @@ public class ConvexHullTestDemo : Demo
         hullTests = new HullTestData[hullPointSets.Length];
         for (int i = 0; i < hullPointSets.Length; ++i)
         {
-            ref var test = ref hullTests[i];
+            ref HullTestData test = ref hullTests[i];
             test.Points = hullPointSets[i];
 #if DEBUG_STEPS
             ComputeHull(hullPointSets[i], BufferPool, out test.HullData, out test.DebugSteps);
@@ -578,14 +575,14 @@ public class ConvexHullTestDemo : Demo
             float largestError = 0;
             for (int j = 0; j < test.Hull.FaceToVertexIndicesStart.Length; ++j)
             {
-                test.Hull.GetVertexIndicesForFace(j, out var faceVertices);
+                test.Hull.GetVertexIndicesForFace(j, out Buffer<HullVertexIndex> faceVertices);
                 BundleIndexing.GetBundleIndices(j, out var normalBundleIndex, out var normalIndexInBundle);
-                Vector3Wide.ReadSlot(ref test.Hull.BoundingPlanes[normalBundleIndex].Normal, normalIndexInBundle, out var faceNormal);
+                Vector3Wide.ReadSlot(ref test.Hull.BoundingPlanes[normalBundleIndex].Normal, normalIndexInBundle, out Vector3 faceNormal);
                 var offset = test.Hull.BoundingPlanes[normalBundleIndex].Offset[normalIndexInBundle];
                 //Console.WriteLine($"Face {j} errors:");
                 for (int k = 0; k < faceVertices.Length; ++k)
                 {
-                    test.Hull.GetPoint(faceVertices[k], out var point);
+                    test.Hull.GetPoint(faceVertices[k], out Vector3 point);
                     var error = Vector3.Dot(point, faceNormal) - offset;
                     //Console.WriteLine($"v{k}: {error}");
                     largestError = MathF.Max(MathF.Abs(error), largestError);
@@ -593,23 +590,23 @@ public class ConvexHullTestDemo : Demo
             }
             Console.WriteLine($"Largest error: {largestError}");
 
-            Matrix3x3.CreateScale(new Vector3(5, 0.5f, 3), out var scale);
-            var transform = Matrix3x3.CreateFromAxisAngle(Vector3.Normalize(new Vector3(3, 2, 1)), 1207) * scale;
+            Matrix3x3.CreateScale(new Vector3(5, 0.5f, 3), out Matrix3x3 scale);
+            Matrix3x3 transform = Matrix3x3.CreateFromAxisAngle(Vector3.Normalize(new Vector3(3, 2, 1)), 1207) * scale;
             const int transformCount = 10000;
             var transformStart = Stopwatch.GetTimestamp();
             for (int j = 0; j < transformCount; ++j)
             {
-                CreateTransformedCopy(test.Hull, transform, BufferPool, out var transformedHullShape);
+                CreateTransformedCopy(test.Hull, transform, BufferPool, out ConvexHull transformedHullShape);
                 transformedHullShape.Dispose(BufferPool);
             }
             var transformEnd = Stopwatch.GetTimestamp();
             Console.WriteLine($"Transform hull computation time (us): {(transformEnd - transformStart) * 1e6 / (transformCount * Stopwatch.Frequency)}");
 
-            test.Hull.RayTest(RigidPose.Identity, new Vector3(0, 1, 0), -Vector3.UnitY, out var t, out var normal);
+            test.Hull.RayTest(RigidPose.Identity, new Vector3(0, 1, 0), -Vector3.UnitY, out var t, out Vector3 normal);
             const int rayIterationCount = 10000;
-            var rayPose = RigidPose.Identity;
-            var rayOrigin = new Vector3(0, 2, 0);
-            var rayDirection = new Vector3(0, -1, 0);
+            RigidPose rayPose = RigidPose.Identity;
+            Vector3 rayOrigin = new(0, 2, 0);
+            Vector3 rayDirection = new(0, -1, 0);
 
             int hitCounter = 0;
             var start = Stopwatch.GetTimestamp();
@@ -627,14 +624,14 @@ public class ConvexHullTestDemo : Demo
             start = Stopwatch.GetTimestamp();
             for (int j = 0; j < iterationCount; ++j)
             {
-                CreateShape(test.Points, BufferPool, out _, out var perfTestShape);
+                CreateShape(test.Points, BufferPool, out _, out ConvexHull perfTestShape);
                 perfTestShape.Dispose(BufferPool);
             }
             end = Stopwatch.GetTimestamp();
             Console.WriteLine($"Hull computation time (us): {(end - start) * 1e6 / (iterationCount * Stopwatch.Frequency)}");
         }
 
-        var boxHullShape = new ConvexHull(CreateBoxConvexHull(2), BufferPool, out _);
+        ConvexHull boxHullShape = new(CreateBoxConvexHull(2), BufferPool, out _);
 
 
 
@@ -652,17 +649,17 @@ public class ConvexHullTestDemo : Demo
         float z = 0;
         for (int otherShapeIndex = 0; otherShapeIndex < otherShapes.Length; ++otherShapeIndex)
         {
-            Simulation.Shapes.UpdateBounds(RigidPose.Identity, otherShapes[otherShapeIndex], out var bounds);
-            var otherShapeSpan = bounds.Max - bounds.Min;
-            var staticOffset = (bounds.Max + bounds.Min) * -0.5f + new Vector3(0, -5f, 0);
+            Simulation.Shapes.UpdateBounds(RigidPose.Identity, otherShapes[otherShapeIndex], out BoundingBox bounds);
+            Vector3 otherShapeSpan = bounds.Max - bounds.Min;
+            Vector3 staticOffset = (bounds.Max + bounds.Min) * -0.5f + new Vector3(0, -5f, 0);
             var staticTop = bounds.Max.Y + staticOffset.Y;
             float x = 0;
             float effectiveZSpan = otherShapeSpan.Z;
             for (int hullIndex = 0; hullIndex < hullTests.Length; ++hullIndex)
             {
-                ref var test = ref hullTests[hullIndex];
-                test.Hull.ComputeBounds(Quaternion.Identity, out var min, out var max);
-                var span = max - min;
+                ref HullTestData test = ref hullTests[hullIndex];
+                test.Hull.ComputeBounds(Quaternion.Identity, out Vector3 min, out Vector3 max);
+                Vector3 span = max - min;
                 effectiveZSpan = MathF.Max(span.Z, effectiveZSpan);
 
                 var spanX = MathF.Max(otherShapeSpan.X, span.X);
@@ -675,13 +672,13 @@ public class ConvexHullTestDemo : Demo
             z += effectiveZSpan + spacing;
         }
 
-        var pileSpacing = new Vector3(3f, 3f, 3);
+        Vector3 pileSpacing = new(3f, 3f, 3);
         int width = 16;
         int height = 16;
         int length = 0;
-        var origin = -0.5f * spacing * new Vector3(width, 0, length) + new Vector3(40, 0.2f, -40);
-        var pileInertia = hullTests[0].Hull.ComputeInertia(1);
-        var pileShape = hullTests[0].ShapeIndex;
+        Vector3 origin = -0.5f * spacing * new Vector3(width, 0, length) + new Vector3(40, 0.2f, -40);
+        BodyInertia pileInertia = hullTests[0].Hull.ComputeInertia(1);
+        TypedIndex pileShape = hullTests[0].ShapeIndex;
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
@@ -696,8 +693,8 @@ public class ConvexHullTestDemo : Demo
         }
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, -10, 0), Simulation.Shapes.Add(new Box(1000, 1, 1000))));
 
-        Random random = new Random(5);
-        var mesh = DemoMeshHelper.CreateDeformedPlane(64, 64, (x, y) => new Vector3(
+        Random random = new(5);
+        Mesh mesh = DemoMeshHelper.CreateDeformedPlane(64, 64, (x, y) => new Vector3(
             x + 8,
             2f * MathF.Sin(x * 0.125f) * MathF.Sin(y * 0.125f) + 0.1f * random.NextSingle() - 3,
             y - 8), new Vector3(1, 1, 1), BufferPool);
@@ -710,18 +707,18 @@ public class ConvexHullTestDemo : Demo
 
     void TestConvexHullCreation()
     {
-        var random = new Random(5);
+        Random random = new(5);
         for (int iterationIndex = 0; iterationIndex < 100000; ++iterationIndex)
         {
             const int pointCount = 32;
-            var points = new QuickList<Vector3>(pointCount, BufferPool);
+            QuickList<Vector3> points = new(pointCount, BufferPool);
             for (int i = 0; i < pointCount; ++i)
             {
                 points.AllocateUnsafely() = new Vector3(1 * random.NextSingle(), 2 * random.NextSingle(), 3 * random.NextSingle());
             }
 
-            var pointsBuffer = points.Span.Slice(points.Count);
-            CreateShape(pointsBuffer, BufferPool, out _, out var hullShape);
+            Buffer<Vector3> pointsBuffer = points.Span.Slice(points.Count);
+            CreateShape(pointsBuffer, BufferPool, out _, out ConvexHull hullShape);
 
             hullShape.Dispose(BufferPool);
         }

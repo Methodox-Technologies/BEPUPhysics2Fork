@@ -66,39 +66,39 @@ public class RayCastingDemo : Demo
 
 
 
-        var sphere = new Sphere(0.5f);
-        var capsule = new Capsule(0, 0.5f);
-        var box = new Box(0.5f, 1.5f, 1f);
-        var cylinder = new Cylinder(0.5f, 1);
+        Sphere sphere = new(0.5f);
+        Capsule capsule = new(0, 0.5f);
+        Box box = new(0.5f, 1.5f, 1f);
+        Cylinder cylinder = new(0.5f, 1);
         const int pointCount = 16;
-        var points = new QuickList<Vector3>(pointCount, BufferPool);
-        var random = new Random(5);
+        QuickList<Vector3> points = new(pointCount, BufferPool);
+        Random random = new(5);
         for (int i = 0; i < pointCount; ++i)
         {
             points.AllocateUnsafely() = new Vector3(1 * random.NextSingle(), 1 * random.NextSingle(), 1 * random.NextSingle());
         }
-        var hullShape = new ConvexHull(points, BufferPool, out _);
-        var sphereIndex = Simulation.Shapes.Add(sphere);
-        var capsuleIndex = Simulation.Shapes.Add(capsule);
-        var boxIndex = Simulation.Shapes.Add(box);
-        var cylinderIndex = Simulation.Shapes.Add(cylinder);
-        var hullIndex = Simulation.Shapes.Add(hullShape);
+        ConvexHull hullShape = new(points, BufferPool, out _);
+        TypedIndex sphereIndex = Simulation.Shapes.Add(sphere);
+        TypedIndex capsuleIndex = Simulation.Shapes.Add(capsule);
+        TypedIndex boxIndex = Simulation.Shapes.Add(box);
+        TypedIndex cylinderIndex = Simulation.Shapes.Add(cylinder);
+        TypedIndex hullIndex = Simulation.Shapes.Add(hullShape);
         const int width = 16;
         const int height = 16;
         const int length = 16;
-        var spacing = new Vector3(2.01f);
-        var halfSpacing = spacing / 2;
+        Vector3 spacing = new(2.01f);
+        Vector3 halfSpacing = spacing / 2;
         float randomizationSubset = 0.9f;
-        var randomizationSpan = (spacing - new Vector3(1)) * randomizationSubset;
-        var randomizationBase = randomizationSpan * -0.5f;
+        Vector3 randomizationSpan = (spacing - new Vector3(1)) * randomizationSubset;
+        Vector3 randomizationBase = randomizationSpan * -0.5f;
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
             {
                 for (int k = 0; k < length; ++k)
                 {
-                    var r = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
-                    var location = spacing * (new Vector3(i, j, k) + new Vector3(-width, -height, -length) * 0.5f) + randomizationBase + r * randomizationSpan;
+                    Vector3 r = new(random.NextSingle(), random.NextSingle(), random.NextSingle());
+                    Vector3 location = spacing * (new Vector3(i, j, k) + new Vector3(-width, -height, -length) * 0.5f) + randomizationBase + r * randomizationSpan;
 
                     Quaternion orientation;
                     orientation.X = -1 + 2 * random.NextSingle();
@@ -106,7 +106,7 @@ public class RayCastingDemo : Demo
                     orientation.Z = -1 + 2 * random.NextSingle();
                     orientation.W = 0.01f + random.NextSingle();
                     QuaternionEx.Normalize(ref orientation);
-                    var shapeIndex = ((i + j + k) % 5) switch
+                    TypedIndex shapeIndex = ((i + j + k) % 5) switch
                     {
                         0 => boxIndex,
                         1 => capsuleIndex,
@@ -128,7 +128,7 @@ public class RayCastingDemo : Demo
 
         const int planeWidth = 128;
         const int planeHeight = 128;
-        var planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
+        Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
             (int x, int y) =>
             {
                 return new Vector3(x - planeWidth / 2, 1 * MathF.Cos(x / 4f) * MathF.Sin(y / 4f), y - planeHeight / 2);
@@ -143,11 +143,11 @@ public class RayCastingDemo : Demo
 
         //Spew rays all over the place, starting inside the shape cube.
         int randomRayCount = 1 << 14;
-        ref var randomRays = ref raySources[0];
+        ref QuickList<TestRay> randomRays = ref raySources[0];
         randomRays = new QuickList<TestRay>(randomRayCount, BufferPool);
         for (int i = 0; i < randomRayCount; ++i)
         {
-            var direction = GetDirection(random);
+            Vector3 direction = GetDirection(random);
             var originScale = (float)Math.Sqrt(random.NextDouble());
             randomRays.AllocateUnsafely() = new TestRay
             {
@@ -164,16 +164,16 @@ public class RayCastingDemo : Demo
         float verticalFOV = MathHelper.Pi * 0.16f;
         var unitZScreenHeight = 2 * MathF.Tan(verticalFOV / 2);
         var unitZScreenWidth = unitZScreenHeight * aspectRatio;
-        var unitZSpacing = new Vector2(unitZScreenWidth / frustumRayWidth, unitZScreenHeight / frustumRayHeight);
-        var unitZBase = (unitZSpacing - new Vector2(unitZScreenWidth, unitZScreenHeight)) * 0.5f;
-        ref var frustumRays = ref raySources[1];
+        Vector2 unitZSpacing = new(unitZScreenWidth / frustumRayWidth, unitZScreenHeight / frustumRayHeight);
+        Vector2 unitZBase = (unitZSpacing - new Vector2(unitZScreenWidth, unitZScreenHeight)) * 0.5f;
+        ref QuickList<TestRay> frustumRays = ref raySources[1];
         frustumRays = new QuickList<TestRay>(frustumRayWidth * frustumRayHeight, BufferPool);
-        var frustumOrigin = new Vector3(0, 0, -50);
+        Vector3 frustumOrigin = new(0, 0, -50);
         for (int i = 0; i < frustumRayWidth; ++i)
         {
             for (int j = 0; j < frustumRayHeight; ++j)
             {
-                ref var ray = ref frustumRays.AllocateUnsafely();
+                ref TestRay ray = ref frustumRays.AllocateUnsafely();
                 ray.Direction = new Vector3(unitZBase + new Vector2(i, j) * unitZSpacing, 1);
                 ray.Origin = frustumOrigin + ray.Direction * 10;
                 ray.MaximumT = 100;
@@ -183,10 +183,10 @@ public class RayCastingDemo : Demo
         //Send a wall of rays. Matches an orthographic projection.
         int wallWidth = 128;
         int wallHeight = 128;
-        var wallOrigin = new Vector3(0, 0, -50);
-        var wallSpacing = new Vector2(0.1f);
-        var wallBase = 0.5f * (wallSpacing - wallSpacing * new Vector2(wallWidth, wallHeight));
-        ref var wallRays = ref raySources[2];
+        Vector3 wallOrigin = new(0, 0, -50);
+        Vector2 wallSpacing = new(0.1f);
+        Vector2 wallBase = 0.5f * (wallSpacing - wallSpacing * new Vector2(wallWidth, wallHeight));
+        ref QuickList<TestRay> wallRays = ref raySources[2];
         wallRays = new QuickList<TestRay>(wallWidth * wallHeight, BufferPool);
         for (int i = 0; i < wallWidth; ++i)
         {
@@ -297,15 +297,15 @@ public class RayCastingDemo : Demo
     unsafe int BatchedWorker(int workerIndex, IntersectionAlgorithm algorithm)
     {
         int intersectionCount = 0;
-        var hitHandler = new HitHandler { Hits = algorithm.Results, IntersectionCount = &intersectionCount };
-        var batcher = new SimulationRayBatcher<HitHandler>(ThreadDispatcher.WorkerPools[workerIndex], Simulation, hitHandler, 2048);
+        HitHandler hitHandler = new() { Hits = algorithm.Results, IntersectionCount = &intersectionCount };
+        SimulationRayBatcher<HitHandler> batcher = new(ThreadDispatcher.WorkerPools[workerIndex], Simulation, hitHandler, 2048);
         int claimedIndex;
         while ((claimedIndex = Interlocked.Increment(ref algorithm.JobIndex)) < jobs.Length)
         {
-            ref var job = ref jobs[claimedIndex];
+            ref RayJob job = ref jobs[claimedIndex];
             for (int i = job.Start; i < job.End; ++i)
             {
-                ref var ray = ref testRays[i];
+                ref TestRay ray = ref testRays[i];
                 batcher.Add(ref ray.Origin, ref ray.Direction, ray.MaximumT, i);
             }
         }
@@ -317,15 +317,15 @@ public class RayCastingDemo : Demo
     unsafe int UnbatchedWorker(int workerIndex, IntersectionAlgorithm algorithm)
     {
         int intersectionCount = 0;
-        var hitHandler = new HitHandler { Hits = algorithm.Results, IntersectionCount = &intersectionCount };
+        HitHandler hitHandler = new() { Hits = algorithm.Results, IntersectionCount = &intersectionCount };
         int claimedIndex;
-        var pool = ThreadDispatcher.WorkerPools[workerIndex];
+        BufferPool pool = ThreadDispatcher.WorkerPools[workerIndex];
         while ((claimedIndex = Interlocked.Increment(ref algorithm.JobIndex)) < jobs.Length)
         {
-            ref var job = ref jobs[claimedIndex];
+            ref RayJob job = ref jobs[claimedIndex];
             for (int i = job.Start; i < job.End; ++i)
             {
-                ref var ray = ref testRays[i];
+                ref TestRay ray = ref testRays[i];
                 Simulation.RayCast(ray.Origin, ray.Direction, ray.MaximumT, pool, ref hitHandler, i);
             }
         }
@@ -362,7 +362,7 @@ public class RayCastingDemo : Demo
         public void OnRayHit(in RayData ray, ref float maximumT, float t, Vector3 normal, CollidableReference collidable, int childIndex)
         {
             maximumT = t;
-            ref var hit = ref Hits[ray.Id];
+            ref RayHit hit = ref Hits[ray.Id];
             if (t < hit.T)
             {
                 if (hit.T == float.MaxValue)
@@ -384,12 +384,12 @@ public class RayCastingDemo : Demo
     void CopyAndRotate(ref QuickList<TestRay> source)
     {
         testRays.Count = source.Count;
-        var transform = Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), rotation);
+        Matrix3x3 transform = Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), rotation);
 
         for (int i = 0; i < source.Count; ++i)
         {
-            ref var targetRay = ref testRays[i];
-            ref var sourceRay = ref source[i];
+            ref TestRay targetRay = ref testRays[i];
+            ref TestRay sourceRay = ref source[i];
             Matrix3x3.Transform(sourceRay.Origin, transform, out targetRay.Origin);
             Matrix3x3.Transform(sourceRay.Direction, transform, out targetRay.Direction);
             targetRay.MaximumT = sourceRay.MaximumT;
@@ -446,7 +446,7 @@ public class RayCastingDemo : Demo
         for (int i = 0; i < jobs.Length; ++i)
         {
             int raysInJob = i < remainder ? raysPerJobBase + 1 : raysPerJobBase;
-            ref var job = ref jobs[i];
+            ref RayJob job = ref jobs[i];
             job.Start = previousJobEnd;
             job.End = previousJobEnd = previousJobEnd + raysInJob;
         }
@@ -459,12 +459,12 @@ public class RayCastingDemo : Demo
         for (int i = 1; i < algorithms.Length; ++i)
         {
             Debug.Assert(algorithms[i].IntersectionCount == algorithms[0].IntersectionCount);
-            var current = algorithms[i];
-            var earlier = algorithms[0];
+            IntersectionAlgorithm current = algorithms[i];
+            IntersectionAlgorithm earlier = algorithms[0];
             for (int j = 0; j < testRays.Count; ++j)
             {
-                ref var currentResult = ref current.Results[j];
-                ref var earlierResult = ref earlier.Results[j];
+                ref RayHit currentResult = ref current.Results[j];
+                ref RayHit earlierResult = ref earlier.Results[j];
                 Debug.Assert(currentResult.Hit == earlierResult.Hit && (!earlierResult.Hit || Math.Abs(earlierResult.T - currentResult.T) < 1e-6f));
             }
         }
@@ -479,11 +479,11 @@ public class RayCastingDemo : Demo
         var packedBackground = Helpers.PackColor(backgroundColor);
         for (int i = 0; i < testRays.Count; ++i)
         {
-            ref var result = ref results[i];
-            ref var ray = ref testRays[i];
+            ref RayHit result = ref results[i];
+            ref TestRay ray = ref testRays[i];
             if (result.Hit)
             {
-                var end = ray.Origin + ray.Direction * result.T;
+                Vector3 end = ray.Origin + ray.Direction * result.T;
                 var diffuseLight = Vector3.Dot(result.Normal, new Vector3(0.57735f));
                 if (diffuseLight < 0)
                 {
@@ -494,7 +494,7 @@ public class RayCastingDemo : Demo
             }
             else
             {
-                var end = ray.Origin + ray.Direction * ray.MaximumT;
+                Vector3 end = ray.Origin + ray.Direction * ray.MaximumT;
                 renderer.Lines.Allocate() = new LineInstance(ray.Origin, end, packedForegroundMiss, packedBackground);
             }
         }
@@ -552,11 +552,11 @@ public class RayCastingDemo : Demo
         renderer.TextBatcher.Write(text.Clear().Append("Rays per second:"), new Vector2(224, renderer.Surface.Resolution.Y - 64), 16, new Vector3(1), font);
         renderer.TextBatcher.Write(text.Clear().Append("Relative speed:"), new Vector2(350, renderer.Surface.Resolution.Y - 64), 16, new Vector3(1), font);
 
-        var baseStats = algorithms[0].Timings.ComputeStats();
+        TimelineStats baseStats = algorithms[0].Timings.ComputeStats();
         var baseHeight = 48;
         for (int i = 0; i < algorithms.Length; ++i)
         {
-            var stats = algorithms[i].Timings.ComputeStats();
+            TimelineStats stats = algorithms[i].Timings.ComputeStats();
             WriteResults(algorithms[i].Name, stats.Average, baseStats.Average, renderer.Surface.Resolution.Y - (baseHeight - 16 * i), renderer.TextBatcher, text, font);
         }
 

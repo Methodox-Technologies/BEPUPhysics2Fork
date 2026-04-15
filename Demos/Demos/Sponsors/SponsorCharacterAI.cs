@@ -15,7 +15,7 @@ public struct SponsorCharacterAI
     {
         bodyHandle = characters.Simulation.Bodies.Add(BodyDescription.CreateDynamic(initialPosition, new BodyInertia { InverseMass = 1f }, characterCollidable, -1f));
 
-        ref var character = ref characters.AllocateCharacter(bodyHandle);
+        ref CharacterController character = ref characters.AllocateCharacter(bodyHandle);
         character.LocalUp = new Vector3(0, 1, 0);
         character.CosMaximumSlope = MathF.Cos(MathF.PI * 0.48f);
         character.JumpVelocity = 4;
@@ -29,13 +29,13 @@ public struct SponsorCharacterAI
 
     public void Update(CharacterControllers characters, Simulation simulation, ref QuickList<SponsorNewt> newts, Random random)
     {
-        var body = simulation.Bodies[bodyHandle];
+        BodyReference body = simulation.Bodies[bodyHandle];
         Vector2 influenceSum = default;
         bool spooked = false;
         for (int i = 0; i < newts.Count; ++i)
         {
-            ref var newtPosition = ref simulation.Bodies[newts[i].BodyHandle].Pose.Position;
-            var offset = newtPosition - body.Pose.Position;
+            ref Vector3 newtPosition = ref simulation.Bodies[newts[i].BodyHandle].Pose.Position;
+            Vector3 offset = newtPosition - body.Pose.Position;
             var distance = offset.Length();
             if (distance > 1e-10f)
             {
@@ -49,11 +49,11 @@ public struct SponsorCharacterAI
         }
         //We want target position relative influence to be consistent regardless of newt count.
         influenceSum /= newts.Count;
-        ref var character = ref characters.GetCharacterByBodyHandle(bodyHandle);
+        ref CharacterController character = ref characters.GetCharacterByBodyHandle(bodyHandle);
         influenceSum -= (new Vector2(body.Pose.Position.X, body.Pose.Position.Z) - targetLocation) * 0.001f;
         //Newts should do a good job at avoiding a division by zero here, but just in case, guard against it.
         var influenceSumLength = influenceSum.Length();
-        var targetWorldVelocity = influenceSumLength > 1e-6f ? influenceSum * (6f / influenceSumLength) : new Vector2();
+        Vector2 targetWorldVelocity = influenceSumLength > 1e-6f ? influenceSum * (6f / influenceSumLength) : new Vector2();
         //Rephrase the target velocity in terms of the character's control basis. 
         character.TargetVelocity = new Vector2(targetWorldVelocity.X, -targetWorldVelocity.Y);
         if (spooked && random.NextDouble() < 0.015f)

@@ -50,9 +50,9 @@ public static class MinkowskiShapeVisualizer
         where TSupportFinderB : ISupportFinder<TShapeB, TShapeWideB>
     {
         //support(N, A) - support(-N, B)
-        supportFinderA.ComputeLocalSupport(a, direction, terminatedLanes, out var extremeA);
-        Vector3Wide.Negate(direction, out var negatedDirection);
-        supportFinderB.ComputeSupport(b, localOrientationB, negatedDirection, terminatedLanes, out var extremeB);
+        supportFinderA.ComputeLocalSupport(a, direction, terminatedLanes, out Vector3Wide extremeA);
+        Vector3Wide.Negate(direction, out Vector3Wide negatedDirection);
+        supportFinderB.ComputeSupport(b, localOrientationB, negatedDirection, terminatedLanes, out Vector3Wide extremeB);
         Vector3Wide.Add(extremeB, localOffsetB, out extremeB);
 
         Vector3Wide.Subtract(extremeA, extremeB, out support);
@@ -69,8 +69,8 @@ public static class MinkowskiShapeVisualizer
         where TShapeWideB : unmanaged, IShapeWide<TShapeB>
         where TSupportFinderB : struct, ISupportFinder<TShapeB, TShapeWideB>
     {
-        var aWide = default(TShapeWideA);
-        var bWide = default(TShapeWideB);
+        TShapeWideA aWide = default(TShapeWideA);
+        TShapeWideB bWide = default(TShapeWideB);
         if(aWide.InternalAllocationSize > 0)
         {
             var memory = stackalloc byte[aWide.InternalAllocationSize];
@@ -83,15 +83,15 @@ public static class MinkowskiShapeVisualizer
         }
         aWide.Broadcast(a);
         bWide.Broadcast(b);
-        var worldOffsetB = poseB.Position - poseA.Position;
-        var localOrientationB = Matrix3x3.CreateFromQuaternion(QuaternionEx.Concatenate(poseB.Orientation, QuaternionEx.Conjugate(poseA.Orientation)));
-        var localOffsetB = QuaternionEx.Transform(worldOffsetB, QuaternionEx.Conjugate(poseA.Orientation));
-        Vector3Wide.Broadcast(localOffsetB, out var localOffsetBWide);
-        Matrix3x3Wide.Broadcast(localOrientationB, out var localOrientationBWide);
-        var supportFinderA = default(TSupportFinderA);
-        var supportFinderB = default(TSupportFinderB);
+        Vector3 worldOffsetB = poseB.Position - poseA.Position;
+        Matrix3x3 localOrientationB = Matrix3x3.CreateFromQuaternion(QuaternionEx.Concatenate(poseB.Orientation, QuaternionEx.Conjugate(poseA.Orientation)));
+        Vector3 localOffsetB = QuaternionEx.Transform(worldOffsetB, QuaternionEx.Conjugate(poseA.Orientation));
+        Vector3Wide.Broadcast(localOffsetB, out Vector3Wide localOffsetBWide);
+        Matrix3x3Wide.Broadcast(localOrientationB, out Matrix3x3Wide localOrientationBWide);
+        TSupportFinderA supportFinderA = default(TSupportFinderA);
+        TSupportFinderB supportFinderB = default(TSupportFinderB);
         var inverseSampleCount = 1f / sampleCount;
-        pool.Take<LineInstance>(sampleCount + 3, out var lines);
+        pool.Take<LineInstance>(sampleCount + 3, out Buffer<LineInstance> lines);
         var packedLineColor = Helpers.PackColor(lineColor);
         var packedBackgroundColor = Helpers.PackColor(backgroundColor);
         for (int i = 0; i < sampleCount; ++i)
@@ -100,11 +100,11 @@ public static class MinkowskiShapeVisualizer
             var phi = MathF.Acos(1f - 2f * index * inverseSampleCount);
             var theta = (MathF.PI * (1f + 2.2360679775f)) * index;
             var sinPhi = MathF.Sin(phi);
-            var sampleDirection = new Vector3(MathF.Cos(theta) * sinPhi, MathF.Sin(theta) * sinPhi, MathF.Cos(phi));
-            Vector3Wide.Broadcast(sampleDirection, out var sampleDirectionWide);
+            Vector3 sampleDirection = new(MathF.Cos(theta) * sinPhi, MathF.Sin(theta) * sinPhi, MathF.Cos(phi));
+            Vector3Wide.Broadcast(sampleDirection, out Vector3Wide sampleDirectionWide);
             //Could easily use the fact that this is vectorized, but it's marginally easier not to!
-            FindSupport<TShapeA, TShapeWideA, TSupportFinderA, TShapeB, TShapeWideB, TSupportFinderB>(aWide, bWide, localOffsetBWide, localOrientationBWide, ref supportFinderA, ref supportFinderB, sampleDirectionWide, Vector<int>.Zero, out var supportWide);
-            Vector3Wide.ReadSlot(ref supportWide, 0, out var support);
+            FindSupport<TShapeA, TShapeWideA, TSupportFinderA, TShapeB, TShapeWideB, TSupportFinderB>(aWide, bWide, localOffsetBWide, localOrientationBWide, ref supportFinderA, ref supportFinderB, sampleDirectionWide, Vector<int>.Zero, out Vector3Wide supportWide);
+            Vector3Wide.ReadSlot(ref supportWide, 0, out Vector3 support);
             lines[i] = new LineInstance(basePosition + support, basePosition + support - sampleDirection * lineLength, packedLineColor, packedBackgroundColor);
         }
         var packedOriginColor = Helpers.PackColor(originColor);

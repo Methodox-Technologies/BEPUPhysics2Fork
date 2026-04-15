@@ -31,11 +31,11 @@ public class NewtDemandingSacrificeVideoDemo : Demo
         //High fidelity simulation isn't super important on this one.
         Simulation.Solver.VelocityIterationCount = 2;
 
-        var mesh = DemoMeshHelper.LoadModel(content, BufferPool, "Content\\newt.obj", new Vector3(30));
+        Mesh mesh = DemoMeshHelper.LoadModel(content, BufferPool, "Content\\newt.obj", new Vector3(30));
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, 20, 0), QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, 0), Simulation.Shapes.Add(mesh)));
     }
 
-    Random random = new Random(5);
+    Random random = new(5);
     int ragdollIndex = 0;
 
     BodyVelocity GetRandomizedVelocity(Vector3 linearVelocity)
@@ -45,14 +45,14 @@ public class NewtDemandingSacrificeVideoDemo : Demo
 
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        var pose = TestHelpers.CreateRandomPose(random, new BoundingBox
+        RigidPose pose = TestHelpers.CreateRandomPose(random, new BoundingBox
         {
             Min = new Vector3(-10, 5, 70),
             Max = new Vector3(10, 15, 70)
         });
-        var linearVelocity = Vector3.Normalize(new Vector3(-2 + 4 * random.NextSingle(), 31 + 4 * random.NextSingle(), 50) - pose.Position) * 40;
-        var handles = RagdollDemo.AddRagdoll(pose.Position, pose.Orientation, ragdollIndex++, filters, Simulation);
-        var bodies = Simulation.Bodies;
+        Vector3 linearVelocity = Vector3.Normalize(new Vector3(-2 + 4 * random.NextSingle(), 31 + 4 * random.NextSingle(), 50) - pose.Position) * 40;
+        RagdollDemo.RagdollHandles handles = RagdollDemo.AddRagdoll(pose.Position, pose.Orientation, ragdollIndex++, filters, Simulation);
+        Bodies bodies = Simulation.Bodies;
         //This could be done better, but...  ... .... ..........
         bodies[handles.Hips].Velocity = GetRandomizedVelocity(linearVelocity);
         bodies[handles.Abdomen].Velocity = GetRandomizedVelocity(linearVelocity);

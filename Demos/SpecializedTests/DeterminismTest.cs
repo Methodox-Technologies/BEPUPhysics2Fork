@@ -9,7 +9,7 @@ public static class DeterminismTest<T> where T : Demo, new()
 {
     static Dictionary<int, MotionState> ExecuteSimulation(ContentArchive content, int frameCount)
     {
-        var demo = new T();
+        T demo = new();
         demo.Initialize(content, new DemoRenderer.Camera(1, 1, 1, 1));
         Console.Write("Completed frames: ");
         for (int i = 0; i < frameCount; ++i)
@@ -19,10 +19,10 @@ public static class DeterminismTest<T> where T : Demo, new()
             if ((i + 1) % 32 == 0)
                 Console.Write($"{i + 1}, ");
         }
-        var motionStates = new Dictionary<int, MotionState>();
+        Dictionary<int, MotionState> motionStates = new();
         for (int setIndex = 0; setIndex < demo.Simulation.Bodies.Sets.Length; ++setIndex)
         {
-            ref var set = ref demo.Simulation.Bodies.Sets[setIndex];
+            ref BodySet set = ref demo.Simulation.Bodies.Sets[setIndex];
             if (set.Allocated)
             {
                 for (int bodyIndex = 0; bodyIndex < set.Count; ++bodyIndex)
@@ -40,19 +40,19 @@ public static class DeterminismTest<T> where T : Demo, new()
     {
         //InvasiveHashDiagnostics.Initialize(1 + runCount, frameCount);
         //var hashInstance = InvasiveHashDiagnostics.Instance;
-        var initialStates = ExecuteSimulation(archive, frameCount);
+        Dictionary<int, MotionState> initialStates = ExecuteSimulation(archive, frameCount);
         //hashInstance.MoveToNextRun();
         Console.WriteLine($"Completed initial run.");
         for (int i = 0; i < runCount; ++i)
         {
-            var states = ExecuteSimulation(archive, frameCount);
+            Dictionary<int, MotionState> states = ExecuteSimulation(archive, frameCount);
             //hashInstance.MoveToNextRun();
             Console.Write($"Completed iteration {i}; checking... ");
             if (states.Count != initialStates.Count)
                 Console.WriteLine("DETERMINISM FAILURE: Differing body count.");
-            foreach (var state in states)
+            foreach (KeyValuePair<int, MotionState> state in states)
             {
-                if (!initialStates.TryGetValue(state.Key, out var initialState))
+                if (!initialStates.TryGetValue(state.Key, out MotionState initialState))
                     Console.WriteLine($"FAILURE: Body {state.Key} does not exist in first run results.");
                 else
                 {

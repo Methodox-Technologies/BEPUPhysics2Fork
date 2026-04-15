@@ -10,8 +10,6 @@ using DemoRenderer;
 using BepuPhysics;
 using BepuPhysics.Constraints;
 using BepuPhysics.Collidables;
-using BepuUtilities.TaskScheduling;
-using System.Threading;
 
 namespace Demos.SpecializedTests;
 
@@ -84,7 +82,7 @@ public class TreeFiddlingTestDemo : Demo
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Handle(int indexA, int indexB, int workerIndex, object managedContext)
         {
-            ref var worker = ref Workers[workerIndex];
+            ref Worker worker = ref Workers[workerIndex];
             worker.OverlapSum += indexA + indexB;
             ++worker.OverlapCount;
         }
@@ -102,7 +100,7 @@ public class TreeFiddlingTestDemo : Demo
             int overlapSum = 0;
             for (int i = 0; i < Workers.Length; ++i)
             {
-                ref var worker = ref Workers[i];
+                ref Worker worker = ref Workers[i];
                 overlapCount += worker.OverlapCount;
                 overlapSum += worker.OverlapSum;
             }
@@ -117,8 +115,8 @@ public class TreeFiddlingTestDemo : Demo
 
     Buffer<Triangle> CreateDeformedPlaneTriangles(int width, int height, Vector3 scale)
     {
-        Vector3 Deform(int x, int y) => new Vector3(x - width * scale.X * 0.5f, 2f * (float)(Math.Sin(x * 0.5f) * Math.Sin(y * 0.5f)), y - height * scale.Y * 0.5f);
-        BufferPool.Take<Vector3>(width * height, out var vertices);
+        Vector3 Deform(int x, int y) => new(x - width * scale.X * 0.5f, 2f * (float)(Math.Sin(x * 0.5f) * Math.Sin(y * 0.5f)), y - height * scale.Y * 0.5f);
+        BufferPool.Take<Vector3>(width * height, out Buffer<Vector3> vertices);
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
@@ -130,22 +128,22 @@ public class TreeFiddlingTestDemo : Demo
         var quadWidth = width - 1;
         var quadHeight = height - 1;
         var triangleCount = quadWidth * quadHeight * 2;
-        BufferPool.Take<Triangle>(triangleCount, out var triangles);
+        BufferPool.Take<Triangle>(triangleCount, out Buffer<Triangle> triangles);
 
         for (int i = 0; i < quadWidth; ++i)
         {
             for (int j = 0; j < quadHeight; ++j)
             {
                 var triangleIndex = (j * quadWidth + i) * 2;
-                ref var triangle0 = ref triangles[triangleIndex];
-                ref var v00 = ref vertices[width * j + i];
-                ref var v01 = ref vertices[width * j + i + 1];
-                ref var v10 = ref vertices[width * (j + 1) + i];
-                ref var v11 = ref vertices[width * (j + 1) + i + 1];
+                ref Triangle triangle0 = ref triangles[triangleIndex];
+                ref Vector3 v00 = ref vertices[width * j + i];
+                ref Vector3 v01 = ref vertices[width * j + i + 1];
+                ref Vector3 v10 = ref vertices[width * (j + 1) + i];
+                ref Vector3 v11 = ref vertices[width * (j + 1) + i + 1];
                 triangle0.A = v00;
                 triangle0.B = v01;
                 triangle0.C = v10;
-                ref var triangle1 = ref triangles[triangleIndex + 1];
+                ref Triangle triangle1 = ref triangles[triangleIndex + 1];
                 triangle1.A = v01;
                 triangle1.B = v11;
                 triangle1.C = v10;
@@ -153,11 +151,11 @@ public class TreeFiddlingTestDemo : Demo
         }
         BufferPool.Return(ref vertices);
         //Scramble the heck out of its triangles.
-        var random = new Random(5);
+        Random random = new(5);
         for (int index = 0; index < triangles.Length - 1; ++index)
         {
-            ref var a = ref triangles[index];
-            ref var b = ref triangles[random.Next(index + 1, triangles.Length)];
+            ref Triangle a = ref triangles[index];
+            ref Triangle b = ref triangles[random.Next(index + 1, triangles.Length)];
             BepuPhysics.Helpers.Swap(ref a, ref b);
         }
         return triangles;
@@ -166,21 +164,21 @@ public class TreeFiddlingTestDemo : Demo
 
     Buffer<Triangle> CreateRandomSoupTriangles(BoundingBox bounds, int triangleCount, float minimumSize, float maximumSize)
     {
-        Random random = new Random(5);
-        BufferPool.Take<Triangle>(triangleCount, out var triangles);
+        Random random = new(5);
+        BufferPool.Take<Triangle>(triangleCount, out Buffer<Triangle> triangles);
         for (int i = 0; i < triangleCount; ++i)
         {
-            var startPoint = new Vector3(random.NextSingle() * random.NextSingle(), random.NextSingle(), random.NextSingle() * random.NextSingle()) * (bounds.Max - bounds.Min) + bounds.Min;
-            var size = new Vector3(MathF.Pow(random.NextSingle(), 200), MathF.Pow(random.NextSingle(), 200), MathF.Pow(random.NextSingle(), 200)) * (maximumSize - minimumSize) + new Vector3(minimumSize);
+            Vector3 startPoint = new Vector3(random.NextSingle() * random.NextSingle(), random.NextSingle(), random.NextSingle() * random.NextSingle()) * (bounds.Max - bounds.Min) + bounds.Min;
+            Vector3 size = new Vector3(MathF.Pow(random.NextSingle(), 200), MathF.Pow(random.NextSingle(), 200), MathF.Pow(random.NextSingle(), 200)) * (maximumSize - minimumSize) + new Vector3(minimumSize);
 
-            ref var triangle = ref triangles[i];
+            ref Triangle triangle = ref triangles[i];
             triangle.A = (2 * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) - Vector3.One) * size;
             triangle.B = (2 * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) - Vector3.One) * size;
             triangle.C = (2 * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) - Vector3.One) * size;
 
             if (random.NextSingle() < 0.75f)
             {
-                var rotation = Quaternion.CreateFromAxisAngle(Vector3.Normalize(new Vector3(0.0001f) + new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle())), random.NextSingle() * MathF.PI * 2);
+                Quaternion rotation = Quaternion.CreateFromAxisAngle(Vector3.Normalize(new Vector3(0.0001f) + new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle())), random.NextSingle() * MathF.PI * 2);
                 triangle.A = Vector3.Transform(triangle.A, rotation);
                 triangle.B = Vector3.Transform(triangle.B, rotation);
                 triangle.C = Vector3.Transform(triangle.C, rotation);
@@ -205,17 +203,17 @@ public class TreeFiddlingTestDemo : Demo
             Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(4, 1));
 
             // @ @ @ @ @ @ DIRECT INSERTION TESTING @ @ @ @ @ @
-            Random random = new Random(5);
+            Random random = new(5);
             for (int p = 0; p < 16; ++p)
             {
                 var insertStart = Stopwatch.GetTimestamp();
                 const int insertionCount = 1 << 22;
-                var tree = new Tree(BufferPool, insertionCount);
+                Tree tree = new(BufferPool, insertionCount);
                 for (int k = 0; k < insertionCount; ++k)
                 {
                     //var position = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) * new Vector3(1000);
-                    var position = new Vector3(k * 4, 0, 0);
-                    var bounds = new BoundingBox { Min = position + new Vector3(-1), Max = position + new Vector3(1) };
+                    Vector3 position = new(k * 4, 0, 0);
+                    BoundingBox bounds = new() { Min = position + new Vector3(-1), Max = position + new Vector3(1) };
                     tree.Add(bounds, BufferPool);
                     //if (k % 128 == 0)
                     //    tree.Validate();
@@ -234,15 +232,15 @@ public class TreeFiddlingTestDemo : Demo
             //Create a mesh.
             var width = 1024;
             var height = 1024;
-            var scale = new Vector3(1, 1, 1);
+            Vector3 scale = new(1, 1, 1);
             //DemoMeshHelper.CreateDeformedPlane(width, height, (x, y) => new Vector3(x - width * scale.X * 0.5f, 2f * (float)(Math.Sin(x * 0.5f) * Math.Sin(y * 0.5f)), y - height * scale.Y * 0.5f), scale, BufferPool, out var mesh);
             //DemoMeshHelper.CreateDeformedPlane(width, height, (x, y) => new Vector3(x - width * scale.X * 0.5f, 0, y - height * scale.Y * 0.5f), scale, BufferPool, out var mesh);
 
 
             //var triangles = CreateDeformedPlaneTriangles(width, height, scale);
-            var triangles = CreateRandomSoupTriangles(new BoundingBox(new(width / -2f, scale.Y * -2, height / -2f), new(width / 2f, scale.Y * 2, height / 2f)), (width - 1) * (height - 1) * 2, 0.5f, 100f);
+            Buffer<Triangle> triangles = CreateRandomSoupTriangles(new BoundingBox(new(width / -2f, scale.Y * -2, height / -2f), new(width / 2f, scale.Y * 2, height / 2f)), (width - 1) * (height - 1) * 2, 0.5f, 100f);
             //var mesh = new Mesh(triangles, Vector3.One, BufferPool);
-            var mesh = DemoMeshHelper.CreateGiantMeshFast(triangles, Vector3.One, BufferPool);
+            Mesh mesh = DemoMeshHelper.CreateGiantMeshFast(triangles, Vector3.One, BufferPool);
 
 
             // @ @ @ @ @ @ REFINEMENT TESTING @ @ @ @ @ @
@@ -310,8 +308,8 @@ public class TreeFiddlingTestDemo : Demo
 
 
             // @ @ @ @ @ @ SELF TEST TESTING @ @ @ @ @ @
-            var handler = new OverlapHandler();
-            var threadedHandler = new ThreadedOverlapHandler(BufferPool, ThreadDispatcher.ThreadCount);
+            OverlapHandler handler = new();
+            ThreadedOverlapHandler threadedHandler = new(BufferPool, ThreadDispatcher.ThreadCount);
             long sum = 0;
             long intervalSum = 0;
             for (int testIndex = 0; testIndex < 16384; ++testIndex)
@@ -324,7 +322,7 @@ public class TreeFiddlingTestDemo : Demo
                 //mesh.Tree.GetSelfOverlaps2(ref handler);
                 mesh.Tree.GetSelfOverlaps2(ref threadedHandler, BufferPool, ThreadDispatcher);
                 var end = Stopwatch.GetTimestamp();
-                var (overlapCount, overlapSum) = threadedHandler.SumResults();
+                (int overlapCount, int overlapSum) = threadedHandler.SumResults();
 
                 sum += end - start;
                 intervalSum += end - start;
@@ -418,7 +416,7 @@ public class TreeFiddlingTestDemo : Demo
 
     static void SelfTest(TestFunction function, int leafCount, string name)
     {
-        var overlapHandler = new OverlapHandler();
+        OverlapHandler overlapHandler = new();
         overlapHandler.TreeLeafCount = leafCount;
         //overlapHandler.Set = new HashSet<Pair>();
         long accumulatedTime = 0;
@@ -452,7 +450,7 @@ public class TreeFiddlingTestDemo : Demo
         }
         Console.WriteLine($"{name} time per execution (ms): {(accumulatedTime) * 1e3 / (testCount * Stopwatch.Frequency)}");
 
-        var sum = tree.Nodes[0].A.Min * 5 + tree.Nodes[0].A.Max * 7 + tree.Nodes[0].B.Min * 13 + tree.Nodes[0].B.Max * 17;
+        Vector3 sum = tree.Nodes[0].A.Min * 5 + tree.Nodes[0].A.Max * 7 + tree.Nodes[0].B.Min * 13 + tree.Nodes[0].B.Max * 17;
         var hash = Unsafe.As<float, int>(ref sum.X) * 31 + Unsafe.As<float, int>(ref sum.Y) * 37 + Unsafe.As<float, int>(ref sum.Z) * 41;
         Console.WriteLine($"{name} bounds 0 hash: {hash}, A ({tree.Nodes[0].A.Min}, {tree.Nodes[0].B.Max}), B ({tree.Nodes[0].B.Min}, {tree.Nodes[0].B.Max})");
     }
@@ -477,7 +475,7 @@ public class TreeFiddlingTestDemo : Demo
         for (int i = 0; i < 1000; ++i)
         {
             var index = (int)(((ulong)i * 941083987 + accumulator * 797003413) % (ulong)tree.NodeCount);
-            var localSum = tree.Nodes[index].A.Min * 5 + tree.Nodes[index].A.Max * 7 + tree.Nodes[index].B.Min * 13 + tree.Nodes[index].B.Max * 17;
+            Vector3 localSum = tree.Nodes[index].A.Min * 5 + tree.Nodes[index].A.Max * 7 + tree.Nodes[index].B.Min * 13 + tree.Nodes[index].B.Max * 17;
             var hash = Unsafe.As<float, int>(ref localSum.X) * 31 + Unsafe.As<float, int>(ref localSum.Y) * 37 + Unsafe.As<float, int>(ref localSum.Z) * 41;
             accumulator = ((accumulator << 7) | (accumulator >> (64 - 7))) + (ulong)hash;
         }

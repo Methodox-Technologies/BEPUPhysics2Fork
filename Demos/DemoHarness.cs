@@ -58,7 +58,7 @@ public class DemoHarness : IDisposable
         if (controls == null)
             this.controls = Controls.Default;
 
-        var fontContent = content.Load<FontContent>(@"Content\Carlito-Regular.ttf");
+        FontContent fontContent = content.Load<FontContent>(@"Content\Carlito-Regular.ttf");
         font = new Font(
 #if !OPENGL
             loop.Surface.Device, loop.Surface.Context,
@@ -112,8 +112,8 @@ public class DemoHarness : IDisposable
     private void UpdateTimingGraphForMode(TimingDisplayMode newDisplayMode)
     {
         timingDisplayMode = newDisplayMode;
-        ref var description = ref timingGraph.Description;
-        var resolution = loop.Window.Resolution;
+        ref GraphDescription description = ref timingGraph.Description;
+        Int2 resolution = loop.Window.Resolution;
         switch (timingDisplayMode)
         {
             case TimingDisplayMode.Big:
@@ -128,7 +128,7 @@ public class DemoHarness : IDisposable
             case TimingDisplayMode.Regular:
                 {
                     const float inset = 50;
-                    var targetSpan = new Vector2(400, 150);
+                    Vector2 targetSpan = new(400, 150);
                     description.BodyMinimum = new Vector2(resolution.X - targetSpan.X - inset, inset);
                     description.BodySpan = targetSpan;
                     description.LegendMinimum = description.BodyMinimum - new Vector2(130, 0);
@@ -156,9 +156,9 @@ public class DemoHarness : IDisposable
     public void Update(float dt)
     {
         //Don't bother responding to input if the window isn't focused.
-        var input = loop.Input;
-        var window = loop.Window;
-        var camera = loop.Camera;
+        Input input = loop.Input;
+        Window window = loop.Window;
+        Camera camera = loop.Camera;
         if (loop.Window.Focused)
         {
             if (controls.Exit.WasTriggered(input))
@@ -192,7 +192,7 @@ public class DemoHarness : IDisposable
                 }
             }
 
-            var cameraOffset = new Vector3();
+            Vector3 cameraOffset = new();
             if (controls.MoveForward.IsDown(input))
                 cameraOffset += camera.Forward;
             if (controls.MoveBackward.IsDown(input))
@@ -235,7 +235,7 @@ public class DemoHarness : IDisposable
             {
                 if (input.MouseLocked)
                 {
-                    var delta = input.MouseDelta;
+                    Int2 delta = input.MouseDelta;
                     if (delta.X != 0 || delta.Y != 0)
                     {
                         camera.Yaw += delta.X * controls.MouseSensitivity;
@@ -253,7 +253,7 @@ public class DemoHarness : IDisposable
             {
                 if (grabberCachedMousePosition == null)
                     grabberCachedMousePosition = input.MousePosition;
-                var delta = input.MouseDelta;
+                Int2 delta = input.MouseDelta;
                 var yaw = delta.X * controls.MouseSensitivity;
                 var pitch = delta.Y * controls.MouseSensitivity;
                 incrementalGrabRotation = QuaternionEx.Concatenate(QuaternionEx.CreateFromAxisAngle(camera.Right, pitch), QuaternionEx.CreateFromAxisAngle(camera.Up, yaw));
@@ -310,7 +310,7 @@ public class DemoHarness : IDisposable
         timeSamples.RecordFrame(demo.Simulation);
     }
 
-    TextBuilder uiText = new TextBuilder(128);
+    TextBuilder uiText = new(128);
     public void Render(Renderer renderer)
     {
         //Clear first so that any demo-specific logic doesn't get lost.
@@ -326,17 +326,17 @@ public class DemoHarness : IDisposable
 #endif            
         float textHeight = 16;
         float lineSpacing = textHeight * 1.0f;
-        var textColor = new Vector3(1, 1, 1);
+        Vector3 textColor = new(1, 1, 1);
         if (showControls)
         {
-            var penPosition = new Vector2(loop.Window.Resolution.X - textHeight * 6 - 25, loop.Window.Resolution.Y - 25);
+            Vector2 penPosition = new(loop.Window.Resolution.X - textHeight * 6 - 25, loop.Window.Resolution.Y - 25);
             penPosition.Y -= 19 * lineSpacing;
             uiText.Clear().Append("Controls: ");
             var headerHeight = textHeight * 1.2f;
             renderer.TextBatcher.Write(uiText, penPosition - new Vector2(0.5f * GlyphBatch.MeasureLength(uiText, font, headerHeight), 0), headerHeight, textColor, font);
             penPosition.Y += lineSpacing;
 
-            var controlPosition = penPosition;
+            Vector2 controlPosition = penPosition;
             controlPosition.X += textHeight * 0.5f;
 
             void WriteInstantName(string controlName, InstantBind control)

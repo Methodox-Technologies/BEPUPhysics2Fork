@@ -22,7 +22,7 @@ public class BedsheetDemo : Demo
     BodyHandle[,] CreateBodyGrid(Vector3 position, Quaternion orientation, int width, int height, float spacing, float bodyRadius, float massPerBody,
         int instanceId, CollidableProperty<ClothCollisionFilter> filters, KinematicDecider isKinematic)
     {
-        var description = BodyDescription.CreateKinematic(orientation, Simulation.Shapes.Add(new Sphere(bodyRadius)), 0.01f);
+        BodyDescription description = BodyDescription.CreateKinematic(orientation, Simulation.Shapes.Add(new Sphere(bodyRadius)), 0.01f);
         var inverseMass = 1f / massPerBody;
         BodyHandle[,] handles = new BodyHandle[height, width];
         for (int rowIndex = 0; rowIndex < height; ++rowIndex)
@@ -30,10 +30,10 @@ public class BedsheetDemo : Demo
             for (int columnIndex = 0; columnIndex < width; ++columnIndex)
             {
                 description.LocalInertia.InverseMass = isKinematic(rowIndex, columnIndex, width, height) ? 0 : inverseMass;
-                var localPosition = new Vector3(columnIndex * spacing, rowIndex * -spacing, 0);
-                QuaternionEx.TransformWithoutOverlap(localPosition, orientation, out var rotatedPosition);
+                Vector3 localPosition = new(columnIndex * spacing, rowIndex * -spacing, 0);
+                QuaternionEx.TransformWithoutOverlap(localPosition, orientation, out Vector3 rotatedPosition);
                 description.Pose.Position = rotatedPosition + position;
-                var handle = Simulation.Bodies.Add(description);
+                BodyHandle handle = Simulation.Bodies.Add(description);
                 handles[rowIndex, columnIndex] = handle;
                 filters.Allocate(handle) = new ClothCollisionFilter(rowIndex, columnIndex, instanceId);
             }
@@ -47,14 +47,14 @@ public class BedsheetDemo : Demo
         {
             for (int columnIndex = 0; columnIndex < bodyHandles.GetLength(1) - 1; ++columnIndex)
             {
-                var aHandle = bodyHandles[rowIndex, columnIndex];
-                var bHandle = bodyHandles[rowIndex + 1, columnIndex];
-                var cHandle = bodyHandles[rowIndex, columnIndex + 1];
-                var dHandle = bodyHandles[rowIndex + 1, columnIndex + 1];
-                var a = new BodyReference(aHandle, Simulation.Bodies);
-                var b = new BodyReference(bHandle, Simulation.Bodies);
-                var c = new BodyReference(cHandle, Simulation.Bodies);
-                var d = new BodyReference(dHandle, Simulation.Bodies);
+                BodyHandle aHandle = bodyHandles[rowIndex, columnIndex];
+                BodyHandle bHandle = bodyHandles[rowIndex + 1, columnIndex];
+                BodyHandle cHandle = bodyHandles[rowIndex, columnIndex + 1];
+                BodyHandle dHandle = bodyHandles[rowIndex + 1, columnIndex + 1];
+                BodyReference a = new(aHandle, Simulation.Bodies);
+                BodyReference b = new(bHandle, Simulation.Bodies);
+                BodyReference c = new(cHandle, Simulation.Bodies);
+                BodyReference d = new(dHandle, Simulation.Bodies);
                 //Not worried about kinematics here- we create at most one row of kinematics in this demo. These are three body constraints that operate in a local quad, so 
                 //there's no way for them to all be kinematic.
                 Simulation.Solver.Add(aHandle, bHandle, cHandle, new AreaConstraint(a.Pose.Position, b.Pose.Position, c.Pose.Position, springSettings));
@@ -66,8 +66,8 @@ public class BedsheetDemo : Demo
     {
         void CreateConstraintBetweenBodies(BodyHandle aHandle, BodyHandle bHandle)
         {
-            var a = new BodyReference(aHandle, Simulation.Bodies);
-            var b = new BodyReference(bHandle, Simulation.Bodies);
+            BodyReference a = new(aHandle, Simulation.Bodies);
+            BodyReference b = new(bHandle, Simulation.Bodies);
             //Don't create constraints between two kinematic bodies.
             if (a.LocalInertia.InverseMass > 0 || b.LocalInertia.InverseMass > 0)
             {
@@ -109,7 +109,7 @@ public class BedsheetDemo : Demo
         camera.Yaw = -MathF.PI * 0.8f;
         camera.Pitch = MathF.PI * 0.1f;
 
-        var filters = new CollidableProperty<ClothCollisionFilter>();
+        CollidableProperty<ClothCollisionFilter> filters = new();
         Simulation = Simulation.Create(BufferPool, new ClothCallbacks(filters), new DemoPoseIntegratorCallbacks(new Vector3(0, -50, 0)), new SolveDescription(8, 1));
         rolloverInfo = new RolloverInfo();
 
@@ -119,7 +119,7 @@ public class BedsheetDemo : Demo
         }
 
         int clothInstanceId = 0;
-        var initialRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI * -0.5f);
+        Quaternion initialRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI * -0.5f);
 
 
 
@@ -133,15 +133,15 @@ public class BedsheetDemo : Demo
 
 
         {
-            var position = new Vector3(96 * 1.15f * -0.5f, 30, 86 * 1.15f * -0.5f);
-            var handles = CreateBodyGrid(position, initialRotation, 96, 86, 1.15f, 1f, 1, clothInstanceId++, filters, FullyDynamic);
+            Vector3 position = new(96 * 1.15f * -0.5f, 30, 86 * 1.15f * -0.5f);
+            BodyHandle[,] handles = CreateBodyGrid(position, initialRotation, 96, 86, 1.15f, 1f, 1, clothInstanceId++, filters, FullyDynamic);
             CreateDistanceConstraints(handles, new SpringSettings(20, 1));
             CreateAreaConstraints(handles, new SpringSettings(30, 1));
         }
 
         {
-            var position = new Vector3(65.5f + 56 * 0.8f * -0.5f, 25, 20 + 56 * 0.8f * -0.5f);
-            var handles = CreateBodyGrid(position, initialRotation, 56, 56, 0.8f, 0.65f, 1, clothInstanceId++, filters, FullyDynamic);
+            Vector3 position = new(65.5f + 56 * 0.8f * -0.5f, 25, 20 + 56 * 0.8f * -0.5f);
+            BodyHandle[,] handles = CreateBodyGrid(position, initialRotation, 56, 56, 0.8f, 0.65f, 1, clothInstanceId++, filters, FullyDynamic);
             CreateDistanceConstraints(handles, new SpringSettings(20, 1));
             CreateAreaConstraints(handles, new SpringSettings(30, 1));
         }

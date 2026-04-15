@@ -30,16 +30,16 @@ public static class SortTest
         const int elementCount = 65536;
         const int elementExclusiveUpperBound = 1 << 16;
 
-        var bufferPool = new BufferPool();
-        bufferPool.Take<int>(elementCount, out var keys);
-        bufferPool.Take<int>(elementCount, out var indexMap);      
-        bufferPool.Take<int>(elementCount, out var keys2);
-        bufferPool.Take<int>(elementCount, out var indexMap2);
-        bufferPool.Take<int>(elementCount, out var keys3);
-        bufferPool.Take<int>(elementCount, out var indexMap3);
-        bufferPool.Take<int>(elementCount, out var keys4);
-        bufferPool.Take<int>(elementCount, out var indexMap4);
-        Random random = new Random(5);
+        BufferPool bufferPool = new();
+        bufferPool.Take<int>(elementCount, out Buffer<int> keys);
+        bufferPool.Take<int>(elementCount, out Buffer<int> indexMap);      
+        bufferPool.Take<int>(elementCount, out Buffer<int> keys2);
+        bufferPool.Take<int>(elementCount, out Buffer<int> indexMap2);
+        bufferPool.Take<int>(elementCount, out Buffer<int> keys3);
+        bufferPool.Take<int>(elementCount, out Buffer<int> indexMap3);
+        bufferPool.Take<int>(elementCount, out Buffer<int> keys4);
+        bufferPool.Take<int>(elementCount, out Buffer<int> indexMap4);
+        Random random = new(5);
      
         for (int iteration = 0; iteration < 4; ++iteration)
         {
@@ -57,14 +57,14 @@ public static class SortTest
             indexMap.CopyTo(0, indexMap2, 0, elementCount);
             indexMap.CopyTo(0, indexMap3, 0, elementCount);
             indexMap.CopyTo(0, indexMap4, 0, elementCount);
-            var timer = Stopwatch.StartNew();
+            Stopwatch timer = Stopwatch.StartNew();
 
             var keysScratch = new int[elementCount];
             var valuesScratch = new int[elementCount];
             var bucketCounts = new int[1024];
             for (int t = 0; t < 16; ++t)
             {
-                var comparer = new Comparer();
+                Comparer comparer = new();
                 timer.Restart();
                 QuickSort.Sort(ref keys[0], ref indexMap[0], 0, elementCount - 1, ref comparer);
                 //QuickSort.Sort2(ref keys[0], ref indexMap[0], 0, elementCount - 1, ref comparer);

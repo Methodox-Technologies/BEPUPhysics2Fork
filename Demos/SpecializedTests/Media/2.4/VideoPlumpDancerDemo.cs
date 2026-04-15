@@ -2,6 +2,7 @@
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using BepuUtilities;
+using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
@@ -35,10 +36,10 @@ public class VideoPlumpDancerDemo : Demo
     }
     static TestCapsule CreateTestCapsule(Simulation simulation, BodyHandle handle)
     {
-        var body = simulation.Bodies[handle];
+        BodyReference body = simulation.Bodies[handle];
         Debug.Assert(body.Collidable.Shape.Type == Capsule.Id, "For the purposes of this demo, we assume that all of the bodies that are being tested are capsules.");
-        ref var shape = ref simulation.Shapes.GetShape<Capsule>(body.Collidable.Shape.Index);
-        var pose = body.Pose;
+        ref Capsule shape = ref simulation.Shapes.GetShape<Capsule>(body.Collidable.Shape.Index);
+        RigidPose pose = body.Pose;
         TestCapsule toReturn;
         QuaternionEx.TransformUnitY(pose.Orientation, out toReturn.Direction);
         toReturn.Start = pose.Position - toReturn.Direction * shape.HalfLength;
@@ -50,25 +51,25 @@ public class VideoPlumpDancerDemo : Demo
     unsafe static void CreateBodyGrid(DancerBodyHandles bodyHandles, Int3 axisSizeInBodies, Vector3 gridMinimum, Vector3 gridMaximum, float bodyRadius, float massPerBody,
         int instanceId, Simulation simulation, CollidableProperty<DeformableCollisionFilter> filters)
     {
-        var shape = new Sphere(bodyRadius);
-        var shapeIndex = simulation.Shapes.Add(shape);
+        Sphere shape = new(bodyRadius);
+        TypedIndex shapeIndex = simulation.Shapes.Add(shape);
         //Note that, unlike the DancerDemo where cloth nodes cannot rotate, the deformable sub-bodies can rotate.
         //That's because this demo is going to connect bodies together using Weld constraints, which control all six degrees of freedom.
         //You could also use a CenterDistanceConstraint/Limit with VolumeConstraints to maintain shape, but a bunch of Weld constraints is a little simpler.
-        var description = BodyDescription.CreateDynamic(QuaternionEx.Identity, shape.ComputeInertia(massPerBody), shapeIndex, 0.01f);
+        BodyDescription description = BodyDescription.CreateDynamic(QuaternionEx.Identity, shape.ComputeInertia(massPerBody), shapeIndex, 0.01f);
         BodyHandle[,,] handles = new BodyHandle[axisSizeInBodies.X, axisSizeInBodies.Y, axisSizeInBodies.Z];
         BodyHandle[,,] nearestHandles = new BodyHandle[axisSizeInBodies.X, axisSizeInBodies.Y, axisSizeInBodies.Z];
-        var gridSpan = gridMaximum - gridMinimum;
-        var gridSpacing = gridSpan / new Vector3(axisSizeInBodies.X - 1, axisSizeInBodies.Y - 1, axisSizeInBodies.Z - 1);
+        Vector3 gridSpan = gridMaximum - gridMinimum;
+        Vector3 gridSpacing = gridSpan / new Vector3(axisSizeInBodies.X - 1, axisSizeInBodies.Y - 1, axisSizeInBodies.Z - 1);
         Span<TestCapsule> testCapsules = stackalloc TestCapsule[11];
 
         //DancerBodyHandles stores the head last, so we can just check the first 11 bodies that are all capsules. The head isn't going to be covered in the fatsuit, so it doesn't need to be checked anyway.
-        var handlesBuffer = DancerBodyHandles.AsBuffer(&bodyHandles);
+        Buffer<BodyHandle> handlesBuffer = DancerBodyHandles.AsBuffer(&bodyHandles);
         for (int i = 0; i < 11; ++i)
         {
             testCapsules[i] = CreateTestCapsule(simulation, handlesBuffer[i]);
         }
-        var center = (gridMinimum + gridMaximum) * 0.5f;
+        Vector3 center = (gridMinimum + gridMaximum) * 0.5f;
 
         for (int x = 0; x < axisSizeInBodies.X; ++x)
         {
@@ -76,12 +77,12 @@ public class VideoPlumpDancerDemo : Demo
             {
                 for (int z = 0; z < axisSizeInBodies.Z; ++z)
                 {
-                    var position = gridMinimum + gridSpacing * new Vector3(x, y, z);
+                    Vector3 position = gridMinimum + gridSpacing * new Vector3(x, y, z);
                     float minimumDistance = float.MaxValue;
                     int minimumIndex = 0;
                     for (int i = 0; i < testCapsules.Length; ++i)
                     {
-                        var testCapsule = testCapsules[i];
+                        TestCapsule testCapsule = testCapsules[i];
                         var distance = Vector3.Distance(position, testCapsule.Start + MathF.Max(0, MathF.Min(testCapsule.Length, Vector3.Dot(position - testCapsule.Start, testCapsule.Direction))) * testCapsule.Direction) - testCapsule.Radius;
                         if (distance < minimumDistance)
                         {
@@ -106,14 +107,14 @@ public class VideoPlumpDancerDemo : Demo
                     {
                         //Nearby. Create and attach it to the nearest body part.
                         description.Pose.Position = position;
-                        var handle = simulation.Bodies.Add(description);
+                        BodyHandle handle = simulation.Bodies.Add(description);
                         handles[x, y, z] = handle;
                         if (filters != null)
                             filters.Allocate(handle) = new DeformableCollisionFilter(x, y, z, instanceId);
 
-                        var nearestHandle = handlesBuffer[minimumIndex];
-                        var nearestPose = simulation.Bodies[nearestHandle].Pose;
-                        var conjugate = Quaternion.Conjugate(nearestPose.Orientation);
+                        BodyHandle nearestHandle = handlesBuffer[minimumIndex];
+                        RigidPose nearestPose = simulation.Bodies[nearestHandle].Pose;
+                        Quaternion conjugate = Quaternion.Conjugate(nearestPose.Orientation);
 
                     }
                 }
@@ -127,7 +128,7 @@ public class VideoPlumpDancerDemo : Demo
                 {
                     //Kind of hacky, but simple: for every node that is exposed to the air (a neighbor has a body handle flagged as -1), make sure it has a collidable.
                     //Anything inside doesn't need a collidable.
-                    var handle = handles[x, y, z];
+                    BodyHandle handle = handles[x, y, z];
                     if (handle.Value >= 0)
                     {
                         var needsAnchor =
@@ -137,12 +138,12 @@ public class VideoPlumpDancerDemo : Demo
                             (y != handles.GetLength(1) - 1 && handles[x, y + 1, z].Value == -2) ||
                             (z != 0 && handles[x, y, z - 1].Value == -2) ||
                             (z != handles.GetLength(2) - 1 && handles[x, y, z + 1].Value == -2);
-                        var source = simulation.Bodies[handle];
+                        BodyReference source = simulation.Bodies[handle];
                         if (needsAnchor)
                         {
-                            var nearestHandle = nearestHandles[x, y, z];
-                            var nearestPose = simulation.Bodies[nearestHandle].Pose;
-                            var conjugate = Quaternion.Conjugate(nearestPose.Orientation);
+                            BodyHandle nearestHandle = nearestHandles[x, y, z];
+                            RigidPose nearestPose = simulation.Bodies[nearestHandle].Pose;
+                            Quaternion conjugate = Quaternion.Conjugate(nearestPose.Orientation);
                             simulation.Solver.Add(nearestHandle, handle, new Weld
                             {
                                 LocalOffset = QuaternionEx.Transform(source.Pose.Position - nearestPose.Position, conjugate),
@@ -163,7 +164,7 @@ public class VideoPlumpDancerDemo : Demo
                         {
                             if (targetHandle.Value >= 0)
                             {
-                                var target = simulation.Bodies[targetHandle];
+                                BodyReference target = simulation.Bodies[targetHandle];
                                 simulation.Solver.Add(source.Handle, targetHandle, new Weld { LocalOffset = target.Pose.Position - source.Pose.Position, LocalOrientation = Quaternion.Identity, SpringSettings = new SpringSettings(6, 0.4f) });
                             }
                         }
@@ -193,18 +194,18 @@ public class VideoPlumpDancerDemo : Demo
         //This is a sorta-example of level of detail. In a 'real' use case, you'd probably want to transition between levels of detail dynamically as the camera moved around.
         //That's a little trickier, but doable. Going low to high, for example, requires creating bodies at interpolated positions between existing bodies, while going to a lower level of detail removes them.
         levelOfDetail = MathF.Max(0f, MathF.Min(0.8f, levelOfDetail));
-        var suitSize = new Vector3(1, 1f, 1);
-        var fullDetailAxisBodyCounts = new Int3 { X = 23, Y = 23, Z = 23 };
+        Vector3 suitSize = new(1, 1f, 1);
+        Int3 fullDetailAxisBodyCounts = new() { X = 23, Y = 23, Z = 23 };
         var scale = MathF.Pow(2, levelOfDetail);
-        var axisBodyCounts = new Int3 { X = (int)MathF.Ceiling(fullDetailAxisBodyCounts.X / scale), Y = (int)MathF.Ceiling(fullDetailAxisBodyCounts.Y / scale), Z = (int)MathF.Ceiling(fullDetailAxisBodyCounts.Z / scale) };
+        Int3 axisBodyCounts = new() { X = (int)MathF.Ceiling(fullDetailAxisBodyCounts.X / scale), Y = (int)MathF.Ceiling(fullDetailAxisBodyCounts.Y / scale), Z = (int)MathF.Ceiling(fullDetailAxisBodyCounts.Z / scale) };
         var bodyRadius = MathF.Min(suitSize.X / axisBodyCounts.X, MathF.Min(suitSize.Y / axisBodyCounts.Y, suitSize.Z / axisBodyCounts.Z));
 
-        var chest = simulation.Bodies[bodyHandles.Chest];
-        ref var chestShape = ref simulation.Shapes.GetShape<Capsule>(chest.Collidable.Shape.Index);
+        BodyReference chest = simulation.Bodies[bodyHandles.Chest];
+        ref Capsule chestShape = ref simulation.Shapes.GetShape<Capsule>(chest.Collidable.Shape.Index);
         var topOfChestHeight = chest.Pose.Position.Y + chestShape.Radius;
-        var topOfChestPosition = new Vector3(0, topOfChestHeight, 0) + DemoDancers.GetOffsetForDancer(dancerIndex, dancerGridWidth);
-        var suitMinimum = topOfChestPosition - suitSize * new Vector3(0.5f, 1f, 0.5f);
-        var suitMaximum = suitMinimum + suitSize;
+        Vector3 topOfChestPosition = new Vector3(0, topOfChestHeight, 0) + DemoDancers.GetOffsetForDancer(dancerIndex, dancerGridWidth);
+        Vector3 suitMinimum = topOfChestPosition - suitSize * new Vector3(0.5f, 1f, 0.5f);
+        Vector3 suitMaximum = suitMinimum + suitSize;
         CreateBodyGrid(bodyHandles, axisBodyCounts, suitMinimum, suitMaximum, bodyRadius, 0.01f, dancerIndex, simulation, filters);
     }
 
@@ -215,7 +216,7 @@ public class VideoPlumpDancerDemo : Demo
         camera.Yaw = 0;
         camera.Pitch = 0;
 
-        var collisionFilters = new CollidableProperty<SubgroupCollisionFilter>();
+        CollidableProperty<SubgroupCollisionFilter> collisionFilters = new();
         Simulation = Simulation.Create(BufferPool, new SubgroupFilteredCallbacks(collisionFilters), new DemoPoseIntegratorCallbacks(new Vector3(0, 0, 0)), new SolveDescription(8, 1));
 
         //Note that, because the constraints in the fat suit are quite soft, we can get away with extremely minimal solving time. There's one substep with one velocity iteration.
@@ -233,7 +234,7 @@ public class VideoPlumpDancerDemo : Demo
         renderer.Shapes.AddInstances(dancers.Simulations, ThreadDispatcher);
         renderer.Lines.Extract(dancers.Simulations, ThreadDispatcher);
 
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         //renderer.TextBatcher.Write(text.Clear().Append("Cosmetic simulations, like character blubber, often don't need to be in a game's main simulation."), new Vector2(16, resolution.Y - 144), 16, Vector3.One, font);
         //renderer.TextBatcher.Write(text.Clear().Append("Every background dancer in this demo has its own simulation. All dancers can be easily updated in parallel."), new Vector2(16, resolution.Y - 128), 16, Vector3.One, font);
         //renderer.TextBatcher.Write(text.Clear().Append("Dancers further from the main dancer use sparser body grids and disable self collision for extra performance."), new Vector2(16, resolution.Y - 112), 16, Vector3.One, font);

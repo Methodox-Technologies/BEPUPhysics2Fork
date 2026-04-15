@@ -12,8 +12,8 @@ public static class DemoMeshHelper
 {
     public static Mesh LoadModel(ContentArchive content, BufferPool pool, string contentName, Vector3 scaling)
     {
-        var meshContent = content.Load<MeshContent>(contentName);
-        pool.Take<Triangle>(meshContent.Triangles.Length, out var triangles);
+        MeshContent meshContent = content.Load<MeshContent>(contentName);
+        pool.Take<Triangle>(meshContent.Triangles.Length, out Buffer<Triangle> triangles);
         for (int i = 0; i < meshContent.Triangles.Length; ++i)
         {
             triangles[i] = new Triangle(meshContent.Triangles[i].A, meshContent.Triangles[i].B, meshContent.Triangles[i].C);
@@ -24,14 +24,14 @@ public static class DemoMeshHelper
     public static Mesh CreateFan(int triangleCount, float radius, Vector3 scaling, BufferPool pool)
     {
         var anglePerTriangle = 2 * MathF.PI / triangleCount;
-        pool.Take<Triangle>(triangleCount, out var triangles);
+        pool.Take<Triangle>(triangleCount, out Buffer<Triangle> triangles);
 
         for (int i = 0; i < triangleCount; ++i)
         {
             var firstAngle = i * anglePerTriangle;
             var secondAngle = ((i + 1) % triangleCount) * anglePerTriangle;
 
-            ref var triangle = ref triangles[i];
+            ref Triangle triangle = ref triangles[i];
             triangle.A = new Vector3(radius * MathF.Cos(firstAngle), 0, radius * MathF.Sin(firstAngle));
             triangle.B = new Vector3(radius * MathF.Cos(secondAngle), 0, radius * MathF.Sin(secondAngle));
             triangle.C = new Vector3();
@@ -41,7 +41,7 @@ public static class DemoMeshHelper
 
     public static Mesh CreateDeformedPlane(int width, int height, Func<int, int, Vector3> deformer, Vector3 scaling, BufferPool pool, IThreadDispatcher dispatcher = null)
     {
-        pool.Take<Vector3>(width * height, out var vertices);
+        pool.Take<Vector3>(width * height, out Buffer<Vector3> vertices);
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
@@ -53,22 +53,22 @@ public static class DemoMeshHelper
         var quadWidth = width - 1;
         var quadHeight = height - 1;
         var triangleCount = quadWidth * quadHeight * 2;
-        pool.Take<Triangle>(triangleCount, out var triangles);
+        pool.Take<Triangle>(triangleCount, out Buffer<Triangle> triangles);
 
         for (int i = 0; i < quadWidth; ++i)
         {
             for (int j = 0; j < quadHeight; ++j)
             {
                 var triangleIndex = (j * quadWidth + i) * 2;
-                ref var triangle0 = ref triangles[triangleIndex];
-                ref var v00 = ref vertices[width * j + i];
-                ref var v01 = ref vertices[width * j + i + 1];
-                ref var v10 = ref vertices[width * (j + 1) + i];
-                ref var v11 = ref vertices[width * (j + 1) + i + 1];
+                ref Triangle triangle0 = ref triangles[triangleIndex];
+                ref Vector3 v00 = ref vertices[width * j + i];
+                ref Vector3 v01 = ref vertices[width * j + i + 1];
+                ref Vector3 v10 = ref vertices[width * (j + 1) + i];
+                ref Vector3 v11 = ref vertices[width * (j + 1) + i + 1];
                 triangle0.A = v00;
                 triangle0.B = v01;
                 triangle0.C = v10;
-                ref var triangle1 = ref triangles[triangleIndex + 1];
+                ref Triangle triangle1 = ref triangles[triangleIndex + 1];
                 triangle1.A = v01;
                 triangle1.B = v11;
                 triangle1.C = v10;
@@ -83,7 +83,7 @@ public static class DemoMeshHelper
     /// </summary>
     static void CreateDummyNodes(ref Tree tree, int nodeIndex, int nodeLeafCount, ref int leafCounter)
     {
-        ref var node = ref tree.Nodes[nodeIndex];
+        ref Node node = ref tree.Nodes[nodeIndex];
         node.A.LeafCount = nodeLeafCount / 2;
         if (node.A.LeafCount > 1)
         {
@@ -130,13 +130,13 @@ public static class DemoMeshHelper
             //The special logic isn't necessary for tiny meshes, and we also don't handle the corner case of leaf counts <= 2. Just use the regular constructor.
             return new Mesh(triangles, scaling, pool);
         }
-        var mesh = Mesh.CreateWithoutTreeBuild(triangles, scaling, pool);
+        Mesh mesh = Mesh.CreateWithoutTreeBuild(triangles, scaling, pool);
         int leafCounter = 0;
         CreateDummyNodes(ref mesh.Tree, 0, triangles.Length, ref leafCounter);
         for (int i = 0; i < triangles.Length; ++i)
         {
-            ref var t = ref triangles[i];
-            mesh.Tree.GetBoundsPointers(i, out var min, out var max);
+            ref Triangle t = ref triangles[i];
+            mesh.Tree.GetBoundsPointers(i, out Vector3* min, out Vector3* max);
             *min = Vector3.Min(t.A, Vector3.Min(t.B, t.C));
             *max = Vector3.Max(t.A, Vector3.Max(t.B, t.C));
         }
@@ -158,7 +158,7 @@ public static class DemoMeshHelper
     /// In the future, I'd like to give the Tree and Mesh much faster (and multithreaded) constructors that achieve quality and speed in one shot.</remarks>
     public static Mesh CreateGiantMeshFast(Buffer<Triangle> triangles, Vector3 scaling, BufferPool pool)
     {
-        var mesh = CreateGiantMeshFastWithoutBounds(triangles, scaling, pool);
+        Mesh mesh = CreateGiantMeshFastWithoutBounds(triangles, scaling, pool);
         //None of the nodes actually have bounds. Give them some now.
         mesh.Tree.Refit();
         return mesh;
@@ -178,7 +178,7 @@ public static class DemoMeshHelper
     /// In the future, I'd like to give the Tree and Mesh much faster (and multithreaded) constructors that achieve quality and speed in one shot.</remarks>
     public static Mesh CreateGiantMeshWithRefinements(Buffer<Triangle> triangles, Vector3 scaling, BufferPool pool, Tree.RefitAndRefineMultithreadedContext context, IThreadDispatcher threadDispatcher, int refinementIterationCount = 8)
     {
-        var mesh = CreateGiantMeshFastWithoutBounds(triangles, scaling, pool);
+        Mesh mesh = CreateGiantMeshFastWithoutBounds(triangles, scaling, pool);
         //None of the nodes actually have bounds. Give them some now.
         for (int i = 0; i < refinementIterationCount; ++i)
             context.RefitAndRefine(ref mesh.Tree, pool, threadDispatcher, i, 20);

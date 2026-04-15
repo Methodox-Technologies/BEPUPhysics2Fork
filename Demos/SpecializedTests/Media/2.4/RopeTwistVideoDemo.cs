@@ -21,7 +21,7 @@ public class RopeTwistVideoDemo : Demo
         camera.Yaw = 0;
         camera.Pitch = 0;
 
-        var filters = new CollidableProperty<RopeFilter>();
+        CollidableProperty<RopeFilter> filters = new();
         Simulation = Simulation.Create(BufferPool,
             new RopeNarrowPhaseCallbacks(filters, new PairMaterialProperties(1.0f, float.MaxValue, new SpringSettings(1200, 1))),
             new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(1, 60));
@@ -29,19 +29,19 @@ public class RopeTwistVideoDemo : Demo
         for (int twistIndex = 0; twistIndex < 10; ++twistIndex)
         {
             const int ropeCount = 4;
-            var startLocation = new Vector3(0 + twistIndex * 30, 30, 0);
+            Vector3 startLocation = new(0 + twistIndex * 30, 30, 0);
 
-            var bigWreckingBall = new Sphere(3);
+            Sphere bigWreckingBall = new(3);
             //This wrecking ball is much, much heavier.
-            var bigWreckingBallInertia = bigWreckingBall.ComputeInertia(10000);
-            var bigWreckingBallIndex = Simulation.Shapes.Add(bigWreckingBall);
+            BodyInertia bigWreckingBallInertia = bigWreckingBall.ComputeInertia(10000);
+            TypedIndex bigWreckingBallIndex = Simulation.Shapes.Add(bigWreckingBall);
             const float ropeBodySpacing = -0.1f;
             const float ropeBodyRadius = 0.1f;
             const int ropeBodyCount = 130;
-            var wreckingBallPosition = startLocation - new Vector3(0, ropeBodyRadius + (ropeBodyRadius * 2 + ropeBodySpacing) * ropeBodyCount + bigWreckingBall.Radius, 0);
-            var description = BodyDescription.CreateDynamic(wreckingBallPosition, bigWreckingBallInertia, bigWreckingBallIndex, 0.01f);
-            var wreckingBallBodyHandle = Simulation.Bodies.Add(description);
-            var wreckingBallBody = Simulation.Bodies[wreckingBallBodyHandle];
+            Vector3 wreckingBallPosition = startLocation - new Vector3(0, ropeBodyRadius + (ropeBodyRadius * 2 + ropeBodySpacing) * ropeBodyCount + bigWreckingBall.Radius, 0);
+            BodyDescription description = BodyDescription.CreateDynamic(wreckingBallPosition, bigWreckingBallInertia, bigWreckingBallIndex, 0.01f);
+            BodyHandle wreckingBallBodyHandle = Simulation.Bodies.Add(description);
+            BodyReference wreckingBallBody = Simulation.Bodies[wreckingBallBodyHandle];
             wreckingBallBody.Velocity.Angular = new Vector3(0, 20, 0);
             filters.Allocate(wreckingBallBodyHandle) = new RopeFilter { RopeIndex = (short)(16384 + twistIndex), IndexInRope = ropeBodyCount };
 
@@ -49,11 +49,11 @@ public class RopeTwistVideoDemo : Demo
             {
                 var angle = ropeIndex * MathF.PI * 2 / ropeCount;
                 const float ropeDistributionRadius = 1f;
-                var horizontalOffset = ropeDistributionRadius * new Vector3(MathF.Sin(angle), 0, MathF.Cos(angle));
-                var ropeStartLocation = startLocation + horizontalOffset;
+                Vector3 horizontalOffset = ropeDistributionRadius * new Vector3(MathF.Sin(angle), 0, MathF.Cos(angle));
+                Vector3 ropeStartLocation = startLocation + horizontalOffset;
 
-                var springSettings = new SpringSettings(600, 100);
-                var bodyHandles = RopeStabilityDemo.BuildRopeBodies(Simulation, ropeStartLocation, ropeBodyCount, ropeBodyRadius, ropeBodySpacing, 1f, 0);
+                SpringSettings springSettings = new(600, 100);
+                BodyHandle[] bodyHandles = RopeStabilityDemo.BuildRopeBodies(Simulation, ropeStartLocation, ropeBodyCount, ropeBodyRadius, ropeBodySpacing, 1f, 0);
                 for (int i = 0; i < bodyHandles.Length; ++i)
                 {
                     filters.Allocate(bodyHandles[i]) = new RopeFilter { RopeIndex = (short)ropeIndex, IndexInRope = (short)i };
@@ -81,8 +81,8 @@ public class RopeTwistVideoDemo : Demo
                     }
                 }
 
-                var wreckingBallConnectionOffset = horizontalOffset + new Vector3(0, bigWreckingBall.Radius, 0);
-                var ropeConnectionToBall = wreckingBallBody.Pose.Position + wreckingBallConnectionOffset;
+                Vector3 wreckingBallConnectionOffset = horizontalOffset + new Vector3(0, bigWreckingBall.Radius, 0);
+                Vector3 ropeConnectionToBall = wreckingBallBody.Pose.Position + wreckingBallConnectionOffset;
                 for (int i = 1; i <= constraintsPerBody; ++i)
                 {
                     var targetBodyHandleIndex = bodyHandles.Length - i;

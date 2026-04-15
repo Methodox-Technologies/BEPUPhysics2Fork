@@ -1,12 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BepuPhysics;
 using BepuPhysics.Collidables;
-using BepuPhysics.CollisionDetection;
-using BepuPhysics.CollisionDetection.CollisionTasks;
 using BepuPhysics.Trees;
 using BepuUtilities;
 using BepuUtilities.Memory;
-using System.Diagnostics;
 using System.Numerics;
 using static DemoBenchmarks.BenchmarkHelper;
 

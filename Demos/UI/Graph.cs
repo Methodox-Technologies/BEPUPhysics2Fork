@@ -162,7 +162,7 @@ public class Graph
         var maxY = double.MinValue;
         for (int i = 0; i < graphSeries.Count; ++i)
         {
-            var data = graphSeries[i].Data;
+            IDataSeries data = graphSeries[i].Data;
             if (minX > data.Start)
             {
                 minX = data.Start;
@@ -208,9 +208,9 @@ public class Graph
         yDataSpan = yIntervalCount * Math.Pow(10, scale) * (withinScale < 0.2 ? 0.2 : withinScale < 0.5 ? 0.5 : 1); // 1, 2 or 5 within the power of 10
 
         //Draw the graph body axes.
-        var lowerLeft = description.BodyMinimum + new Vector2(0, description.BodySpan.Y);
-        var upperRight = description.BodyMinimum + new Vector2(description.BodySpan.X, 0);
-        var lowerRight = description.BodyMinimum + description.BodySpan;
+        Vector2 lowerLeft = description.BodyMinimum + new Vector2(0, description.BodySpan.Y);
+        Vector2 upperRight = description.BodyMinimum + new Vector2(description.BodySpan.X, 0);
+        Vector2 lowerRight = description.BodyMinimum + description.BodySpan;
         lines.Draw(description.BodyMinimum, lowerLeft, description.AxisLineRadius, description.BodyLineColor);
         lines.Draw(lowerLeft, lowerRight, description.AxisLineRadius, description.BodyLineColor);
 
@@ -246,9 +246,9 @@ public class Graph
                 }
                 previousTickValue = tickValue;
 
-                var penPosition = lowerLeft + new Vector2(tickValue * valueToPixels, 0);
-                var tickEnd = penPosition + new Vector2(0, description.IntervalTickLength);
-                var backgroundEnd = penPosition - new Vector2(0, description.BodySpan.Y);
+                Vector2 penPosition = lowerLeft + new Vector2(tickValue * valueToPixels, 0);
+                Vector2 tickEnd = penPosition + new Vector2(0, description.IntervalTickLength);
+                Vector2 backgroundEnd = penPosition - new Vector2(0, description.BodySpan.Y);
                 lines.Draw(penPosition, tickEnd, description.IntervalTickRadius, description.BodyLineColor);
                 lines.Draw(penPosition, backgroundEnd, description.BackgroundLineRadius, description.BodyLineColor);
                 characters.Clear().Append(tickValue);
@@ -273,10 +273,10 @@ public class Graph
                 }
                 previousTickValue = tickValue;
 
-                var penPosition = lowerLeft - new Vector2(0, (float)(tickValue * valueToPixels));
+                Vector2 penPosition = lowerLeft - new Vector2(0, (float)(tickValue * valueToPixels));
 
-                var tickEnd = penPosition - new Vector2(description.IntervalTickLength, 0);
-                var backgroundEnd = penPosition + new Vector2(description.BodySpan.X, 0);
+                Vector2 tickEnd = penPosition - new Vector2(description.IntervalTickLength, 0);
+                Vector2 backgroundEnd = penPosition + new Vector2(description.BodySpan.X, 0);
                 lines.Draw(penPosition, tickEnd, description.IntervalTickRadius, description.BodyLineColor);
                 lines.Draw(penPosition, backgroundEnd, description.BackgroundLineRadius, description.BodyLineColor);
                 characters.Clear().Append(tickValue + minY, description.VerticalIntervalLabelRounding);
@@ -288,11 +288,11 @@ public class Graph
 
         //Draw the line graphs on top of the body.
         {
-            var dataToPixelsScale = new Vector2(description.BodySpan.X / (maxX - minX), (float)(description.BodySpan.Y / yDataSpan));
+            Vector2 dataToPixelsScale = new(description.BodySpan.X / (maxX - minX), (float)(description.BodySpan.Y / yDataSpan));
             Vector2 DataToScreenspace(int x, double y)
             {
-                var graphCoordinates = new Vector2(x - minX, (float)(y - minY)) * dataToPixelsScale;
-                var screenCoordinates = graphCoordinates;
+                Vector2 graphCoordinates = new Vector2(x - minX, (float)(y - minY)) * dataToPixelsScale;
+                Vector2 screenCoordinates = graphCoordinates;
                 screenCoordinates.Y = description.BodySpan.Y - screenCoordinates.Y;
                 screenCoordinates += description.BodyMinimum;
                 return screenCoordinates;
@@ -300,17 +300,17 @@ public class Graph
 
             for (int i = 0; i < graphSeries.Count; ++i)
             {
-                var series = graphSeries[i];
-                var data = series.Data;
+                Series series = graphSeries[i];
+                IDataSeries data = series.Data;
                 var count = data.End - data.Start;
                 if (count > 0)
                 {
-                    var previousScreenPosition = DataToScreenspace(data.Start, data[data.Start]);
+                    Vector2 previousScreenPosition = DataToScreenspace(data.Start, data[data.Start]);
                     if (count > 1)
                     {
                         for (int j = data.Start + 1; j < data.End; ++j)
                         {
-                            var currentScreenPosition = DataToScreenspace(j, data[j]);
+                            Vector2 currentScreenPosition = DataToScreenspace(j, data[j]);
                             lines.Draw(previousScreenPosition, currentScreenPosition, series.LineRadius, series.LineColor);
                             previousScreenPosition = currentScreenPosition;
                         }
@@ -326,18 +326,18 @@ public class Graph
 
         //Draw the legend entry last. Alpha blending will put it on top in case the legend is positioned on top of the body.
         {
-            var penPosition = description.LegendMinimum;
+            Vector2 penPosition = description.LegendMinimum;
             var legendLineSpacing = description.LegendNameHeight * 1.5f;
             penPosition.Y += legendLineSpacing;
 
             for (int i = 0; i < graphSeries.Count; ++i)
             {
-                var series = graphSeries[i];
-                var lineStart = new Vector2(penPosition.X, penPosition.Y);
-                var lineEnd = lineStart + new Vector2(description.LegendLineLength, -0.7f * description.LegendNameHeight);
+                Series series = graphSeries[i];
+                Vector2 lineStart = new(penPosition.X, penPosition.Y);
+                Vector2 lineEnd = lineStart + new Vector2(description.LegendLineLength, -0.7f * description.LegendNameHeight);
 
                 lines.Draw(lineStart, lineEnd, series.LineRadius, series.LineColor);
-                var textStart = new Vector2(lineEnd.X + series.LineRadius + description.LegendNameHeight * 0.2f, penPosition.Y);
+                Vector2 textStart = new(lineEnd.X + series.LineRadius + description.LegendNameHeight * 0.2f, penPosition.Y);
                 characters.Clear().Append(series.Name);
                 text.Write(characters, textStart, description.LegendNameHeight, description.TextColor, description.Font);
                 penPosition.Y += legendLineSpacing;

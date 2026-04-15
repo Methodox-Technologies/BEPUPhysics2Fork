@@ -22,9 +22,9 @@ public class PyramidAwakenerTestDemo : Demo
 
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var boxShape = new Box(1, 1, 1);
-        var boxInertia = boxShape.ComputeInertia(1);
-        var boxIndex = Simulation.Shapes.Add(boxShape);
+        Box boxShape = new(1, 1, 1);
+        BodyInertia boxInertia = boxShape.ComputeInertia(1);
+        TypedIndex boxIndex = Simulation.Shapes.Add(boxShape);
         const int pyramidCount = 10;
         for (int pyramidIndex = 0; pyramidIndex < pyramidCount; ++pyramidIndex)
         {
@@ -43,22 +43,22 @@ public class PyramidAwakenerTestDemo : Demo
             }
         }
 
-        var staticShape = new Box(250, 1, 250);
-        var staticShapeIndex = Simulation.Shapes.Add(staticShape);
+        Box staticShape = new(250, 1, 250);
+        TypedIndex staticShapeIndex = Simulation.Shapes.Add(staticShape);
 
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, -0.5f, 0), staticShapeIndex));
 
     }
 
     int frameIndex;
-    Random random = new Random(5);
+    Random random = new(5);
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
         frameIndex++;
         if (frameIndex % 64 == 0)
         {
-            var bulletShape = new Sphere(0.5f + 5 * random.NextSingle());
-            var bodyDescription = BodyDescription.CreateDynamic(new Vector3(0, 8, -130), new Vector3(0, 0, 350), bulletShape.ComputeInertia(bulletShape.Radius * bulletShape.Radius * bulletShape.Radius), Simulation.Shapes.Add(bulletShape), 0.01f);
+            Sphere bulletShape = new(0.5f + 5 * random.NextSingle());
+            BodyDescription bodyDescription = BodyDescription.CreateDynamic(new Vector3(0, 8, -130), new Vector3(0, 0, 350), bulletShape.ComputeInertia(bulletShape.Radius * bulletShape.Radius * bulletShape.Radius), Simulation.Shapes.Add(bulletShape), 0.01f);
             Simulation.Bodies.Add(bodyDescription);
         }
         if (frameIndex % 192 == 0)

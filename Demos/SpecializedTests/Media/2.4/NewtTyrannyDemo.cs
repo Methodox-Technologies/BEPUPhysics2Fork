@@ -28,8 +28,8 @@ public class NewtTyrannyDemo : Demo
         Simulation = Simulation.Create(BufferPool, new CharacterNarrowphaseCallbacks(characterControllers), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
         Simulation.Deterministic = true;
 
-        var newtMesh = DemoMeshHelper.LoadModel(content, BufferPool, @"Content\newt.obj", new Vector3(-10, 10, -10));
-        var newtShape = Simulation.Shapes.Add(newtMesh);
+        Mesh newtMesh = DemoMeshHelper.LoadModel(content, BufferPool, @"Content\newt.obj", new Vector3(-10, 10, -10));
+        TypedIndex newtShape = Simulation.Shapes.Add(newtMesh);
         var newtCount = 10;
         newts = new QuickList<SponsorNewt>(newtCount, BufferPool);
         newtArenaMin = new Vector2(-250);
@@ -37,7 +37,7 @@ public class NewtTyrannyDemo : Demo
         random = new Random(8);
         for (int i = 0; i < newtCount; ++i)
         {
-            ref var newt = ref newts.AllocateUnsafely();
+            ref SponsorNewt newt = ref newts.AllocateUnsafely();
             newt = new SponsorNewt(Simulation, newtShape, 0, newtArenaMin, newtArenaMax, random, i);
         }
 
@@ -51,26 +51,26 @@ public class NewtTyrannyDemo : Demo
 
         const int characterCount = 2000;
         characterAIs = new QuickList<SponsorCharacterAI>(characterCount, BufferPool);
-        var characterCollidable = Simulation.Shapes.Add(new Capsule(0.5f, 1f));
+        TypedIndex characterCollidable = Simulation.Shapes.Add(new Capsule(0.5f, 1f));
         for (int i = 0; i < characterCount; ++i)
         {
-            var position2D = newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle());
-            var targetPosition = 0.5f * (newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle()));
+            Vector2 position2D = newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle());
+            Vector2 targetPosition = 0.5f * (newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle()));
             characterAIs.AllocateUnsafely() = new SponsorCharacterAI(characterControllers, characterCollidable, new Vector3(position2D.X, 5, position2D.Y), targetPosition);
         }
 
         const int hutCount = 120;
-        var hutBoxShape = new Box(0.4f, 2, 3);
-        var obstacleDescription = BodyDescription.CreateDynamic(new Vector3(), hutBoxShape.ComputeInertia(20), new CollidableDescription(Simulation.Shapes.Add(hutBoxShape), 0.1f), 1e-2f);
+        Box hutBoxShape = new(0.4f, 2, 3);
+        BodyDescription obstacleDescription = BodyDescription.CreateDynamic(new Vector3(), hutBoxShape.ComputeInertia(20), new CollidableDescription(Simulation.Shapes.Add(hutBoxShape), 0.1f), 1e-2f);
 
         for (int i = 0; i < hutCount; ++i)
         {
-            var position2D = newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle());
+            Vector2 position2D = newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle());
             ColosseumDemo.CreateRing(Simulation, new Vector3(position2D.X, 0, position2D.Y), hutBoxShape, obstacleDescription, 4 + random.NextSingle() * 8, 2, random.Next(1, 10));
 
         }
 
-        var overlordNewtShape = newtMesh;
+        Mesh overlordNewtShape = newtMesh;
         overlordNewtShape.Scale = new Vector3(60, 60, 60);
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, 10, -floorSize * 0.5f - 70), Simulation.Shapes.Add(overlordNewtShape)));
 

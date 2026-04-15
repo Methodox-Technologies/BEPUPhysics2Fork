@@ -15,7 +15,7 @@ public static class TestHelpers
         float accumulated = 0;
         for (int index = 0; index < bodies.ActiveSet.Count; ++index)
         {
-            ref var velocity = ref bodies.ActiveSet.DynamicsState[index].Motion.Velocity;
+            ref BodyVelocity velocity = ref bodies.ActiveSet.DynamicsState[index].Motion.Velocity;
             accumulated += Vector3.Dot(velocity.Linear, velocity.Linear);
             accumulated += Vector3.Dot(velocity.Angular, velocity.Angular);
         }
@@ -24,10 +24,10 @@ public static class TestHelpers
     public static RigidPose CreateRandomPose(Random random, BoundingBox positionBounds)
     {
         RigidPose pose;
-        var span = positionBounds.Max - positionBounds.Min;
+        Vector3 span = positionBounds.Max - positionBounds.Min;
 
         pose.Position = positionBounds.Min + span * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
-        var axis = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
+        Vector3 axis = new(random.NextSingle(), random.NextSingle(), random.NextSingle());
         var length = axis.Length();
         if (length > 0)
             axis /= length;

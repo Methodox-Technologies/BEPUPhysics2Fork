@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using DemoUtilities;
 using DemoRenderer.UI;
-using OpenTK.Input;
 using BepuUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -35,14 +34,14 @@ public struct CharacterInput
         float jumpVelocity, float speed, float maximumSlope = MathF.PI * 0.25f)
     {
         this.characters = characters;
-        var shapeIndex = characters.Simulation.Shapes.Add(shape);
+        TypedIndex shapeIndex = characters.Simulation.Shapes.Add(shape);
 
         //Because characters are dynamic, they require a defined BodyInertia. For the purposes of the demos, we don't want them to rotate or fall over, so the inverse inertia tensor is left at its default value of all zeroes.
         //This is effectively equivalent to giving it an infinite inertia tensor- in other words, no torque will cause it to rotate.
         bodyHandle = characters.Simulation.Bodies.Add(
             BodyDescription.CreateDynamic(initialPosition, new BodyInertia { InverseMass = 1f / mass },
             new(shapeIndex, minimumSpeculativeMargin, float.MaxValue, ContinuousDetection.Passive), shape.Radius * 0.02f));
-        ref var character = ref characters.AllocateCharacter(bodyHandle);
+        ref CharacterController character = ref characters.AllocateCharacter(bodyHandle);
         character.LocalUp = new Vector3(0, 1, 0);
         character.CosMaximumSlope = MathF.Cos(maximumSlope);
         character.JumpVelocity = jumpVelocity;
@@ -87,12 +86,12 @@ public struct CharacterInput
             movementDirection /= MathF.Sqrt(movementDirectionLengthSquared);
         }
 
-        ref var character = ref characters.GetCharacterByBodyHandle(bodyHandle);
+        ref CharacterController character = ref characters.GetCharacterByBodyHandle(bodyHandle);
         character.TryJump = input.WasPushed(Jump) || input.WasPushed(JumpAlternate);
-        var characterBody = new BodyReference(bodyHandle, characters.Simulation.Bodies);
+        BodyReference characterBody = new(bodyHandle, characters.Simulation.Bodies);
         var effectiveSpeed = input.IsDown(Sprint) ? speed * 1.75f : speed;
-        var newTargetVelocity = movementDirection * effectiveSpeed;
-        var viewDirection = camera.Forward;
+        Vector2 newTargetVelocity = movementDirection * effectiveSpeed;
+        Vector3 viewDirection = camera.Forward;
         //Modifying the character's raw data does not automatically wake the character up, so we do so explicitly if necessary.
         //If you don't explicitly wake the character up, it won't respond to the changed motion goals.
         //(You can also specify a negative deactivation threshold in the BodyActivityDescription to prevent the character from sleeping at all.)
@@ -115,14 +114,14 @@ public struct CharacterInput
         //Feel free to try alternative implementations. Again, there is no one correct approach.
         if (!character.Supported && movementDirectionLengthSquared > 0)
         {
-            QuaternionEx.Transform(character.LocalUp, characterBody.Pose.Orientation, out var characterUp);
-            var characterRight = Vector3.Cross(character.ViewDirection, characterUp);
+            QuaternionEx.Transform(character.LocalUp, characterBody.Pose.Orientation, out Vector3 characterUp);
+            Vector3 characterRight = Vector3.Cross(character.ViewDirection, characterUp);
             var rightLengthSquared = characterRight.LengthSquared();
             if (rightLengthSquared > 1e-10f)
             {
                 characterRight /= MathF.Sqrt(rightLengthSquared);
-                var characterForward = Vector3.Cross(characterUp, characterRight);
-                var worldMovementDirection = characterRight * movementDirection.X + characterForward * movementDirection.Y;
+                Vector3 characterForward = Vector3.Cross(characterUp, characterRight);
+                Vector3 worldMovementDirection = characterRight * movementDirection.X + characterForward * movementDirection.Y;
                 var currentVelocity = Vector3.Dot(characterBody.Velocity.Linear, worldMovementDirection);
                 //We'll arbitrarily set air control to be a fraction of supported movement's speed/force.
                 const float airControlForceScale = .2f;
@@ -141,8 +140,8 @@ public struct CharacterInput
     public void UpdateCameraPosition(Camera camera, float cameraBackwardOffsetScale = 4)
     {
         //We'll override the demo harness's camera control by attaching the camera to the character controller body.
-        ref var character = ref characters.GetCharacterByBodyHandle(bodyHandle);
-        var characterBody = new BodyReference(bodyHandle, characters.Simulation.Bodies);
+        ref CharacterController character = ref characters.GetCharacterByBodyHandle(bodyHandle);
+        BodyReference characterBody = new(bodyHandle, characters.Simulation.Bodies);
         //Use a simple sorta-neck model so that when the camera looks down, the center of the screen sees past the character.
         //Makes mouselocked ray picking easier.
         camera.Position = characterBody.Pose.Position + new Vector3(0, shape.HalfLength, 0) +

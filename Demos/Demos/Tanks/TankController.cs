@@ -59,7 +59,7 @@ public struct TankController
         var leftForce = brakeLeft ? BrakeForce : leftTargetSpeedFraction == 0 ? IdleForce : Force;
         var rightForce = brakeRight ? BrakeForce : rightTargetSpeedFraction == 0 ? IdleForce : Force;
 
-        var (targetSwivelAngle, targetPitchAngle) = Tank.ComputeTurretAngles(simulation, aimDirection);
+        (float targetSwivelAngle, float targetPitchAngle) = Tank.ComputeTurretAngles(simulation, aimDirection);
 
         if (leftTargetSpeed != previousLeftTargetSpeed || rightTargetSpeed != previousRightTargetSpeed ||
             leftForce != previousLeftForce || rightForce != previousRightForce ||

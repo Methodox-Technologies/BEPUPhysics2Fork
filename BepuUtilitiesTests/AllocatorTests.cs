@@ -10,16 +10,16 @@ namespace BEPUutilitiesTests
 
         public static void TestChurnStability()
         {
-            var pool = new BufferPool();
-            var allocator = new Allocator(2048, pool);
-            var random = new Random(5);
+            BufferPool pool = new();
+            Allocator allocator = new(2048, pool);
+            Random random = new(5);
             ulong idCounter = 0;
-            var allocatedIds = new QuickList<ulong>(8, pool);
-            var unallocatedIds = new QuickList<ulong>(8, pool);
+            QuickList<ulong> allocatedIds = new(8, pool);
+            QuickList<ulong> unallocatedIds = new(8, pool);
             for (int i = 0; i < 512; ++i)
             {
                 long start;
-                var id = idCounter++;
+                ulong id = idCounter++;
                 //allocator.ValidatePointers();
                 if (allocator.Allocate(id, 1 + random.Next(5), out start))
                 {
@@ -36,9 +36,9 @@ namespace BEPUutilitiesTests
                 //First add and remove a bunch randomly.
                 for (int i = random.Next(Math.Min(allocatedIds.Count, 15)); i >= 0; --i)
                 {
-                    var indexToRemove = random.Next(allocatedIds.Count);
+                    int indexToRemove = random.Next(allocatedIds.Count);
                     //allocator.ValidatePointers();
-                    var deallocated = allocator.Deallocate(allocatedIds[indexToRemove]);
+                    bool deallocated = allocator.Deallocate(allocatedIds[indexToRemove]);
                     Debug.Assert(deallocated);
                     //allocator.ValidatePointers();
                     unallocatedIds.Add(allocatedIds[indexToRemove], pool);
@@ -46,7 +46,7 @@ namespace BEPUutilitiesTests
                 }
                 for (int i = random.Next(Math.Min(unallocatedIds.Count, 15)); i >= 0; --i)
                 {
-                    var indexToAllocate = random.Next(unallocatedIds.Count);
+                    int indexToAllocate = random.Next(unallocatedIds.Count);
                     //allocator.ValidatePointers();
                     if (allocator.Allocate(unallocatedIds[indexToAllocate], random.Next(3), out long start))
                     {
@@ -69,7 +69,7 @@ namespace BEPUutilitiesTests
             //Wind it down.
             for (int i = 0; i < allocatedIds.Count; ++i)
             {
-                var deallocated = allocator.Deallocate(allocatedIds[i]);
+                bool deallocated = allocator.Deallocate(allocatedIds[i]);
                 Debug.Assert(deallocated);
             }
             //Confirm cleanup.

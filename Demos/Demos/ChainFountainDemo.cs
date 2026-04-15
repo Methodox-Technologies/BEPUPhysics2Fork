@@ -23,15 +23,15 @@ public class ChainFountainDemo : Demo
         camera.Yaw = MathF.PI;
         camera.Pitch = 0;
 
-        var filters = new CollidableProperty<RopeFilter>();
+        CollidableProperty<RopeFilter> filters = new();
         Simulation = Simulation.Create(BufferPool, new RopeNarrowPhaseCallbacks(filters, new PairMaterialProperties(0.1f, float.MaxValue, new SpringSettings(240, 0)), 3), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(1, 12));
 
         var beadSpacing = 0.3f;
-        var beadShape = new Capsule(0.05f, beadSpacing);
-        var beadDescription = BodyDescription.CreateDynamic(new Vector3(), beadShape.ComputeInertia(1), Simulation.Shapes.Add(beadShape), 0.01f);
+        Capsule beadShape = new(0.05f, beadSpacing);
+        BodyDescription beadDescription = BodyDescription.CreateDynamic(new Vector3(), beadShape.ComputeInertia(1), Simulation.Shapes.Add(beadShape), 0.01f);
 
         const int beadCount = 4096;
-        var handles = new BodyHandle[beadCount];
+        BodyHandle[] handles = new BodyHandle[beadCount];
         var radius = 2.5f;
         var anglePerIteration = 2 * MathF.Asin(beadSpacing / (2 * radius));
         var heightPerIteration = beadShape.Radius * 2 / (MathF.PI * 2 / anglePerIteration);
@@ -40,13 +40,13 @@ public class ChainFountainDemo : Demo
             var angle = MathF.PI + i * anglePerIteration;
             var nextAngle = MathF.PI + (i + 1) * anglePerIteration;
 
-            var currentPosition = new Vector3(2.8f + MathF.Sin(angle) * radius, 0.5f + heightPerIteration * i, -15 + MathF.Cos(angle) * radius);
-            var nextPosition = new Vector3(2.8f + MathF.Sin(nextAngle) * radius, 0.5f + heightPerIteration * (i + 1), -15 + MathF.Cos(nextAngle) * radius);
+            Vector3 currentPosition = new(2.8f + MathF.Sin(angle) * radius, 0.5f + heightPerIteration * i, -15 + MathF.Cos(angle) * radius);
+            Vector3 nextPosition = new(2.8f + MathF.Sin(nextAngle) * radius, 0.5f + heightPerIteration * (i + 1), -15 + MathF.Cos(nextAngle) * radius);
             //The constraints were built along the local Y axis, so get the shortest rotation from Y to the current orientation.
-            var offset = currentPosition - nextPosition;
-            var cross = Vector3.Cross(Vector3.Normalize(offset), new Vector3(0, 1, 0));
+            Vector3 offset = currentPosition - nextPosition;
+            Vector3 cross = Vector3.Cross(Vector3.Normalize(offset), new Vector3(0, 1, 0));
             var crossLength = cross.Length();
-            var orientation = crossLength > 1e-8f ? QuaternionEx.CreateFromAxisAngle(cross / crossLength, (float)Math.Asin(crossLength)) : Quaternion.Identity;
+            Quaternion orientation = crossLength > 1e-8f ? QuaternionEx.CreateFromAxisAngle(cross / crossLength, (float)Math.Asin(crossLength)) : Quaternion.Identity;
 
             //Include a little nudge. This is going to create constraint error, but that's fine. It distributes the rope over the platform to avoid tangles.
             beadDescription.Pose = new RigidPose(currentPosition + new Vector3(0, 0, i * 0.006f), orientation);
@@ -64,7 +64,7 @@ public class ChainFountainDemo : Demo
         }
 
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, 0f, 0), Simulation.Shapes.Add(new Box(11.6f, .2f, 40))));
-        var wall = Simulation.Shapes.Add(new Box(.4f, 1, 40));
+        TypedIndex wall = Simulation.Shapes.Add(new Box(.4f, 1, 40));
         Simulation.Statics.Add(new StaticDescription(new Vector3(5.65f, 2.4f - 2f, 0), wall));
         Simulation.Statics.Add(new StaticDescription(new Vector3(-5.65f, 2.4f - 2f, 0), wall));
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, -500f, 0), Simulation.Shapes.Add(new Box(500, 1, 500))));
@@ -114,7 +114,7 @@ public class ChainFountainDemo : Demo
         //    extractor.Reset();
         //}
         //extractor.Dispose();
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("The chain fountain is sometimes called Newton's beads or the Mould Effect."), new Vector2(16, resolution.Y - 64), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("A stiff segmented rope gets yanked upwards and over the lip by falling segments."), new Vector2(16, resolution.Y - 48), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Peculiarly, the rope sometimes climbs to heights far higher than the container edge as bits of the rope 'kick' off the floor on their way out."), new Vector2(16, resolution.Y - 32), 16, Vector3.One, font);

@@ -4,6 +4,7 @@ using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using BepuUtilities;
 using BepuUtilities.Collections;
+using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
@@ -34,15 +35,15 @@ public class SweepDemo : Demo
         camera.Pitch = 0;
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var box = new Box(2f, 2f, 2f);
-        var capsule = new Capsule(1f, 1f);
-        var sphere = new Sphere(1.5f);
-        var boxInertia = box.ComputeInertia(1);
-        var capsuleInertia = capsule.ComputeInertia(1);
-        var sphereInertia = sphere.ComputeInertia(1);
-        var boxIndex = Simulation.Shapes.Add(box);
-        var capsuleIndex = Simulation.Shapes.Add(capsule);
-        var sphereIndex = Simulation.Shapes.Add(sphere);
+        Box box = new(2f, 2f, 2f);
+        Capsule capsule = new(1f, 1f);
+        Sphere sphere = new(1.5f);
+        BodyInertia boxInertia = box.ComputeInertia(1);
+        BodyInertia capsuleInertia = capsule.ComputeInertia(1);
+        BodyInertia sphereInertia = sphere.ComputeInertia(1);
+        TypedIndex boxIndex = Simulation.Shapes.Add(box);
+        TypedIndex capsuleIndex = Simulation.Shapes.Add(capsule);
+        TypedIndex sphereIndex = Simulation.Shapes.Add(sphere);
         const int width = 12;
         const int height = 3;
         const int length = 12;
@@ -52,9 +53,9 @@ public class SweepDemo : Demo
             {
                 for (int k = 0; k < length; ++k)
                 {
-                    var location = new Vector3(5, 5, 5) * new Vector3(i, j, k) + new Vector3(-width * 2.5f, 2.5f, -length * 2.5f);
+                    Vector3 location = new Vector3(5, 5, 5) * new Vector3(i, j, k) + new Vector3(-width * 2.5f, 2.5f, -length * 2.5f);
                     //CreateKinematic is just a helper function that sets the inertia to all zeroes. We'll set the inertia to the actual value in the following switch.
-                    var bodyDescription = BodyDescription.CreateKinematic(location, default, 0.1f);
+                    BodyDescription bodyDescription = BodyDescription.CreateKinematic(location, default, 0.1f);
                     switch (j % 3)
                     {
                         case 0:
@@ -78,8 +79,8 @@ public class SweepDemo : Demo
 
         //Don't really want to regenerate a convex hull every frame; just cache one out.
         const int pointCount = 32;
-        var points = new QuickList<Vector3>(pointCount, BufferPool);
-        var random = new Random(5);
+        QuickList<Vector3> points = new(pointCount, BufferPool);
+        Random random = new(5);
         for (int i = 0; i < pointCount; ++i)
         {
             points.AllocateUnsafely() = new Vector3(random.NextSingle() - 0.5f, random.NextSingle() - 0.5f, random.NextSingle() - 0.5f);
@@ -102,7 +103,7 @@ public class SweepDemo : Demo
 
         const int planeWidth = 64;
         const int planeHeight = 64;
-        var planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
+        Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
             (int x, int y) =>
             {
                 return new Vector3(x, 1 * MathF.Cos(x / 4f) * MathF.Sin(y / 4f), y);
@@ -118,7 +119,7 @@ public class SweepDemo : Demo
         {
             //For the sake of visualization in this demo, give the triangles a backface. Collisions don't have backfaces, but sweeps do, and it's nice to be able to see the shape.
             //A little bit hacky, but hey, it works.
-            ref var triangle = ref Unsafe.As<TShape, Triangle>(ref shape);
+            ref Triangle triangle = ref Unsafe.As<TShape, Triangle>(ref shape);
             Triangle flippedTriangle;
             flippedTriangle.C = triangle.C;
             flippedTriangle.A = triangle.B;
@@ -147,8 +148,8 @@ public class SweepDemo : Demo
             {
                 var stepProgression = i * inverse;
                 var stepT = stepProgression * t;
-                PoseIntegration.Integrate(pose, velocity, stepT, out var stepPose);
-                var stepColor = color * (0.2f + 0.8f * stepProgression);
+                PoseIntegration.Integrate(pose, velocity, stepT, out RigidPose stepPose);
+                Vector3 stepColor = color * (0.2f + 0.8f * stepProgression);
                 DrawShape(ref shape, stepPose, stepColor, Simulation.Shapes, renderer);
             }
         }
@@ -157,7 +158,7 @@ public class SweepDemo : Demo
     void DrawImpact(Renderer renderer, ref Vector3 hitLocation, ref Vector3 hitNormal)
     {
         //The normal itself will tend to be obscured by the shapes, so instead draw two lines representing the plane.
-        DemoRenderer.Constraints.ContactLines.BuildOrthonormalBasis(hitNormal, out var tangent1, out var tangent2);
+        DemoRenderer.Constraints.ContactLines.BuildOrthonormalBasis(hitNormal, out Vector3 tangent1, out Vector3 tangent2);
         renderer.Lines.Allocate() = new DemoRenderer.Constraints.LineInstance(hitLocation - tangent1, hitLocation + tangent1, new Vector3(0, 1, 0), new Vector3());
         renderer.Lines.Allocate() = new DemoRenderer.Constraints.LineInstance(hitLocation - tangent2, hitLocation + tangent2, new Vector3(0, 1, 0), new Vector3());
     }
@@ -168,21 +169,21 @@ public class SweepDemo : Demo
         where TShapeA : struct, IShape
         where TShapeB : struct, IShape
     {
-        var filter = new Filter();
+        Filter filter = new();
 
-        var task = Simulation.NarrowPhase.SweepTaskRegistry.GetTask(TShapeA.TypeId, TShapeB.TypeId);
+        SweepTask task = Simulation.NarrowPhase.SweepTaskRegistry.GetTask(TShapeA.TypeId, TShapeB.TypeId);
         if (task == null)
             return;
         var intersected = task.Sweep(
             Unsafe.AsPointer(ref a), TShapeA.TypeId, poseA.Orientation, velocityA,
             Unsafe.AsPointer(ref b), TShapeB.TypeId, poseB.Position - poseA.Position, poseB.Orientation, velocityB,
             maximumT, 1e-2f, 1e-5f, 25, ref filter, Simulation.Shapes, Simulation.NarrowPhase.SweepTaskRegistry, BufferPool,
-            out var t0, out var t1, out var hitLocation, out var hitNormal);
+            out var t0, out var t1, out Vector3 hitLocation, out Vector3 hitNormal);
         hitLocation += poseA.Position;
 
-        var hitTint = intersected ? new Vector3(0.5f, 1, 0.5f) : new Vector3(1f, 0.5f, 0.5f);
-        var colorA = new Vector3(0.75f, 0.75f, 1) * hitTint;
-        var colorB = new Vector3(0.75f, 1f, 1) * hitTint;
+        Vector3 hitTint = intersected ? new Vector3(0.5f, 1, 0.5f) : new Vector3(1f, 0.5f, 0.5f);
+        Vector3 colorA = new Vector3(0.75f, 0.75f, 1) * hitTint;
+        Vector3 colorB = new Vector3(0.75f, 1f, 1) * hitTint;
 
         var stepCount = (intersected && t1 > 0) || !intersected ? 100 : 1;
         var visualizedT = intersected ? t1 : maximumT;
@@ -264,36 +265,36 @@ public class SweepDemo : Demo
     }
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var xRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(1, 0, 0), 0.02f * animationT * MathHelper.Pi);
-        var yRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(0, 1, 0), 0.04f * animationT * MathHelper.Pi);
-        var zRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(0, 0, 1), 0.06f * animationT * MathHelper.Pi);
-        var worldA = QuaternionEx.Concatenate(xRotation, QuaternionEx.Concatenate(yRotation, zRotation));
-        var worldB = QuaternionEx.Concatenate(yRotation, QuaternionEx.Concatenate(zRotation, xRotation));
+        Quaternion xRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(1, 0, 0), 0.02f * animationT * MathHelper.Pi);
+        Quaternion yRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(0, 1, 0), 0.04f * animationT * MathHelper.Pi);
+        Quaternion zRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(0, 0, 1), 0.06f * animationT * MathHelper.Pi);
+        Quaternion worldA = QuaternionEx.Concatenate(xRotation, QuaternionEx.Concatenate(yRotation, zRotation));
+        Quaternion worldB = QuaternionEx.Concatenate(yRotation, QuaternionEx.Concatenate(zRotation, xRotation));
         base.Render(renderer, camera, input, text, font);
 
-        var compoundBuilder = new CompoundBuilder(BufferPool, Simulation.Shapes, 8);
+        CompoundBuilder compoundBuilder = new(BufferPool, Simulation.Shapes, 8);
         compoundBuilder.Add(new Box(1f, 0.5f, 0.75f), new RigidPose { Orientation = Quaternion.Identity, Position = new Vector3(-0.5f, 0, 0) }, 1);
         compoundBuilder.Add(new Sphere(0.5f), new RigidPose { Orientation = Quaternion.Identity, Position = new Vector3(0.5f, 0, 0) }, 1);
-        compoundBuilder.BuildKinematicCompound(out var compoundChildren);
-        var compound = new Compound(compoundChildren);
-        var bigCompound = new BigCompound(compoundChildren, Simulation.Shapes, BufferPool);
+        compoundBuilder.BuildKinematicCompound(out Buffer<CompoundChild> compoundChildren);
+        Compound compound = new(compoundChildren);
+        BigCompound bigCompound = new(compoundChildren, Simulation.Shapes, BufferPool);
         compoundBuilder.Dispose();
 
         const int planeWidth = 3;
         const int planeHeight = 3;
-        var mesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
+        Mesh mesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
             (int x, int y) =>
             {
                 return new Vector3(x - 1.5f, 0.1f * MathF.Cos(x) * MathF.Sin(y), y - 1.5f);
             }, new Vector3(1, 2, 1), BufferPool);
 
 
-        var triangle = new Triangle(new Vector3(0, 0, 0), new Vector3(2, 0, -1), new Vector3(-1, 0, 1.5f));
-        var triangleCenter = (triangle.A + triangle.B + triangle.C) / 3f;
+        Triangle triangle = new(new Vector3(0, 0, 0), new Vector3(2, 0, -1), new Vector3(-1, 0, 1.5f));
+        Vector3 triangleCenter = (triangle.A + triangle.B + triangle.C) / 3f;
         triangle.A -= triangleCenter;
         triangle.B -= triangleCenter;
         triangle.C -= triangleCenter;
-        var position = new Vector3(-90, 60, -75);
+        Vector3 position = new(-90, 60, -75);
         StandardTestSweep(new Sphere(0.5f), new Sphere(.25f), ref position, worldA, worldB, renderer);
         StandardTestSweep(new Sphere(0.5f), new Capsule(.25f, 1f), ref position, worldA, worldB, renderer);
         StandardTestSweep(new Sphere(0.5f), new Box(.5f, 1f, 1.5f), ref position, worldA, worldB, renderer);
@@ -364,20 +365,20 @@ public class SweepDemo : Demo
         mesh.Dispose(BufferPool);
 
         //Perform simulation-wide queries against the other collidables in the scene.
-        var localOrigin = new Vector3(-25, 15, 0);
-        var localDirection = new Vector3(7, -10, 0);
+        Vector3 localOrigin = new(-25, 15, 0);
+        Vector3 localDirection = new(7, -10, 0);
         var sweepCount = 16;
         for (int i = 0; i < sweepCount; ++i)
         {
-            Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), i * MathHelper.TwoPi / sweepCount, out var rotation);
-            Matrix3x3.Transform(localOrigin, rotation, out var sweepOrigin);
-            Matrix3x3.Transform(localDirection, rotation, out var sweepDirection);
+            Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), i * MathHelper.TwoPi / sweepCount, out Matrix3x3 rotation);
+            Matrix3x3.Transform(localOrigin, rotation, out Vector3 sweepOrigin);
+            Matrix3x3.Transform(localDirection, rotation, out Vector3 sweepDirection);
 
             SceneSweepHitHandler hitHandler = default;
             hitHandler.T = float.MaxValue;
-            var shape = new Box(1, 2, 1.5f);
-            var initialPose = new RigidPose { Position = sweepOrigin, Orientation = Quaternion.Identity };
-            var sweepVelocity = new BodyVelocity { Linear = sweepDirection };
+            Box shape = new(1, 2, 1.5f);
+            RigidPose initialPose = new() { Position = sweepOrigin, Orientation = Quaternion.Identity };
+            BodyVelocity sweepVelocity = new() { Linear = sweepDirection };
             Simulation.Sweep(shape, initialPose, sweepVelocity, 10, BufferPool, ref hitHandler);
             DrawSweep(shape, initialPose, sweepVelocity, 20, hitHandler.T, renderer,
                 hitHandler.T < float.MaxValue ? new Vector3(0.25f, 1, 0.25f) : new Vector3(1, 0.25f, 0.25f));

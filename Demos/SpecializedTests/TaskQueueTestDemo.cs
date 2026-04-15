@@ -59,14 +59,14 @@ public unsafe class TaskQueueTestDemo : Demo
     static void Test<T>(long taskId, void* context, int workerIndex, IThreadDispatcher dispatcher) where T : unmanaged
     {
         var sum = DoSomeWork(100, 0);
-        var typedContext = (Context*)context;
+        Context* typedContext = (Context*)context;
         //if ((taskId & 7) == 0)
         {
             const int subtaskCount = 8;
-            var context1 = new DynamicContext1 { Context = typedContext };
-            var context2 = new DynamicContext2 { Context = typedContext };
+            DynamicContext1 context1 = new() { Context = typedContext };
+            DynamicContext2 context2 = new() { Context = typedContext };
 
-            var stack = (TaskStack*)typedContext->TaskPile;
+            TaskStack* stack = (TaskStack*)typedContext->TaskPile;
             stack->For(&DynamicallyEnqueuedTest1, &context1, 0, subtaskCount, workerIndex, dispatcher);
             stack->For(&DynamicallyEnqueuedTest2, &context2, 0, subtaskCount, workerIndex, dispatcher);
         }
@@ -75,16 +75,16 @@ public unsafe class TaskQueueTestDemo : Demo
     static void STTest(long taskId, void* context, int workerIndex, IThreadDispatcher dispatcher)
     {
         var sum = DoSomeWork(100, 0);
-        var typedContext = (Context*)context;
+        Context* typedContext = (Context*)context;
         //if ((taskId & 7) == 0)
         {
             const int subtaskCount = 8;
-            var context1 = new DynamicContext1 { Context = typedContext };
+            DynamicContext1 context1 = new() { Context = typedContext };
             for (int i = 0; i < subtaskCount; ++i)
             {
                 DynamicallyEnqueuedTest1(i, &context1, workerIndex, dispatcher);
             }
-            var context2 = new DynamicContext2 { Context = typedContext };
+            DynamicContext2 context2 = new() { Context = typedContext };
             for (int i = 0; i < subtaskCount; ++i)
             {
                 DynamicallyEnqueuedTest2(i, &context2, workerIndex, dispatcher);
@@ -97,7 +97,7 @@ public unsafe class TaskQueueTestDemo : Demo
     {
         //if (workerIndex > 1)
         //    return;
-        var taskStack = (TaskStack*)dispatcher.UnmanagedContext;
+        TaskStack* taskStack = (TaskStack*)dispatcher.UnmanagedContext;
         while (taskStack->TryPopAndRun(workerIndex, dispatcher) != PopTaskResult.Stop) ;
 
     }
@@ -110,7 +110,7 @@ public unsafe class TaskQueueTestDemo : Demo
 
     static void IssueStop<T>(long id, void* context, int workerIndex, IThreadDispatcher dispatcher) where T : unmanaged
     {
-        var typedContext = (Context*)context;
+        Context* typedContext = (Context*)context;
         ((TaskStack*)typedContext->TaskPile)->RequestStop();
 
     }
@@ -144,12 +144,12 @@ public unsafe class TaskQueueTestDemo : Demo
 
         for (int i = 0; i < 10; ++i)
         {
-            var linkedTaskStack = new TaskStack(BufferPool, ThreadDispatcher, ThreadDispatcher.ThreadCount);
-            var linkedTaskStackPointer = &linkedTaskStack;
+            TaskStack linkedTaskStack = new(BufferPool, ThreadDispatcher, ThreadDispatcher.ThreadCount);
+            TaskStack* linkedTaskStackPointer = &linkedTaskStack;
             Test(() =>
             {
-                var context = new Context { TaskPile = linkedTaskStackPointer };
-                var continuation = linkedTaskStackPointer->AllocateContinuation(iterationCount * tasksPerIteration, 0, ThreadDispatcher, new Task(&IssueStop<TaskStack>, &context));
+                Context context = new() { TaskPile = linkedTaskStackPointer };
+                ContinuationHandle continuation = linkedTaskStackPointer->AllocateContinuation(iterationCount * tasksPerIteration, 0, ThreadDispatcher, new Task(&IssueStop<TaskStack>, &context));
                 for (int i = 0; i < iterationCount; ++i)
                 {
                     linkedTaskStackPointer->PushForUnsafely(&Test<TaskStack>, &context, i * tasksPerIteration, tasksPerIteration, 0, ThreadDispatcher, continuation: continuation);

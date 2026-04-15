@@ -21,26 +21,26 @@ public class ShrinkwrappedNewtsVideoDemo : Demo
 
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var meshContent = content.Load<MeshContent>("Content\\newt.obj");
+        MeshContent meshContent = content.Load<MeshContent>("Content\\newt.obj");
 
         //This is actually a pretty good example of how *not* to make a convex hull shape.
         //Generating it directly from a graphical data source tends to have way more surface complexity than needed,
         //and it tends to have a lot of near-but-not-quite-coplanar surfaces which can make the contact manifold less stable.
         //Prefer a simpler source with more distinct features, possibly created with an automated content-time tool.
-        var points = new QuickList<Vector3>(meshContent.Triangles.Length * 3, BufferPool);
+        QuickList<Vector3> points = new(meshContent.Triangles.Length * 3, BufferPool);
         for (int i = 0; i < meshContent.Triangles.Length; ++i)
         {
-            ref var triangle = ref meshContent.Triangles[i];
+            ref TriangleContent triangle = ref meshContent.Triangles[i];
             //resisting the urge to just reinterpret the memory
             points.AllocateUnsafely() = triangle.A * new Vector3(1, 1.5f, 1);
             points.AllocateUnsafely() = triangle.B * new Vector3(1, 1.5f, 1);
             points.AllocateUnsafely() = triangle.C * new Vector3(1, 1.5f, 1);
         }
 
-        var newtHull = new ConvexHull(points.Span.Slice(points.Count), BufferPool, out _);
-        var bodyDescription = BodyDescription.CreateConvexDynamic(RigidPose.Identity, 1, Simulation.Shapes, newtHull);
-        Random random = new Random(5);
-        var poseBounds = new BoundingBox { Min = new Vector3(-20, 1, 5), Max = new Vector3(20, 10, 50) };
+        ConvexHull newtHull = new(points.Span.Slice(points.Count), BufferPool, out _);
+        BodyDescription bodyDescription = BodyDescription.CreateConvexDynamic(RigidPose.Identity, 1, Simulation.Shapes, newtHull);
+        Random random = new(5);
+        BoundingBox poseBounds = new() { Min = new Vector3(-20, 1, 5), Max = new Vector3(20, 10, 50) };
         for (int i = 0; i < 512; ++i)
         {
             bodyDescription.Pose = TestHelpers.CreateRandomPose(random, poseBounds);

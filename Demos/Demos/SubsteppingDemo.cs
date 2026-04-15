@@ -29,15 +29,15 @@ public class SubsteppingDemo : Demo
         rolloverInfo = new RolloverInfo();
         {
             //We'll create a 0 level arm rope like the one from the RopeStabilityDemo. No skip constraints, though- and the mass ratio will be 10000:1 instead of 100:1!
-            var startLocation = new Vector3(15, 40, 0);
+            Vector3 startLocation = new(15, 40, 0);
             const float bodySpacing = 0.3f;
             const float bodyRadius = 0.5f;
-            var springSettings = new SpringSettings(480, 480);
-            var bodyHandles = RopeStabilityDemo.BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, 0, 1, 0, springSettings);
+            SpringSettings springSettings = new(480, 480);
+            BodyHandle[] bodyHandles = RopeStabilityDemo.BuildRope(Simulation, startLocation, 12, bodyRadius, bodySpacing, 0, 1, 0, springSettings);
 
-            var bigWreckingBall = new Sphere(5);
+            Sphere bigWreckingBall = new(5);
             const float mass = 10000;
-            var bigWreckingBallInertia = bigWreckingBall.ComputeInertia(mass);
+            BodyInertia bigWreckingBallInertia = bigWreckingBall.ComputeInertia(mass);
 
             RopeStabilityDemo.AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, 0, bigWreckingBall.Radius, bigWreckingBallInertia, Simulation.Shapes.Add(bigWreckingBall), springSettings);
             rolloverInfo.Add(startLocation + new Vector3(0, 2, 0), $"{mass}:1 mass ratio");
@@ -47,15 +47,15 @@ public class SubsteppingDemo : Demo
             //Stack with a heavy block on top. Note that the contact springiness we chose in the DemoNarrowPhaseCallbacks above is important to making the stack resist the weight of the top block.
             //It's also the reason why we need higher substeps- 120hz frequency is too high for 60hz solving! Watch what happens when you drop the substep count to 3.
             //(Note that the demos timestep frequency is 60hz, so 4 substeps is a 240hz solve rate- twice the 120hz contact frequency.)
-            var boxShape = new Box(4, 0.5f, 6f);
-            var boxInertia = boxShape.ComputeInertia(1);
-            var boxDescription = BodyDescription.CreateDynamic(new Vector3(), boxInertia, Simulation.Shapes.Add(boxShape), 0.01f);
+            Box boxShape = new(4, 0.5f, 6f);
+            BodyInertia boxInertia = boxShape.ComputeInertia(1);
+            BodyDescription boxDescription = BodyDescription.CreateDynamic(new Vector3(), boxInertia, Simulation.Shapes.Add(boxShape), 0.01f);
             for (int i = 0; i < 20; ++i)
             {
                 boxDescription.Pose = (new Vector3(0, 0.5f + boxShape.Height * (i + 0.5f), 0), QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, MathF.PI * 0.05f * i));
                 Simulation.Bodies.Add(boxDescription);
             }
-            var topBlockShape = new Box(8, 2, 8);
+            Box topBlockShape = new(8, 2, 8);
             const float mass = 10000;
             Simulation.Bodies.Add(
                 BodyDescription.CreateDynamic(boxDescription.Pose.Position + new Vector3(0, boxShape.HalfHeight + 1f, 0), topBlockShape.ComputeInertia(mass),
@@ -67,21 +67,21 @@ public class SubsteppingDemo : Demo
         {
             //Now a weird rotating multi-arm thing. Long constraint sequences with high leverages under stress are a really tough problem for iterative velocity solvers.
             //(Fortunately, all 5 degrees of freedom of each hinge constraint are solved analytically, so the convergence issues aren't quite as bad as they could be.)
-            var basePosition = new Vector3(-20, 20, 0);
-            var boxShape = new Box(0.5f, 0.5f, 3f);
-            var boxShapeIndex = Simulation.Shapes.Add(boxShape);
-            var boxInertia = boxShape.ComputeInertia(1);
-            var linkDescription = BodyDescription.CreateDynamic(new Vector3(), boxInertia, boxShapeIndex, 0.01f);
+            Vector3 basePosition = new(-20, 20, 0);
+            Box boxShape = new(0.5f, 0.5f, 3f);
+            TypedIndex boxShapeIndex = Simulation.Shapes.Add(boxShape);
+            BodyInertia boxInertia = boxShape.ComputeInertia(1);
+            BodyDescription linkDescription = BodyDescription.CreateDynamic(new Vector3(), boxInertia, boxShapeIndex, 0.01f);
 
             for (int chainIndex = 0; chainIndex < 4; ++chainIndex)
             {
                 linkDescription.Pose.Position = basePosition + new Vector3(0, 0, chainIndex * 15);
-                var previousLinkHandle = Simulation.Bodies.Add(BodyDescription.CreateKinematic(linkDescription.Pose.Position, boxShapeIndex, 0.01f));
+                BodyHandle previousLinkHandle = Simulation.Bodies.Add(BodyDescription.CreateKinematic(linkDescription.Pose.Position, boxShapeIndex, 0.01f));
                 for (int linkIndex = 0; linkIndex < 8; ++linkIndex)
                 {
-                    var offset = new Vector3(boxShape.Width * 1.05f, 0, boxShape.Length - boxShape.Width);
+                    Vector3 offset = new(boxShape.Width * 1.05f, 0, boxShape.Length - boxShape.Width);
                     linkDescription.Pose.Position += offset;
-                    var linkHandle = Simulation.Bodies.Add(linkDescription);
+                    BodyHandle linkHandle = Simulation.Bodies.Add(linkDescription);
                     Simulation.Solver.Add(previousLinkHandle, linkHandle, new Hinge
                     {
                         LocalHingeAxisA = Vector3.UnitX,
@@ -114,7 +114,7 @@ public class SubsteppingDemo : Demo
         //For example, reducing substep/iteration count to very low values will cause severe instability.
         //Sleeping objects don't move, though, so wake them up so the result of the change can be seen!
         var sleepingSetsMemory = stackalloc int[Simulation.Bodies.Sets.Length - 1];
-        var sleepingSets = new QuickList<int>(new Buffer<int>(sleepingSetsMemory, Simulation.Bodies.Sets.Length - 1));
+        QuickList<int> sleepingSets = new(new Buffer<int>(sleepingSetsMemory, Simulation.Bodies.Sets.Length - 1));
         for (int i = 1; i < Simulation.Bodies.Sets.Length; ++i)
         {
             if (Simulation.Bodies.Sets[i].Allocated)
@@ -154,7 +154,7 @@ public class SubsteppingDemo : Demo
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("Substepping makes the solver run multiple mini timesteps for each call to Simulation.Timestep."), new Vector2(16, resolution.Y - 160), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Substeps can make extreme mass ratios and difficult constraint articulations stable at low costs."), new Vector2(16, resolution.Y - 144), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Simulations with substepping can use fewer velocity iterations per substep while remaining stable."), new Vector2(16, resolution.Y - 128), 16, Vector3.One, font);

@@ -78,7 +78,7 @@ public class PerBodyGravityDemo : Demo
                 //The integration mask tells us which ones are active in a way that's convenient for vectorized operations, but the bodyIndex for empty lanes will also be -1.
                 if (bodyIndex >= 0)
                 {
-                    var bodyHandle = bodies.ActiveSet.IndexToHandle[bodyIndex];
+                    BodyHandle bodyHandle = bodies.ActiveSet.IndexToHandle[bodyIndex];
                     gravityValues[bundleSlotIndex] = BodyGravities[bodyHandle];
                 }
             }
@@ -96,22 +96,22 @@ public class PerBodyGravityDemo : Demo
         camera.Pitch = 0;
 
         //The CollidableProperty is a helper that associates body handles to whatever data you'd like to store. You don't have to use it, but it's fairly convenient.
-        var bodyGravities = new CollidableProperty<float>(BufferPool);
+        CollidableProperty<float> bodyGravities = new(BufferPool);
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new PerBodyGravityDemoCallbacks(bodyGravities), new SolveDescription(4, 1));
 
         Simulation.Statics.Add(new StaticDescription(new Vector3(), Simulation.Shapes.Add(new Box(1000, 10, 1000))));
 
         //Make bodies with different shapes, and give each shape type its own gravity so that it's visually comprehensible.
-        var sphereShape = new Sphere(1f);
-        var sphereInertia = sphereShape.ComputeInertia(1);
-        var sphereShapeIndex = Simulation.Shapes.Add(sphereShape);
-        var capsuleShape = new Capsule(1f, 1f);
-        var capsuleInertia = capsuleShape.ComputeInertia(1);
-        var capsuleShapeIndex = Simulation.Shapes.Add(capsuleShape);
-        var boxShape = new Box(1f, 1f, 1f);
-        var boxInertia = boxShape.ComputeInertia(1);
-        var boxShapeIndex = Simulation.Shapes.Add(boxShape);
-        var spacing = new Vector3(4);
+        Sphere sphereShape = new(1f);
+        BodyInertia sphereInertia = sphereShape.ComputeInertia(1);
+        TypedIndex sphereShapeIndex = Simulation.Shapes.Add(sphereShape);
+        Capsule capsuleShape = new(1f, 1f);
+        BodyInertia capsuleInertia = capsuleShape.ComputeInertia(1);
+        TypedIndex capsuleShapeIndex = Simulation.Shapes.Add(capsuleShape);
+        Box boxShape = new(1f, 1f, 1f);
+        BodyInertia boxInertia = boxShape.ComputeInertia(1);
+        TypedIndex boxShapeIndex = Simulation.Shapes.Add(boxShape);
+        Vector3 spacing = new(4);
         const int length = 20;
         const int width = 20;
         const int height = 20;
@@ -119,7 +119,7 @@ public class PerBodyGravityDemo : Demo
         {
             for (int j = 0; j < height; ++j)
             {
-                var origin = new Vector3(0, 40, 0) + spacing * new Vector3(length * -0.5f, 0, width * -0.5f);
+                Vector3 origin = new Vector3(0, 40, 0) + spacing * new Vector3(length * -0.5f, 0, width * -0.5f);
                 for (int k = 0; k < width; ++k)
                 {
                     BodyInertia inertia;
@@ -144,7 +144,7 @@ public class PerBodyGravityDemo : Demo
                             break;
                     }
 
-                    var bodyHandle = Simulation.Bodies.Add(BodyDescription.CreateDynamic(
+                    BodyHandle bodyHandle = Simulation.Bodies.Add(BodyDescription.CreateDynamic(
                         origin + new Vector3(i, j, k) * spacing, new Vector3(0, 0, 0), inertia, shapeIndex, 0.001f));
                     bodyGravities.Allocate(bodyHandle) = gravity;
                 }

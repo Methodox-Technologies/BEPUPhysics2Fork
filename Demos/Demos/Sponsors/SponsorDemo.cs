@@ -12,6 +12,7 @@ using BepuUtilities.Collections;
 using BepuPhysics.Collidables;
 using Demos.Demos.Characters;
 using Helpers = DemoRenderer.Helpers;
+using BepuUtilities;
 
 namespace Demos.Demos.Sponsors;
 
@@ -23,17 +24,17 @@ public struct Sponsor
 
 public class SponsorDemo : Demo
 {
-    List<string> sponsors0 = new List<string>();
-    List<Sponsor> sponsors1 = new List<Sponsor>();
-    List<Sponsor> sponsors2 = new List<Sponsor>();
-    List<Sponsor> sponsors3 = new List<Sponsor>();
+    List<string> sponsors0 = new();
+    List<Sponsor> sponsors1 = new();
+    List<Sponsor> sponsors2 = new();
+    List<Sponsor> sponsors3 = new();
 
     QuickList<SponsorNewt> newts;
     StaticHandle overlordNewtHandle;
 
     RenderableImage CreateRewardImage(string rewardImagePath, ContentArchive content, RenderSurface surface)
     {
-        var textureContent = content.Load<Texture2DContent>(rewardImagePath);
+        Texture2DContent textureContent = content.Load<Texture2DContent>(rewardImagePath);
         return new RenderableImage(
 #if !OPENGL
             surface.Device, surface.Context,
@@ -117,15 +118,15 @@ public class SponsorDemo : Demo
         characterControllers = new CharacterControllers(BufferPool);
         Simulation = Simulation.Create(BufferPool, new CharacterNarrowphaseCallbacks(characterControllers), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var newtMesh = DemoMeshHelper.LoadModel(content, BufferPool, @"Content\newt.obj", new Vector3(-10, 10, -10));
-        var newtShape = Simulation.Shapes.Add(newtMesh);
+        Mesh newtMesh = DemoMeshHelper.LoadModel(content, BufferPool, @"Content\newt.obj", new Vector3(-10, 10, -10));
+        TypedIndex newtShape = Simulation.Shapes.Add(newtMesh);
         newts = new QuickList<SponsorNewt>(sponsors2.Count, BufferPool);
         newtArenaMin = new Vector2(-100);
         newtArenaMax = new Vector2(100);
         random = new Random(6);
         for (int i = 0; i < sponsors2.Count; ++i)
         {
-            ref var newt = ref newts.AllocateUnsafely();
+            ref SponsorNewt newt = ref newts.AllocateUnsafely();
             newt = new SponsorNewt(Simulation, newtShape, 0, newtArenaMin, newtArenaMax, random, i);
         }
 
@@ -139,26 +140,26 @@ public class SponsorDemo : Demo
 
         const int characterCount = 1000;
         characterAIs = new QuickList<SponsorCharacterAI>(characterCount, BufferPool);
-        var characterCollidable = Simulation.Shapes.Add(new Capsule(0.5f, 1f));
+        TypedIndex characterCollidable = Simulation.Shapes.Add(new Capsule(0.5f, 1f));
         for (int i = 0; i < characterCount; ++i)
         {
-            var position2D = newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle());
-            var targetPosition = 0.5f * (newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle()));
+            Vector2 position2D = newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle());
+            Vector2 targetPosition = 0.5f * (newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle()));
             characterAIs.AllocateUnsafely() = new SponsorCharacterAI(characterControllers, characterCollidable, new Vector3(position2D.X, 5, position2D.Y), targetPosition);
         }
 
         const int hutCount = 30;
-        var hutBoxShape = new Box(0.4f, 2, 3);
-        var obstacleDescription = BodyDescription.CreateDynamic(new Vector3(), hutBoxShape.ComputeInertia(20), Simulation.Shapes.Add(hutBoxShape), 1e-2f);
+        Box hutBoxShape = new(0.4f, 2, 3);
+        BodyDescription obstacleDescription = BodyDescription.CreateDynamic(new Vector3(), hutBoxShape.ComputeInertia(20), Simulation.Shapes.Add(hutBoxShape), 1e-2f);
 
         for (int i = 0; i < hutCount; ++i)
         {
-            var position2D = newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle());
+            Vector2 position2D = newtArenaMin + (newtArenaMax - newtArenaMin) * new Vector2(random.NextSingle(), random.NextSingle());
             ColosseumDemo.CreateRing(Simulation, new Vector3(position2D.X, 0, position2D.Y), hutBoxShape, obstacleDescription, 5, 2, random.Next(1, 5));
 
         }
 
-        var overlordNewtShape = newtMesh;
+        Mesh overlordNewtShape = newtMesh;
         overlordNewtShape.Scale = new Vector3(60, 60, 60);
         overlordNewtHandle = Simulation.Statics.Add(new StaticDescription(new Vector3(0, 10, -floorSize * 0.5f - 70), Simulation.Shapes.Add(overlordNewtShape)));
     }
@@ -196,11 +197,11 @@ public class SponsorDemo : Demo
         Get(sponsors.Count, maximumBatchSize, time, timePerBatch, fadeTime, out var alpha, out var start, out var end);
         for (int i = start; i < end; ++i)
         {
-            var sponsor = sponsors[i];
+            Sponsor sponsor = sponsors[i];
             renderer.TextBatcher.Write(text.Clear().Append(sponsor.Name), position, fontSize, new Vector4(new Vector3(1), alpha), font);
             var width = GlyphBatch.MeasureLength(sponsor.Name, font, fontSize);
-            var boundingBoxMin = position - new Vector2(padding, padding + fontSize);
-            var boundingBoxMax = position + new Vector2(width + padding, padding);
+            Vector2 boundingBoxMin = position - new Vector2(padding, padding + fontSize);
+            Vector2 boundingBoxMax = position + new Vector2(width + padding, padding);
             if (Vector2.Min(boundingBoxMax, Vector2.Max(boundingBoxMin, mousePosition)) == mousePosition)
             {
                 //Mouse is within the mouseover region. Show reward image.
@@ -248,9 +249,9 @@ public class SponsorDemo : Demo
     }
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var viewProjection = camera.ViewProjection;
-        var integerResolution = renderer.Surface.Resolution;
-        var resolution = new Vector2(integerResolution.X, integerResolution.Y);
+        Matrix viewProjection = camera.ViewProjection;
+        Int2 integerResolution = renderer.Surface.Resolution;
+        Vector2 resolution = new(integerResolution.X, integerResolution.Y);
         for (int i = 0; i < newts.Count; ++i)
         {
             newts[i].Render(Simulation, sponsors2, renderer, viewProjection, resolution, text, font);
@@ -258,8 +259,8 @@ public class SponsorDemo : Demo
 
         //We'll hardcode the overlord newts. Not going to be a problem, I suspect.
         {
-            var worldTextPosition = Simulation.Statics[overlordNewtHandle].Pose.Position + new Vector3(0, 48, 0);
-            Helpers.GetScreenLocation(worldTextPosition, viewProjection, resolution, out var screenspacePosition);
+            Vector3 worldTextPosition = Simulation.Statics[overlordNewtHandle].Pose.Position + new Vector3(0, 48, 0);
+            Helpers.GetScreenLocation(worldTextPosition, viewProjection, resolution, out Vector2 screenspacePosition);
             const float nameHeight = 14;
             var name = sponsors3[0].Name;
             var nameLength = GlyphBatch.MeasureLength(name, font, nameHeight);
@@ -267,8 +268,8 @@ public class SponsorDemo : Demo
             renderer.TextBatcher.Write(text.Clear().Append(name), screenspacePosition, nameHeight, new Vector3(0.3f, 0f, 0f), font);
         }
 
-        var integralMousePosition = input.MousePosition;
-        var mousePosition = new Vector2(integralMousePosition.X, integralMousePosition.Y);
+        Int2 integralMousePosition = input.MousePosition;
+        Vector2 mousePosition = new(integralMousePosition.X, integralMousePosition.Y);
         renderer.TextBatcher.Write(text.Clear().Append("Mouseover entries to view additional very important tier rewards."), new Vector2(32, resolution.Y - 50), 14, new Vector3(1), font);
         renderer.TextBatcher.Write(text.Clear().Append("Are you a sponsor, but missing from this list? Want a different name/nickname for your entry? Send me a message!"), new Vector2(32, resolution.Y - 32), 14, new Vector3(1), font);
         DrawSponsors("Super duper sponsors", sponsors3, new Vector2(32, resolution.Y - 480), mousePosition, renderer, text, font, realTime, 1, 4, 0.25f, 32, 6, 48);
@@ -280,15 +281,15 @@ public class SponsorDemo : Demo
 
     protected override void OnDispose()
     {
-        foreach (var sponsor in sponsors1)
+        foreach (Sponsor sponsor in sponsors1)
         {
             sponsor.RewardImage.Dispose();
         }
-        foreach (var sponsor in sponsors2)
+        foreach (Sponsor sponsor in sponsors2)
         {
             sponsor.RewardImage.Dispose();
         }
-        foreach (var sponsor in sponsors3)
+        foreach (Sponsor sponsor in sponsors3)
         {
             sponsor.RewardImage.Dispose();
         }

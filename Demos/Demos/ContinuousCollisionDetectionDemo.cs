@@ -21,10 +21,10 @@ public class ContinuousCollisionDetectionDemo : Demo
 
     ConstraintHandle BuildSpinner(Vector3 initialPosition, float rotationSpeed, float maximumSpeculativeMargin, ContinuousDetection continuousDetection)
     {
-        var spinnerBase = Simulation.Bodies.Add(BodyDescription.CreateDynamic(initialPosition, new BodyInertia { InverseMass = 1e-2f }, Simulation.Shapes.Add(new Box(2, 2, 2)), 0.01f));
-        var bladeShape = new Box(5, 0.01f, 1);
-        var bladeInertia = bladeShape.ComputeInertia(1);
-        var shapeIndex = Simulation.Shapes.Add(bladeShape);
+        BodyHandle spinnerBase = Simulation.Bodies.Add(BodyDescription.CreateDynamic(initialPosition, new BodyInertia { InverseMass = 1e-2f }, Simulation.Shapes.Add(new Box(2, 2, 2)), 0.01f));
+        Box bladeShape = new(5, 0.01f, 1);
+        BodyInertia bladeInertia = bladeShape.ComputeInertia(1);
+        TypedIndex shapeIndex = Simulation.Shapes.Add(bladeShape);
         //Note that both the minimum progression duration and the sweep convergence duration are both very small at 1e-4. 
         //That will detect collisions with a precision equal to an update rate of 10,000hz.
         //The blades are extremely thin and spinning very quickly, so that kind of precision is helpful.
@@ -41,7 +41,7 @@ public class ContinuousCollisionDetectionDemo : Demo
 
         //Using a restricted speculative margin by setting the maximumSpeculativeMargin to 0.2 means that collision detection won't accept distant contacts.
         //This pretty much eliminates ghost collisions, while the continuous sweep helps avoid missed collisions.
-        var spinnerBlade = Simulation.Bodies.Add(BodyDescription.CreateDynamic(initialPosition, bladeInertia, new(shapeIndex, maximumSpeculativeMargin, continuousDetection), 0.01f));
+        BodyHandle spinnerBlade = Simulation.Bodies.Add(BodyDescription.CreateDynamic(initialPosition, bladeInertia, new(shapeIndex, maximumSpeculativeMargin, continuousDetection), 0.01f));
         Simulation.Solver.Add(spinnerBase, spinnerBlade, new Hinge { LocalHingeAxisA = new Vector3(0, 0, 1), LocalHingeAxisB = new Vector3(0, 0, 1), LocalOffsetB = new Vector3(0, 0, -3), SpringSettings = new SpringSettings(30, 1) });
         Simulation.Solver.Add(spinnerBase, spinnerBlade, new AngularAxisMotor { LocalAxisA = new Vector3(0, 0, 1), Settings = new MotorSettings(10, 1e-4f), TargetVelocity = rotationSpeed });
         return Simulation.Solver.Add(spinnerBase, new OneBodyLinearServo { ServoSettings = ServoSettings.Default, SpringSettings = new SpringSettings(30, 1) });
@@ -61,9 +61,9 @@ public class ContinuousCollisionDetectionDemo : Demo
             new DemoNarrowPhaseCallbacks(new SpringSettings(120, 1), maximumRecoveryVelocity: 1f),
             new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var shape = new Box(1, 1, 1);
-        var inertia = shape.ComputeInertia(1);
-        var shapeIndex = Simulation.Shapes.Add(shape);
+        Box shape = new(1, 1, 1);
+        BodyInertia inertia = shape.ComputeInertia(1);
+        TypedIndex shapeIndex = Simulation.Shapes.Add(shape);
         for (int i = 0; i < 10; ++i)
         {
             for (int j = 0; j < 10; ++j)
@@ -103,12 +103,12 @@ public class ContinuousCollisionDetectionDemo : Demo
 
         //Build a couple of spinners to ram into each other to showcase angular CCD. Note that the spin speeds are slightly different- that helps avoid 
         //synchronization that makes the blades frequently miss each other, which sorta ruins a CCD demo.
-        var onlySpeculativeMargin = ContinuousDetection.Passive;
+        ContinuousDetection onlySpeculativeMargin = ContinuousDetection.Passive;
         spinnerMotorDefaultA = BuildSpinner(new Vector3(-20, 14, 0), 53, 0.2f, onlySpeculativeMargin);
         spinnerMotorDefaultB = BuildSpinner(new Vector3(-10, 14, 0), 59, 0.2f, onlySpeculativeMargin);
         rolloverInfo.Add(new Vector3(-15, 14, -5), "Unlimited speculative margin");
 
-        var continuous = ContinuousDetection.Continuous(1e-4f, 1e-4f);
+        ContinuousDetection continuous = ContinuousDetection.Continuous(1e-4f, 1e-4f);
         spinnerMotorSweepA = BuildSpinner(new Vector3(10, 14, 0), 53, 0.2f, continuous);
         spinnerMotorSweepB = BuildSpinner(new Vector3(20, 14, 0), 59, 0.2f, continuous);
         rolloverInfo.Add(new Vector3(15, 14, -5), "Small margin, continuous sweep");
@@ -120,9 +120,9 @@ public class ContinuousCollisionDetectionDemo : Demo
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
         //Scoot the spinners around.
-        var servo = new OneBodyLinearServo { ServoSettings = ServoSettings.Default, SpringSettings = new SpringSettings(30, 1) };
-        var leftServoTarget = new Vector3(-3.5f * (float)Math.Sin(time), 10, -5);
-        var rightServoTarget = new Vector3(3.5f * (float)Math.Sin(time), 10, -5);
+        OneBodyLinearServo servo = new() { ServoSettings = ServoSettings.Default, SpringSettings = new SpringSettings(30, 1) };
+        Vector3 leftServoTarget = new(-3.5f * (float)Math.Sin(time), 10, -5);
+        Vector3 rightServoTarget = new(3.5f * (float)Math.Sin(time), 10, -5);
         servo.Target = new Vector3(-20, 0, 0) + leftServoTarget;
         Simulation.Solver.ApplyDescription(spinnerMotorDefaultA, servo);
         servo.Target = new Vector3(-10, 0, 0) + rightServoTarget;

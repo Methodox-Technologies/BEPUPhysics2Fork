@@ -28,9 +28,9 @@ public class BlockChainDemo : Demo
 
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 3)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0), angularDamping: 0.2f), new SolveDescription(8, 1));
 
-        var boxShape = new Box(1, 1, 1);
-        var boxInertia = boxShape.ComputeInertia(1);
-        var boxIndex = Simulation.Shapes.Add(boxShape);
+        Box boxShape = new(1, 1, 1);
+        BodyInertia boxInertia = boxShape.ComputeInertia(1);
+        TypedIndex boxIndex = Simulation.Shapes.Add(boxShape);
         const int forkCount = 20;
         const int blocksPerChain = 20;
         BodyHandle[] blockHandles = new BodyHandle[blocksPerChain];
@@ -39,7 +39,7 @@ public class BlockChainDemo : Demo
             //Build the blocks.
             for (int blockIndex = 0; blockIndex < blocksPerChain; ++blockIndex)
             {
-                var bodyDescription = BodyDescription.CreateDynamic(
+                BodyDescription bodyDescription = BodyDescription.CreateDynamic(
                     new Vector3(0, 5 + blockIndex * (boxShape.Height + 1), (forkIndex - forkCount * 0.5f) * (boxShape.Length + 4)),
                     //Make the uppermost block kinematic to hold up the rest of the chain.
                     blockIndex == blocksPerChain - 1 ? new BodyInertia() : boxInertia, boxIndex, .01f);
@@ -48,7 +48,7 @@ public class BlockChainDemo : Demo
             //Build the chains.
             for (int i = 1; i < blocksPerChain; ++i)
             {
-                var ballSocket = new BallSocket
+                BallSocket ballSocket = new()
                 {
                     LocalOffsetA = new Vector3(0, 1f, 0),
                     LocalOffsetB = new Vector3(0, -1f, 0),
@@ -61,21 +61,21 @@ public class BlockChainDemo : Demo
         Simulation.Statics.Add(new StaticDescription(new Vector3(1, -0.5f, 1), Simulation.Shapes.Add(new Box(200, 1, 200))));
 
         //Build the coin description for the ponz-I mean ICO.
-        var coinShape = new Cylinder(1.5f, 0.2f);
+        Cylinder coinShape = new(1.5f, 0.2f);
         coinDescription = BodyDescription.CreateDynamic(RigidPose.Identity, coinShape.ComputeInertia(1), Simulation.Shapes.Add(coinShape), 0.03f);
     }
 
     BodyDescription coinDescription;
-    Random random = new Random(5);
+    Random random = new(5);
     public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         if (input.WasPushed(Keys.Z))
         {
             //INVEST TODAY FOR INCREDIBLE RETURNS DON'T MISS OUT LOOK AT THE COINS THERE ARE A LOT OF THEM AND THEY COULD BE YOURS
-            var origin = new Vector3(-30, 5, -30) + new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) * new Vector3(60, 30, 60);
+            Vector3 origin = new Vector3(-30, 5, -30) + new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) * new Vector3(60, 30, 60);
             for (int i = 0; i < 128; ++i)
             {
-                var direction = new Vector3(-1) + 2 * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
+                Vector3 direction = new Vector3(-1) + 2 * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
                 var length = direction.Length();
                 if (length > 1e-7f)
                     direction /= length;

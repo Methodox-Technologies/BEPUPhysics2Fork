@@ -1,5 +1,4 @@
-﻿using BepuUtilities;
-using System.Numerics;
+﻿using System.Numerics;
 
 //using bVector3 = BEPUutilities.Vector3;
 
@@ -32,8 +31,8 @@ namespace BEPUutilitiesTests
 
         public static float TestTransformScalar(int iterationCount)
         {
-            Vector3 v1 = new Vector3(1, 2, 3);
-            Vector3 v2 = new Vector3(1, 2, 3);
+            Vector3 v1 = new(1, 2, 3);
+            Vector3 v2 = new(1, 2, 3);
             float accumulator = 0;
             for (int i = 0; i < iterationCount; ++i)
             {

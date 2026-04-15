@@ -25,8 +25,8 @@ public static class IntertreeThreadingTests
 
     static void GetBoundsForLeaf(in Tree tree, int leafIndex, out BoundingBox bounds)
     {
-        ref var leaf = ref tree.Leaves[leafIndex];
-        ref var node = ref tree.Nodes[leaf.NodeIndex];
+        ref Leaf leaf = ref tree.Leaves[leafIndex];
+        ref Node node = ref tree.Nodes[leaf.NodeIndex];
         bounds = leaf.ChildIndex == 0 ? new BoundingBox(node.A.Min, node.A.Max) : new BoundingBox(node.B.Min, node.B.Max);
     }
 
@@ -50,36 +50,36 @@ public static class IntertreeThreadingTests
 
     unsafe static void TestTrees(BufferPool pool, IThreadDispatcher threadDispatcher, Random random)
     {
-        var treeA = new Tree(pool, 1);
-        var treeB = new Tree(pool, 1);
+        Tree treeA = new(pool, 1);
+        Tree treeB = new(pool, 1);
 
-        var aBounds = new BoundingBox(new Vector3(-40, 0, -40), new Vector3(40, 0, 40));
-        var aOffset = new Vector3(3f, 3f, 3f);
+        BoundingBox aBounds = new(new Vector3(-40, 0, -40), new Vector3(40, 0, 40));
+        Vector3 aOffset = new(3f, 3f, 3f);
         var aCount = 1024;
-        var bBounds = new BoundingBox(new Vector3(-5, -2, -5), new Vector3(5, 2, 5));
-        var bOffset = new Vector3(0.5f, 0.5f, 0.5f);
+        BoundingBox bBounds = new(new Vector3(-5, -2, -5), new Vector3(5, 2, 5));
+        Vector3 bOffset = new(0.5f, 0.5f, 0.5f);
         var bCount = 3;
         for (int i = 0; i < aCount; ++i)
         {
-            GetRandomLocation(random, ref aBounds, out var center);
-            var bounds = new BoundingBox(center - aOffset, center + aOffset);
+            GetRandomLocation(random, ref aBounds, out Vector3 center);
+            BoundingBox bounds = new(center - aOffset, center + aOffset);
             treeA.Add(bounds, pool);
         }
         for (int i = 0; i < bCount; ++i)
         {
-            GetRandomLocation(random, ref bBounds, out var center);
-            var bounds = new BoundingBox(center - bOffset, center + bOffset);
+            GetRandomLocation(random, ref bBounds, out Vector3 center);
+            BoundingBox bounds = new(center - bOffset, center + bOffset);
             treeB.Add(bounds, pool);
         }
         
         {
             var indexToRemove = 1;
-            GetBoundsForLeaf(treeB, indexToRemove, out var removedBounds);
+            GetBoundsForLeaf(treeB, indexToRemove, out BoundingBox removedBounds);
             treeB.RemoveAt(indexToRemove);
             treeA.Add(removedBounds, pool);
         }
-        
-        var singleThreadedResults = new OverlapHandler { Pairs = new List<(int a, int b)>() };
+
+        OverlapHandler singleThreadedResults = new() { Pairs = new List<(int a, int b)>() };
         treeA.GetOverlaps(ref treeB, ref singleThreadedResults);
         SortPairs(singleThreadedResults.Pairs);
         for (int i = 0; i < 10; ++i)
@@ -90,8 +90,8 @@ public static class IntertreeThreadingTests
         treeA.Validate();
         treeB.Validate();
 
-        var context = new Tree.MultithreadedIntertreeTest<OverlapHandler>(pool);
-        var handlers = new OverlapHandler[threadDispatcher.ThreadCount];
+        Tree.MultithreadedIntertreeTest<OverlapHandler> context = new(pool);
+        OverlapHandler[] handlers = new OverlapHandler[threadDispatcher.ThreadCount];
         for (int i = 0; i < threadDispatcher.ThreadCount; ++i)
         {
             handlers[i].Pairs = new List<(int a, int b)>();
@@ -99,7 +99,7 @@ public static class IntertreeThreadingTests
         context.PrepareJobs(ref treeA, ref treeB, handlers, threadDispatcher.ThreadCount);
         threadDispatcher.DispatchWorkers(context.PairTest, context.JobCount);
         context.CompleteTest();
-        List<(int a, int b)> multithreadedResults = new List<(int, int)>();
+        List<(int a, int b)> multithreadedResults = new();
         for (int i = 0; i < threadDispatcher.ThreadCount; ++i)
         {
             multithreadedResults.AddRange(handlers[i].Pairs);
@@ -112,8 +112,8 @@ public static class IntertreeThreadingTests
         }
         for (int i = 0; i < singleThreadedResults.Pairs.Count; ++i)
         {
-            var singleThreadedPair = singleThreadedResults.Pairs[i];
-            var multithreadedPair = multithreadedResults[i];
+            (int a, int b) singleThreadedPair = singleThreadedResults.Pairs[i];
+            (int a, int b) multithreadedPair = multithreadedResults[i];
             if (singleThreadedPair.a != multithreadedPair.a ||
                 singleThreadedPair.b != multithreadedPair.b)
             {
@@ -133,11 +133,11 @@ public static class IntertreeThreadingTests
             smaller = treeB;
             larger = treeA;
         }
-        var bruteResultsEnumerator = new BruteForceResultsEnumerator();
+        BruteForceResultsEnumerator bruteResultsEnumerator = new();
         bruteResultsEnumerator.Pairs = new List<(int a, int b)>();
         for (int i = 0; i < smaller.LeafCount; ++i)
         {
-            GetBoundsForLeaf(smaller, i, out var bounds);
+            GetBoundsForLeaf(smaller, i, out BoundingBox bounds);
             bruteResultsEnumerator.QuerySourceIndex = i;
             larger.GetOverlaps(bounds, pool, ref bruteResultsEnumerator);
         }
@@ -149,8 +149,8 @@ public static class IntertreeThreadingTests
         }
         for (int i = 0; i < singleThreadedResults.Pairs.Count; ++i)
         {
-            var singleThreadedPair = singleThreadedResults.Pairs[i];
-            var bruteForcePair = bruteResultsEnumerator.Pairs[i];
+            (int a, int b) singleThreadedPair = singleThreadedResults.Pairs[i];
+            (int a, int b) bruteForcePair = bruteResultsEnumerator.Pairs[i];
             if (singleThreadedPair.a != bruteForcePair.a ||
                 singleThreadedPair.b != bruteForcePair.b)
             {
@@ -176,9 +176,9 @@ public static class IntertreeThreadingTests
 
     public static void Test()
     {
-        var random = new Random(5);
-        var pool = new BufferPool();
-        var threadDispatcher = new ThreadDispatcher(Environment.ProcessorCount);
+        Random random = new(5);
+        BufferPool pool = new();
+        ThreadDispatcher threadDispatcher = new(Environment.ProcessorCount);
         for (int i = 0; i < 1000; ++i)
         {
             TestTrees(pool, threadDispatcher, random);

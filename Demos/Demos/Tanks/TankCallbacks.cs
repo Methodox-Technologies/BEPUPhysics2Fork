@@ -85,18 +85,18 @@ struct TankCallbacks : INarrowPhaseCallbacks
             //Note that we have to protect against redundant adds- a projectile might hit multiple things in the same frame. Wouldn't want it to explode multiple times.
             for (int i = 0; i < ProjectileImpacts.Count; ++i)
             {
-                ref var impact = ref ProjectileImpacts[i];
+                ref ProjectileImpact impact = ref ProjectileImpacts[i];
                 //If the projectile has already been handled, ignore it.
                 if (impact.ProjectileHandle.Value == projectileHandle.Value)
                     return;
             }
             //The exploding projectiles list should have been sized ahead of time to hold all projectiles, so no dynamic allocations should be required.
-            ref var newImpact = ref ProjectileImpacts.AllocateUnsafely();
+            ref ProjectileImpact newImpact = ref ProjectileImpacts.AllocateUnsafely();
             newImpact.ProjectileHandle = projectileHandle;
             if (impactedCollidable.Mobility != CollidableMobility.Static)
             {
                 //The filter's group id is the tank's main body handle. We use that to find the tank (if this body is related to a tank at all).
-                ref var properties = ref Properties[impactedCollidable.BodyHandle];
+                ref TankDemoBodyProperties properties = ref Properties[impactedCollidable.BodyHandle];
                 newImpact.ImpactedTankBodyHandle = new BodyHandle(properties.TankPart ? properties.Filter.GroupId : -1);
             }
             else
@@ -116,12 +116,12 @@ struct TankCallbacks : INarrowPhaseCallbacks
     public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
     {
         //Different tank parts have different friction values. Wheels tend to stick more than the body of the tank.
-        ref var propertiesA = ref Properties[pair.A.BodyHandle];
+        ref TankDemoBodyProperties propertiesA = ref Properties[pair.A.BodyHandle];
         pairMaterial.FrictionCoefficient = propertiesA.Friction;
         if (pair.B.Mobility != CollidableMobility.Static)
         {
             //If two bodies collide, just average the friction. Other options include min(a, b) or a * b.
-            ref var propertiesB = ref Properties[pair.B.BodyHandle];
+            ref TankDemoBodyProperties propertiesB = ref Properties[pair.B.BodyHandle];
             pairMaterial.FrictionCoefficient = (pairMaterial.FrictionCoefficient + propertiesB.Friction) * 0.5f;
         }
         //These are just some nice standard values. Higher maximum velocities can result in more energy being introduced during deep contact.

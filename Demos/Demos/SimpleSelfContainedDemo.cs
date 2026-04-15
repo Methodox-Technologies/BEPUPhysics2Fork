@@ -209,21 +209,21 @@ public static class SimpleSelfContainedDemo
     public static void Run()
     {
         //The buffer pool is a source of raw memory blobs for the engine to use.
-        var bufferPool = new BufferPool();
+        BufferPool bufferPool = new();
         //The Simulation class represents a single simulated world containing some number of bodies, statics, and constraints.
         //The following sets up a simulation with the callbacks defined above, and tells it to use 8 velocity iterations per substep and only one substep per solve.
         //It uses the default SubsteppingTimestepper. You could use a custom ITimestepper implementation to customize when stages run relative to each other, or to insert more callbacks.         
-        var simulation = Simulation.Create(bufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
+        Simulation simulation = Simulation.Create(bufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
         //Drop a ball on a big static box.
-        var sphere = new Sphere(1);
-        var sphereInertia = sphere.ComputeInertia(1);
-        var bodyHandle = simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(0, 5, 0), sphereInertia, simulation.Shapes.Add(sphere), 0.01f));
+        Sphere sphere = new(1);
+        BodyInertia sphereInertia = sphere.ComputeInertia(1);
+        BodyHandle bodyHandle = simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(0, 5, 0), sphereInertia, simulation.Shapes.Add(sphere), 0.01f));
 
-        var staticHandle = simulation.Statics.Add(new StaticDescription(new Vector3(0, 0, 0), simulation.Shapes.Add(new Box(500, 1, 500))));
+        StaticHandle staticHandle = simulation.Statics.Add(new StaticDescription(new Vector3(0, 0, 0), simulation.Shapes.Add(new Box(500, 1, 500))));
 
         //Any IThreadDispatcher implementation can be used for multithreading. Here, we use the BepuUtilities.ThreadDispatcher implementation.
-        var threadDispatcher = new ThreadDispatcher(Environment.ProcessorCount);
+        ThreadDispatcher threadDispatcher = new(Environment.ProcessorCount);
 
         //Now take 100 time steps!
         for (int i = 0; i < 100; ++i)

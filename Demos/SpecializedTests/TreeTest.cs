@@ -12,19 +12,19 @@ public unsafe static class TreeTest
 {
     public static void Test()
     {
-        var pool = new BufferPool();
-        var tree = new Tree(pool, 128);
+        BufferPool pool = new();
+        Tree tree = new(pool, 128);
 
         const int leafCountAlongXAxis = 11;
         const int leafCountAlongYAxis = 13;
         const int leafCountAlongZAxis = 15;
         var leafCount = leafCountAlongXAxis * leafCountAlongYAxis * leafCountAlongZAxis;
-        pool.Take<BoundingBox>(leafCount, out var leafBounds);
+        pool.Take<BoundingBox>(leafCount, out Buffer<BoundingBox> leafBounds);
 
         const float boundsSpan = 2;
         const float spanRange = 2;
         const float boundsSpacing = 3;
-        var random = new Random(5);
+        Random random = new(5);
         for (int i = 0; i < leafCountAlongXAxis; ++i)
         {
             for (int j = 0; j < leafCountAlongYAxis; ++j)
@@ -52,8 +52,8 @@ public unsafe static class TreeTest
         }
         tree.Validate();
 
-        pool.TakeAtLeast<int>(leafCount, out var handleToLeafIndex);
-        pool.TakeAtLeast<int>(leafCount, out var leafIndexToHandle);
+        pool.TakeAtLeast<int>(leafCount, out Buffer<int> handleToLeafIndex);
+        pool.TakeAtLeast<int>(leafCount, out Buffer<int> leafIndexToHandle);
         for (int i = 0; i < leafCount; ++i)
         {
             handleToLeafIndex[i] = i;
@@ -63,12 +63,12 @@ public unsafe static class TreeTest
         const int iterations = 100000;
         const int maximumChangesPerIteration = 20;
 
-        var threadDispatcher = new ThreadDispatcher(Environment.ProcessorCount);
-        var refineContext = new Tree.RefitAndRefineMultithreadedContext();
-        var selfTestContext = new Tree.MultithreadedSelfTest<OverlapHandler>(pool);
-        var overlapHandlers = new OverlapHandler[threadDispatcher.ThreadCount];
+        ThreadDispatcher threadDispatcher = new(Environment.ProcessorCount);
+        Tree.RefitAndRefineMultithreadedContext refineContext = new();
+        Tree.MultithreadedSelfTest<OverlapHandler> selfTestContext = new(pool);
+        OverlapHandler[] overlapHandlers = new OverlapHandler[threadDispatcher.ThreadCount];
         Action<int> pairTestAction = selfTestContext.PairTest;
-        var removedLeafHandles = new QuickList<int>(leafCount, pool);
+        QuickList<int> removedLeafHandles = new(leafCount, pool);
         for (int i = 0; i < iterations; ++i)
         {
             var changeCount = random.Next(maximumChangesPerIteration);
@@ -119,7 +119,7 @@ public unsafe static class TreeTest
             tree.RefitAndRefine(pool, i);
             tree.Validate();
 
-            var handler = new OverlapHandler();
+            OverlapHandler handler = new();
             tree.GetSelfOverlaps(ref handler);
             tree.Validate();
 

@@ -77,14 +77,14 @@ public static class Inequality2Body1DOF
         //If we didn't store those intermediate values, we could just scale the dot product of jacobians.LinearA with itself to save 4 multiplies.
         Vector3Wide.Scale(jacobians.LinearA, inertiaA.InverseMass, out projection.CSIToWSVLinearA);
         Vector3Wide.Scale(jacobians.LinearB, inertiaB.InverseMass, out projection.CSIToWSVLinearB);
-        Vector3Wide.Dot(projection.CSIToWSVLinearA, jacobians.LinearA, out var linearA);
-        Vector3Wide.Dot(projection.CSIToWSVLinearB, jacobians.LinearB, out var linearB);
+        Vector3Wide.Dot(projection.CSIToWSVLinearA, jacobians.LinearA, out Vector<float> linearA);
+        Vector3Wide.Dot(projection.CSIToWSVLinearB, jacobians.LinearB, out Vector<float> linearB);
 
         //The angular components are a little more involved; (J * I^-1) * JT is explicitly computed.
         Symmetric3x3Wide.TransformWithoutOverlap(jacobians.AngularA, inertiaA.InverseInertiaTensor, out projection.CSIToWSVAngularA);
         Symmetric3x3Wide.TransformWithoutOverlap(jacobians.AngularB, inertiaB.InverseInertiaTensor, out projection.CSIToWSVAngularB);
-        Vector3Wide.Dot(projection.CSIToWSVAngularA, jacobians.AngularA, out var angularA);
-        Vector3Wide.Dot(projection.CSIToWSVAngularB, jacobians.AngularB, out var angularB);
+        Vector3Wide.Dot(projection.CSIToWSVAngularA, jacobians.AngularA, out Vector<float> angularA);
+        Vector3Wide.Dot(projection.CSIToWSVAngularB, jacobians.AngularB, out Vector<float> angularB);
 
         //Now for a digression!
         //Softness is applied along the diagonal (which, for a 1DOF constraint, is just the only element).
@@ -272,15 +272,15 @@ public static class Inequality2Body1DOF
         //Good news, though! There are a lot of constraints where this trick is applicable.
 
         //We'll start with the unsoftened effective mass, constructed from the contributions computed above:
-        var effectiveMass = Vector<float>.One / (linearA + linearB + angularA + angularB);
+        Vector<float> effectiveMass = Vector<float>.One / (linearA + linearB + angularA + angularB);
 
-        SpringSettingsWide.ComputeSpringiness(springSettings, dt, out var positionErrorToVelocity, out var effectiveMassCFMScale, out projection.SoftnessImpulseScale);
-        var softenedEffectiveMass = effectiveMass * effectiveMassCFMScale;
-        
+        SpringSettingsWide.ComputeSpringiness(springSettings, dt, out Vector<float> positionErrorToVelocity, out Vector<float> effectiveMassCFMScale, out projection.SoftnessImpulseScale);
+        Vector<float> softenedEffectiveMass = effectiveMass * effectiveMassCFMScale;
+
         //Note that we use a bit of a hack when computing the bias velocity- even if our damping ratio/natural frequency implies a strongly springy response
         //that could cause a significant velocity overshoot, we apply an arbitrary clamping value to keep it reasonable.
         //This is useful for a variety of inequality constraints (like contacts) because you don't always want them behaving as true springs.
-        var biasVelocity = Vector.Min(positionError * positionErrorToVelocity, maximumRecoveryVelocity);
+        Vector<float> biasVelocity = Vector.Min(positionError * positionErrorToVelocity, maximumRecoveryVelocity);
         projection.BiasImpulse = biasVelocity * softenedEffectiveMass;
 
         //Precompute the wsv * (JT * softenedEffectiveMass) term.
@@ -346,17 +346,17 @@ public static class Inequality2Body1DOF
         //So we are multiplying v * JT.)
         //Then, transform it into an impulse by applying the effective mass.
         //Here, we combine the projection and impulse conversion into a precomputed value, i.e. v * (JT * softenedEffectiveMass).
-        Vector3Wide.Dot(wsvA.Linear, projection.WSVtoCSILinearA, out var csiaLinear);
-        Vector3Wide.Dot(wsvA.Angular, projection.WSVtoCSIAngularA, out var csiaAngular);
-        Vector3Wide.Dot(wsvB.Linear, projection.WSVtoCSILinearB, out var csibLinear);
-        Vector3Wide.Dot(wsvB.Angular, projection.WSVtoCSIAngularB, out var csibAngular);
+        Vector3Wide.Dot(wsvA.Linear, projection.WSVtoCSILinearA, out Vector<float> csiaLinear);
+        Vector3Wide.Dot(wsvA.Angular, projection.WSVtoCSIAngularA, out Vector<float> csiaAngular);
+        Vector3Wide.Dot(wsvB.Linear, projection.WSVtoCSILinearB, out Vector<float> csibLinear);
+        Vector3Wide.Dot(wsvB.Angular, projection.WSVtoCSIAngularB, out Vector<float> csibAngular);
         //Combine it all together, following:
         //constraint space impulse = (targetVelocity - currentVelocity) * softenedEffectiveMass
         //constraint space impulse = (bias - accumulatedImpulse * softness - wsv * JT) * softenedEffectiveMass
         //constraint space impulse = (bias * softenedEffectiveMass) - accumulatedImpulse * (softness * softenedEffectiveMass) - wsv * (JT * softenedEffectiveMass)
-        var csi = projection.BiasImpulse - accumulatedImpulse * projection.SoftnessImpulseScale - (csiaLinear + csiaAngular + csibLinear + csibAngular);
+        Vector<float> csi = projection.BiasImpulse - accumulatedImpulse * projection.SoftnessImpulseScale - (csiaLinear + csiaAngular + csibLinear + csibAngular);
 
-        var previousAccumulated = accumulatedImpulse;
+        Vector<float> previousAccumulated = accumulatedImpulse;
         accumulatedImpulse = Vector.Max(Vector<float>.Zero, accumulatedImpulse + csi);
 
         correctiveCSI = accumulatedImpulse - previousAccumulated;
@@ -365,7 +365,7 @@ public static class Inequality2Body1DOF
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Solve(ref Projection2Body1DOF projection, ref Vector<float> accumulatedImpulse, ref BodyVelocityWide wsvA, ref BodyVelocityWide wsvB)
     {
-        ComputeCorrectiveImpulse(ref wsvA, ref wsvB, ref projection, ref accumulatedImpulse, out var correctiveCSI);
+        ComputeCorrectiveImpulse(ref wsvA, ref wsvB, ref projection, ref accumulatedImpulse, out Vector<float> correctiveCSI);
         ApplyImpulse(ref projection, ref correctiveCSI, ref wsvA, ref wsvB);
     }
 

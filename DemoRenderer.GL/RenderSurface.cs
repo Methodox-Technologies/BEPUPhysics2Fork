@@ -1,7 +1,5 @@
 ﻿using BepuUtilities;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
-using OpenTK.Platform;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System;

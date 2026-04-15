@@ -22,7 +22,7 @@ public static class BatchedCollisionTests
         {
             if (manifold.Count > 0)
             {
-                manifold.GetContact(0, out var offset, out var normal, out var depth, out var featureId);
+                manifold.GetContact(0, out Vector3 offset, out Vector3 normal, out var depth, out var featureId);
                 var extra = 1e-16 * (depth + offset.X + normal.X);
                 *Count += 1 + (int)extra;
             }
@@ -48,11 +48,11 @@ public static class BatchedCollisionTests
         ref TestCollisionCallbacks callbacks, BufferPool pool, Shapes shapes, CollisionTaskRegistry registry, int iterationCount)
         where TA : struct, IShape where TB : struct, IShape
     {
-        var batcher = new CollisionBatcher<TestCollisionCallbacks>(pool, shapes, registry, Demo.TimestepDuration, callbacks);
+        CollisionBatcher<TestCollisionCallbacks> batcher = new(pool, shapes, registry, Demo.TimestepDuration, callbacks);
         for (int i = 0; i < iterationCount; ++i)
         {
-            ref var poseA = ref posesA[i];
-            ref var poseB = ref posesB[i];
+            ref RigidPose poseA = ref posesA[i];
+            ref RigidPose poseB = ref posesB[i];
             batcher.Add(a, b, poseB.Position - poseA.Position, poseA.Orientation, poseB.Orientation, 0.1f, 0);
         }
         batcher.Flush();
@@ -63,7 +63,7 @@ public static class BatchedCollisionTests
                     where TA : struct, IShape where TB : struct, IShape
     {
         int count = 0;
-        var callbacks = new TestCollisionCallbacks { Count = &count };
+        TestCollisionCallbacks callbacks = new() { Count = &count };
         TestPair(ref a, ref b, ref posesA, ref posesB, ref callbacks, pool, shapes, registry, 256);
         count = 0;
         var start = Stopwatch.GetTimestamp();
@@ -82,15 +82,15 @@ public static class BatchedCollisionTests
         where TAWide : struct, IShapeWide<TA> where TBWide : struct, IShapeWide<TB>
         where TDistanceTester : IPairDistanceTester<TAWide, TBWide>
     {
-        var distanceSum = Vector<float>.Zero;
+        Vector<float> distanceSum = Vector<float>.Zero;
         for (int i = 0; i < iterationCount; ++i)
         {
-            ref var poseA = ref posesA[i];
-            ref var poseB = ref posesB[i];
-            Vector3Wide.Broadcast(poseB.Position - poseA.Position, out var offsetB);
-            QuaternionWide.Broadcast(poseA.Orientation, out var orientationA);
-            QuaternionWide.Broadcast(poseB.Orientation, out var orientationB);
-            tester.Test(a, b, offsetB, orientationA, orientationB, Vector<int>.Zero, out var intersected, out var distance, out var closestA, out var normal);
+            ref RigidPose poseA = ref posesA[i];
+            ref RigidPose poseB = ref posesB[i];
+            Vector3Wide.Broadcast(poseB.Position - poseA.Position, out Vector3Wide offsetB);
+            QuaternionWide.Broadcast(poseA.Orientation, out QuaternionWide orientationA);
+            QuaternionWide.Broadcast(poseB.Orientation, out QuaternionWide orientationB);
+            tester.Test(a, b, offsetB, orientationA, orientationB, Vector<int>.Zero, out Vector<int> intersected, out Vector<float> distance, out Vector3Wide closestA, out Vector3Wide normal);
             distanceSum += distance;
         }
         return distanceSum[0];
@@ -106,7 +106,7 @@ public static class BatchedCollisionTests
         aWide.Broadcast(a);
         TBWide bWide = default;
         bWide.Broadcast(b);
-        var tester = default(TDistanceTester);
+        TDistanceTester tester = default(TDistanceTester);
         TestPair<TA, TAWide, TB, TBWide, TDistanceTester>(ref aWide, ref bWide, ref tester, ref posesA, ref posesB, 64);
         var start = Stopwatch.GetTimestamp();
         TestPair<TA, TAWide, TB, TBWide, TDistanceTester>(ref aWide, ref bWide, ref tester, ref posesA, ref posesB, iterationCount);
@@ -141,17 +141,17 @@ public static class BatchedCollisionTests
 
     public static void Test()
     {
-        var pool = new BufferPool();
-        var random = new Random(5);
-        var registry = DefaultTypes.CreateDefaultCollisionTaskRegistry();
-        var sphere = new Sphere(1);
-        var capsule = new Capsule(0.5f, 1f);
-        var box = new Box(1f, 1f, 1f);
-        var triangle = new Triangle(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 0, 1));
-        var cylinder = new Cylinder(0.5f, 1f);
+        BufferPool pool = new();
+        Random random = new(5);
+        CollisionTaskRegistry registry = DefaultTypes.CreateDefaultCollisionTaskRegistry();
+        Sphere sphere = new(1);
+        Capsule capsule = new(0.5f, 1f);
+        Box box = new(1f, 1f, 1f);
+        Triangle triangle = new(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 0, 1));
+        Cylinder cylinder = new(0.5f, 1f);
 
         const int pointCount = 64;
-        var points = new QuickList<Vector3>(pointCount, pool);
+        QuickList<Vector3> points = new(pointCount, pool);
         //points.Allocate(pool) = new Vector3(0, 0, 0);
         //points.Allocate(pool) = new Vector3(0, 0, 1);
         //points.Allocate(pool) = new Vector3(0, 1, 0);
@@ -166,35 +166,35 @@ public static class BatchedCollisionTests
             //points.AllocateUnsafely() = new Vector3(0, 1, 0) + Vector3.Normalize(new Vector3(random.NextSingle() * 2 - 1, random.NextSingle() * 2 - 1, random.NextSingle() * 2 - 1)) * random.NextSingle();
         }
 
-        Shapes shapes = new Shapes(pool, 32);
-        var pointsBuffer = points.Span.Slice(points.Count);
-        ConvexHullHelper.CreateShape(pointsBuffer, pool, out _, out var convexHull);
+        Shapes shapes = new(pool, 32);
+        Buffer<Vector3> pointsBuffer = points.Span.Slice(points.Count);
+        ConvexHullHelper.CreateShape(pointsBuffer, pool, out _, out ConvexHull convexHull);
 
-        using var compoundBuilder = new CompoundBuilder(pool, shapes, 64);
+        using CompoundBuilder compoundBuilder = new(pool, shapes, 64);
         //COMPOUND
-        var legShape = new Box(0.2f, 1, 0.2f);
-        var legInverseInertia = legShape.ComputeInertia(1f);
-        var legShapeIndex = shapes.Add(legShape);
-        var legPose0 = new RigidPose { Position = new Vector3(-1.5f, 0, -1.5f), Orientation = Quaternion.Identity };
-        var legPose1 = new RigidPose { Position = new Vector3(-1.5f, 0, 1.5f), Orientation = Quaternion.Identity };
-        var legPose2 = new RigidPose { Position = new Vector3(1.5f, 0, -1.5f), Orientation = Quaternion.Identity };
-        var legPose3 = new RigidPose { Position = new Vector3(1.5f, 0, 1.5f), Orientation = Quaternion.Identity };
+        Box legShape = new(0.2f, 1, 0.2f);
+        BodyInertia legInverseInertia = legShape.ComputeInertia(1f);
+        TypedIndex legShapeIndex = shapes.Add(legShape);
+        RigidPose legPose0 = new() { Position = new Vector3(-1.5f, 0, -1.5f), Orientation = Quaternion.Identity };
+        RigidPose legPose1 = new() { Position = new Vector3(-1.5f, 0, 1.5f), Orientation = Quaternion.Identity };
+        RigidPose legPose2 = new() { Position = new Vector3(1.5f, 0, -1.5f), Orientation = Quaternion.Identity };
+        RigidPose legPose3 = new() { Position = new Vector3(1.5f, 0, 1.5f), Orientation = Quaternion.Identity };
         compoundBuilder.Add(legShapeIndex, legPose0, legInverseInertia.InverseInertiaTensor, 1);
         compoundBuilder.Add(legShapeIndex, legPose1, legInverseInertia.InverseInertiaTensor, 1);
         compoundBuilder.Add(legShapeIndex, legPose2, legInverseInertia.InverseInertiaTensor, 1);
         compoundBuilder.Add(legShapeIndex, legPose3, legInverseInertia.InverseInertiaTensor, 1);
-        var tableTopPose = new RigidPose { Position = new Vector3(0, 0.6f, 0), Orientation = Quaternion.Identity };
-        var tableTopShape = new Box(3.2f, 0.2f, 3.2f);
+        RigidPose tableTopPose = new() { Position = new Vector3(0, 0.6f, 0), Orientation = Quaternion.Identity };
+        Box tableTopShape = new(3.2f, 0.2f, 3.2f);
         compoundBuilder.Add(tableTopShape, tableTopPose, 3);
 
-        compoundBuilder.BuildDynamicCompound(out var tableChildren, out var tableInertia, out var tableCenter);
+        compoundBuilder.BuildDynamicCompound(out Buffer<CompoundChild> tableChildren, out BodyInertia tableInertia, out Vector3 tableCenter);
         compoundBuilder.Reset();
-        var compound = new Compound(tableChildren);
+        Compound compound = new(tableChildren);
 
         //BIGCOMPOUND
-        var treeCompoundBoxShape = new Box(0.5f, 1.5f, 1f);
-        var treeCompoundBoxShapeIndex = shapes.Add(treeCompoundBoxShape);
-        var childInertia = treeCompoundBoxShape.ComputeInertia(1);
+        Box treeCompoundBoxShape = new(0.5f, 1.5f, 1f);
+        TypedIndex treeCompoundBoxShapeIndex = shapes.Add(treeCompoundBoxShape);
+        BodyInertia childInertia = treeCompoundBoxShape.ComputeInertia(1);
         for (int i = 0; i < 64; ++i)
         {
             RigidPose localPose;
@@ -211,16 +211,16 @@ public static class BatchedCollisionTests
 
             compoundBuilder.Add(treeCompoundBoxShapeIndex, localPose, childInertia.InverseInertiaTensor, 1);
         }
-        compoundBuilder.BuildDynamicCompound(out var children, out var inertia, out var center);
+        compoundBuilder.BuildDynamicCompound(out Buffer<CompoundChild> children, out BodyInertia inertia, out Vector3 center);
         compoundBuilder.Reset();
-        var bigCompound = new BigCompound(children, shapes, pool);
+        BigCompound bigCompound = new(children, shapes, pool);
 
         //MESH
-        var mesh = DemoMeshHelper.CreateDeformedPlane(8, 8, (x, y) => { return new Vector3(x * 2 - 8, 3 * MathF.Sin(x) * MathF.Sin(y), y * 2 - 8); }, Vector3.One, pool);
+        Mesh mesh = DemoMeshHelper.CreateDeformedPlane(8, 8, (x, y) => { return new Vector3(x * 2 - 8, 3 * MathF.Sin(x) * MathF.Sin(y), y * 2 - 8); }, Vector3.One, pool);
 
         int iterationCount = 1 << 20;
-        pool.Take<RigidPose>(iterationCount, out var posesA);
-        pool.Take<RigidPose>(iterationCount, out var posesB);
+        pool.Take<RigidPose>(iterationCount, out Buffer<RigidPose> posesA);
+        pool.Take<RigidPose>(iterationCount, out Buffer<RigidPose> posesB);
         for (int i = 0; i < iterationCount; ++i)
         {
             GetRandomPose(random, out posesA[i]);

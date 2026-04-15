@@ -121,7 +121,7 @@ public class ClothDemo : Demo
     BodyHandle[,] CreateBodyGrid(Vector3 position, Quaternion orientation, int width, int height, float spacing, float bodyRadius, float massPerBody,
         int instanceId, CollidableProperty<ClothCollisionFilter> filters, KinematicDecider isKinematic)
     {
-        var description = BodyDescription.CreateDynamic(orientation, default, Simulation.Shapes.Add(new Sphere(bodyRadius)), 0.01f);
+        BodyDescription description = BodyDescription.CreateDynamic(orientation, default, Simulation.Shapes.Add(new Sphere(bodyRadius)), 0.01f);
         var inverseMass = 1f / massPerBody;
         BodyHandle[,] handles = new BodyHandle[height, width];
         for (int rowIndex = 0; rowIndex < height; ++rowIndex)
@@ -129,10 +129,10 @@ public class ClothDemo : Demo
             for (int columnIndex = 0; columnIndex < width; ++columnIndex)
             {
                 description.LocalInertia.InverseMass = isKinematic(rowIndex, columnIndex, width, height) ? 0 : inverseMass;
-                var localPosition = new Vector3(columnIndex * spacing, rowIndex * -spacing, 0);
-                QuaternionEx.TransformWithoutOverlap(localPosition, orientation, out var rotatedPosition);
+                Vector3 localPosition = new(columnIndex * spacing, rowIndex * -spacing, 0);
+                QuaternionEx.TransformWithoutOverlap(localPosition, orientation, out Vector3 rotatedPosition);
                 description.Pose.Position = rotatedPosition + position;
-                var handle = Simulation.Bodies.Add(description);
+                BodyHandle handle = Simulation.Bodies.Add(description);
                 handles[rowIndex, columnIndex] = handle;
                 filters.Allocate(handle) = new ClothCollisionFilter(rowIndex, columnIndex, instanceId);
             }
@@ -146,14 +146,14 @@ public class ClothDemo : Demo
         {
             for (int columnIndex = 0; columnIndex < bodyHandles.GetLength(1) - 1; ++columnIndex)
             {
-                var aHandle = bodyHandles[rowIndex, columnIndex];
-                var bHandle = bodyHandles[rowIndex + 1, columnIndex];
-                var cHandle = bodyHandles[rowIndex, columnIndex + 1];
-                var dHandle = bodyHandles[rowIndex + 1, columnIndex + 1];
-                var a = Simulation.Bodies[aHandle];
-                var b = Simulation.Bodies[bHandle];
-                var c = Simulation.Bodies[cHandle];
-                var d = Simulation.Bodies[dHandle];
+                BodyHandle aHandle = bodyHandles[rowIndex, columnIndex];
+                BodyHandle bHandle = bodyHandles[rowIndex + 1, columnIndex];
+                BodyHandle cHandle = bodyHandles[rowIndex, columnIndex + 1];
+                BodyHandle dHandle = bodyHandles[rowIndex + 1, columnIndex + 1];
+                BodyReference a = Simulation.Bodies[aHandle];
+                BodyReference b = Simulation.Bodies[bHandle];
+                BodyReference c = Simulation.Bodies[cHandle];
+                BodyReference d = Simulation.Bodies[dHandle];
                 //Not worried about kinematics here- we create at most one row of kinematics in this demo. These are three body constraints that operate in a local quad, so 
                 //there's no way for them to all be kinematic.
                 Simulation.Solver.Add(aHandle, bHandle, cHandle, new AreaConstraint(a.Pose.Position, b.Pose.Position, c.Pose.Position, springSettings));
@@ -165,8 +165,8 @@ public class ClothDemo : Demo
     {
         void CreateConstraintBetweenBodies(BodyHandle aHandle, BodyHandle bHandle)
         {
-            var a = Simulation.Bodies[aHandle];
-            var b = Simulation.Bodies[bHandle];
+            BodyReference a = Simulation.Bodies[aHandle];
+            BodyReference b = Simulation.Bodies[bHandle];
             //Don't create constraints between two kinematic bodies.
             if (a.LocalInertia.InverseMass > 0 || b.LocalInertia.InverseMass > 0)
             {
@@ -208,7 +208,7 @@ public class ClothDemo : Demo
         camera.Yaw = 0;
         camera.Pitch = 0;
 
-        var filters = new CollidableProperty<ClothCollisionFilter>();
+        CollidableProperty<ClothCollisionFilter> filters = new();
         Simulation = Simulation.Create(BufferPool, new ClothCallbacks(filters), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
         rolloverInfo = new RolloverInfo();
 
@@ -222,29 +222,29 @@ public class ClothDemo : Demo
         }
 
         int clothInstanceId = 0;
-        var initialRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI * -0.5f);
+        Quaternion initialRotation = QuaternionEx.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI * -0.5f);
         {
-            var position = new Vector3(-90, 40, 0);
-            var handles = CreateBodyGrid(position, initialRotation, 10, 30, 1f, 0.65f, 1, clothInstanceId++, filters, KinematicTopCorners);
+            Vector3 position = new(-90, 40, 0);
+            BodyHandle[,] handles = CreateBodyGrid(position, initialRotation, 10, 30, 1f, 0.65f, 1, clothInstanceId++, filters, KinematicTopCorners);
             CreateDistanceConstraints(handles, new SpringSettings(20, 1));
             rolloverInfo.Add(position + new Vector3(5, 2, 0), "Stiff distance constraints only, no area constraints");
         }
         {
-            var position = new Vector3(-70, 40, 0);
-            var handles = CreateBodyGrid(position, initialRotation, 10, 30, 1f, 0.65f, 1, clothInstanceId++, filters, KinematicTopCorners);
+            Vector3 position = new(-70, 40, 0);
+            BodyHandle[,] handles = CreateBodyGrid(position, initialRotation, 10, 30, 1f, 0.65f, 1, clothInstanceId++, filters, KinematicTopCorners);
             CreateDistanceConstraints(handles, new SpringSettings(20, 1));
             CreateAreaConstraints(handles, new SpringSettings(30, 1));
             rolloverInfo.Add(position + new Vector3(5, 2, 0), "Stiff distance constraints with area constraints");
         }
         {
-            var position = new Vector3(-50, 40, 0);
-            var handles = CreateBodyGrid(position, initialRotation, 10, 30, 1f, 0.65f, 1, clothInstanceId++, filters, KinematicTopCorners);
+            Vector3 position = new(-50, 40, 0);
+            BodyHandle[,] handles = CreateBodyGrid(position, initialRotation, 10, 30, 1f, 0.65f, 1, clothInstanceId++, filters, KinematicTopCorners);
             CreateDistanceConstraints(handles, new SpringSettings(5, 1));
             rolloverInfo.Add(position + new Vector3(5, 2, 0), "Soft distance constraints only, no area constraints");
         }
         {
-            var position = new Vector3(-30, 40, 0);
-            var handles = CreateBodyGrid(position, initialRotation, 10, 30, 1f, 0.65f, 1, clothInstanceId++, filters, KinematicTopCorners);
+            Vector3 position = new(-30, 40, 0);
+            BodyHandle[,] handles = CreateBodyGrid(position, initialRotation, 10, 30, 1f, 0.65f, 1, clothInstanceId++, filters, KinematicTopCorners);
             CreateDistanceConstraints(handles, new SpringSettings(5, 1));
             CreateAreaConstraints(handles, new SpringSettings(30, 1));
             rolloverInfo.Add(position + new Vector3(5, 2, 0), "Soft distance constraints with area constraints");
@@ -259,8 +259,8 @@ public class ClothDemo : Demo
             Simulation.Shapes.Add(new Capsule(8, 60))));
 
         {
-            var position = new Vector3(10, 40, -32);
-            var handles = CreateBodyGrid(position, initialRotation, 96, 96, 0.666f, 0.5f, 1, clothInstanceId++, filters, FullyDynamic);
+            Vector3 position = new(10, 40, -32);
+            BodyHandle[,] handles = CreateBodyGrid(position, initialRotation, 96, 96, 0.666f, 0.5f, 1, clothInstanceId++, filters, FullyDynamic);
             CreateDistanceConstraints(handles, new SpringSettings(10, 1));
             CreateAreaConstraints(handles, new SpringSettings(30, 1));
             rolloverInfo.Add(position + new Vector3(32, 2, 0), "Medium stiffness with area constraints");
@@ -272,7 +272,7 @@ public class ClothDemo : Demo
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("The library does not include any special cases for cloth simulation, but standard bodies and constraints work well."), new Vector2(16, resolution.Y - 32), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("This demo shows a few different configurations- different spring stiffnesses, and with/without area constraints."), new Vector2(16, resolution.Y - 16), 16, Vector3.One, font);
         rolloverInfo.Render(renderer, camera, input, text, font);

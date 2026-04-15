@@ -2,6 +2,7 @@
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
+using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
@@ -62,8 +63,8 @@ public class FrictionDemo : Demo
         public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
         {
             //For the purposes of this demo, we'll use multiplicative blending for the friction and choose spring properties according to which collidable has a higher maximum recovery velocity.
-            var a = CollidableMaterials[pair.A];
-            var b = CollidableMaterials[pair.B];
+            SimpleMaterial a = CollidableMaterials[pair.A];
+            SimpleMaterial b = CollidableMaterials[pair.B];
             pairMaterial.FrictionCoefficient = a.FrictionCoefficient * b.FrictionCoefficient;
             pairMaterial.MaximumRecoveryVelocity = MathF.Max(a.MaximumRecoveryVelocity, b.MaximumRecoveryVelocity);
             pairMaterial.SpringSettings = pairMaterial.MaximumRecoveryVelocity == a.MaximumRecoveryVelocity ? a.SpringSettings : b.SpringSettings;
@@ -87,12 +88,12 @@ public class FrictionDemo : Demo
         camera.Yaw = 0;
         camera.Pitch = 0;
         //Unlike the bounciness demo, we don't have to worry about including strong substepping to help with stiff contact constraint bounces. Friction is easier. 
-        var collidableMaterials = new CollidableProperty<SimpleMaterial>();
+        CollidableProperty<SimpleMaterial> collidableMaterials = new();
         Simulation = Simulation.Create(BufferPool, new FrictionCallbacks() { CollidableMaterials = collidableMaterials }, new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0), 0, 0), new SolveDescription(4, 1));
 
         //Note that the box description includes a significant sideways velocity to make the box go weee.
-        var shape = new Box(1, 1, 1);
-        var boxDescription = BodyDescription.CreateDynamic(RigidPose.Identity, new Vector3(20, 0, 0), shape.ComputeInertia(1), Simulation.Shapes.Add(shape), 1e-2f);
+        Box shape = new(1, 1, 1);
+        BodyDescription boxDescription = BodyDescription.CreateDynamic(RigidPose.Identity, new Vector3(20, 0, 0), shape.ComputeInertia(1), Simulation.Shapes.Add(shape), 1e-2f);
 
         int boxCount = 100;
         float maximumFriction = 3;
@@ -114,7 +115,7 @@ public class FrictionDemo : Demo
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("Every contact constraint can be configured with its own material property by the INarrowPhaseCallbacks."), new Vector2(16, resolution.Y - 80), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("In this demo, a pair's coefficient of friction is the coefficients of the involved collidables multiplied together."), new Vector2(16, resolution.Y - 64), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Material state is configured ahead of time and stored in per-collidable SimpleMaterial definitions."), new Vector2(16, resolution.Y - 48), 16, Vector3.One, font);

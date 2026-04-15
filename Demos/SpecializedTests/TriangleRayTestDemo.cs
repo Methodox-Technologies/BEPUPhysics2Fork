@@ -28,7 +28,7 @@ public class TriangleRayTestDemo : Demo
         b *= inverseTotal;
         c *= inverseTotal;
 
-        var localP = triangle.A * a + triangle.B * b + triangle.C * c;
+        Vector3 localP = triangle.A * a + triangle.B * b + triangle.C * c;
         BepuUtilities.QuaternionEx.TransformWithoutOverlap(localP, pose.Orientation, out pointOnTriangle);
         pointOnTriangle += pose.Position;
     }
@@ -50,9 +50,9 @@ public class TriangleRayTestDemo : Demo
                 borderPoint = triangle.B + (triangle.C - triangle.B) * random.NextSingle();
                 break;
         }
-        var center = (triangle.A + triangle.B + triangle.C) / 3f;
-        var offsetToBorder = borderPoint - center;
-        var localP = center + offsetToBorder * (1.01f + 4 * random.NextSingle());
+        Vector3 center = (triangle.A + triangle.B + triangle.C) / 3f;
+        Vector3 offsetToBorder = borderPoint - center;
+        Vector3 localP = center + offsetToBorder * (1.01f + 4 * random.NextSingle());
 
         BepuUtilities.QuaternionEx.TransformWithoutOverlap(localP, pose.Orientation, out pointOutsideTriangle);
         pointOutsideTriangle += pose.Position;
@@ -60,25 +60,25 @@ public class TriangleRayTestDemo : Demo
 
     void TestRay(in Triangle triangle, in RigidPose pose, Vector3 rayOrigin, Vector3 rayDirection, bool expectedImpact, Vector3 pointOnTrianglePlane)
     {
-        var hit = triangle.RayTest(pose, rayOrigin, rayDirection, out var t, out var normal);
+        var hit = triangle.RayTest(pose, rayOrigin, rayDirection, out var t, out Vector3 normal);
 
         TriangleWide wide = default;
         wide.Broadcast(triangle);
-        RigidPoseWide.Broadcast(pose, out var poses);
+        RigidPoseWide.Broadcast(pose, out RigidPoseWide poses);
         RayWide rayWide;
         Vector3Wide.Broadcast(rayOrigin, out rayWide.Origin);
         Vector3Wide.Broadcast(rayDirection, out rayWide.Direction);
-        wide.RayTest(ref poses, ref rayWide, out var intersectedWide, out var tWide, out var normalWide);
+        wide.RayTest(ref poses, ref rayWide, out Vector<int> intersectedWide, out Vector<float> tWide, out Vector3Wide normalWide);
 
         Debug.Assert(expectedImpact == hit);
         Debug.Assert(hit == intersectedWide[0] < 0);
         if (hit)
         {
             Debug.Assert(Math.Abs(t - tWide[0]) < 1e-7f);
-            Vector3Wide.ReadSlot(ref normalWide, 0, out var normalWideLane0);
+            Vector3Wide.ReadSlot(ref normalWide, 0, out Vector3 normalWideLane0);
             var normalDot = Vector3.Dot(normalWideLane0, normal);
             Debug.Assert(normalDot > 0.9999f && normalDot < 1.00001f);
-            var hitLocationError = rayDirection * t + (rayOrigin - pointOnTrianglePlane);
+            Vector3 hitLocationError = rayDirection * t + (rayOrigin - pointOnTrianglePlane);
             Debug.Assert(hitLocationError.Length() < 1e-2f * MathF.Max(pointOnTrianglePlane.Length(), rayDirection.Length()));
 
         }
@@ -95,18 +95,18 @@ public class TriangleRayTestDemo : Demo
         triangle.A = new Vector3(0, 0, 0);
         triangle.B = new Vector3(1, 0, 0);
         triangle.C = new Vector3(0, 0, 1);
-        var pose = new RigidPose
+        RigidPose pose = new()
         {
             Orientation = Quaternion.Identity,
             Position = new Vector3(0)
         };
-        var rayOrigin = new Vector3(1f / 3f, 5, 1 / 3f);
-        var rayDirection = new Vector3(0, -1, 0);
+        Vector3 rayOrigin = new(1f / 3f, 5, 1 / 3f);
+        Vector3 rayDirection = new(0, -1, 0);
 
         //The other convex ray tester doesn't quite map well to infinitely thin triangles, so we have our own little tester here.
         TestRay(triangle, pose, rayOrigin, rayDirection, true, new Vector3(rayOrigin.X, 0, rayOrigin.Z));
 
-        Random random = new Random(5);
+        Random random = new(5);
         const float shapeMin = -50;
         const float shapeSpan = 100;
         for (int i = 0; i < 10000; ++i)
@@ -114,8 +114,8 @@ public class TriangleRayTestDemo : Demo
             triangle.A = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) * shapeSpan + new Vector3(shapeMin);
             triangle.B = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) * shapeSpan + new Vector3(shapeMin);
             triangle.C = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) * shapeSpan + new Vector3(shapeMin);
-            
-            var localTriangleCenter = (triangle.A + triangle.B + triangle.C) / 3f;
+
+            Vector3 localTriangleCenter = (triangle.A + triangle.B + triangle.C) / 3f;
             triangle.A -= localTriangleCenter;
             triangle.B -= localTriangleCenter;
             triangle.C -= localTriangleCenter;
@@ -136,7 +136,7 @@ public class TriangleRayTestDemo : Demo
             BepuUtilities.QuaternionEx.Scale(pose.Orientation, 1f / (float)Math.Sqrt(orientationLengthSquared), out pose.Orientation);
             pose.Position = BepuUtilities.QuaternionEx.Transform(localTriangleCenter, pose.Orientation);
 
-            var normal = Vector3.Cross(triangle.C - triangle.A, triangle.B - triangle.A);
+            Vector3 normal = Vector3.Cross(triangle.C - triangle.A, triangle.B - triangle.A);
             var normalLength = normal.Length();
             if (normalLength < 1e-7f)
                 continue;

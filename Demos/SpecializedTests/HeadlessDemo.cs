@@ -14,7 +14,7 @@ static class HeadlessTest
         ulong maximumMemoryUsedInPools = 0;
         for (int runIndex = 0; runIndex < runCount; ++runIndex)
         {
-            var demo = new T();
+            T demo = new();
             demo.Initialize(content, new DemoRenderer.Camera(1, 1, 1, 1));
             GC.Collect(3, GCCollectionMode.Forced, true, true);
             for (int i = 0; i < warmUpFrames; ++i)

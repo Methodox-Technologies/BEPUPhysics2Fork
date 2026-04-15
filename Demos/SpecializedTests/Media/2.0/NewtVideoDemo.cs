@@ -2,6 +2,8 @@
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using BepuUtilities;
+using BepuUtilities.Collections;
+using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using Demos.Demos;
@@ -19,15 +21,15 @@ public class NewtVideoDemo : Demo
         camera.Yaw = MathHelper.Pi / 4;
         camera.Pitch = MathHelper.Pi * 0.15f;
 
-        var filters = new CollidableProperty<DeformableCollisionFilter>();
+        CollidableProperty<DeformableCollisionFilter> filters = new();
         Simulation = Simulation.Create(BufferPool, new DeformableCallbacks(filters), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var meshContent = content.Load<MeshContent>("Content\\newt.obj");
+        MeshContent meshContent = content.Load<MeshContent>("Content\\newt.obj");
         float cellSize = 0.1f;
         DumbTetrahedralizer.Tetrahedralize(meshContent.Triangles, cellSize, BufferPool,
-            out var vertices, out var vertexSpatialIndices, out var cellVertexIndices, out var tetrahedraVertexIndices);
-        var weldSpringiness = new SpringSettings(30f, 0);
-        var volumeSpringiness = new SpringSettings(30f, 1);
+            out Buffer<Vector3> vertices, out QuickSet<Cell, CellComparer> vertexSpatialIndices, out Buffer<CellVertexIndices> cellVertexIndices, out Buffer<TetrahedronVertices> tetrahedraVertexIndices);
+        SpringSettings weldSpringiness = new(30f, 0);
+        SpringSettings volumeSpringiness = new(30f, 1);
         for (int i = 0; i < 5; ++i)
         {
             NewtDemo.CreateDeformable(Simulation, new Vector3(i * 3, 5 + i * 1.5f, 0), QuaternionEx.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI * (i * 0.55f)), 1f, cellSize, weldSpringiness, volumeSpringiness, i, filters, ref vertices, ref vertexSpatialIndices, ref cellVertexIndices, ref tetrahedraVertexIndices);
@@ -43,10 +45,10 @@ public class NewtVideoDemo : Demo
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, -0.5f, 0), Simulation.Shapes.Add(new Box(1500, 1, 1500))));
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, -1.5f, 0), Simulation.Shapes.Add(new Sphere(3))));
 
-        var bulletShape = new Sphere(0.5f);
+        Sphere bulletShape = new(0.5f);
         bulletDescription = BodyDescription.CreateDynamic(RigidPose.Identity, bulletShape.ComputeInertia(.25f), Simulation.Shapes.Add(bulletShape), 0.01f);
 
-        var mesh = DemoMeshHelper.LoadModel(content, BufferPool, "Content\\newt.obj", new Vector3(20));
+        Mesh mesh = DemoMeshHelper.LoadModel(content, BufferPool, "Content\\newt.obj", new Vector3(20));
         Simulation.Statics.Add(new StaticDescription(new Vector3(200, 0.5f, 120), QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, -3 * MathHelper.PiOver4), Simulation.Shapes.Add(mesh)));
     }
     BodyDescription bulletDescription;

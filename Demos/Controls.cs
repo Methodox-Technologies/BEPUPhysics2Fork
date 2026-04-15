@@ -1,5 +1,4 @@
 ﻿using DemoUtilities;
-using OpenTK.Input;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
@@ -34,21 +33,21 @@ static class ControlStrings
     {
         keys = new Dictionary<Keys, string>();
         var keyNames = Enum.GetNames(typeof(Keys));
-        var keyValues = (Keys[])Enum.GetValues(typeof(Keys));
+        Keys[] keyValues = (Keys[])Enum.GetValues(typeof(Keys));
         for (int i = 0; i < keyNames.Length; ++i)
         {
             keys.TryAdd(keyValues[i], keyNames[i]);
         }
         mouseButtons = new Dictionary<MouseButton, string>();
         var mouseButtonNames = Enum.GetNames(typeof(MouseButton));
-        var mouseButtonValues = (MouseButton[])Enum.GetValues(typeof(MouseButton));
+        MouseButton[] mouseButtonValues = (MouseButton[])Enum.GetValues(typeof(MouseButton));
         for (int i = 0; i < mouseButtonNames.Length; ++i)
         {
             mouseButtons.TryAdd(mouseButtonValues[i], mouseButtonNames[i]);
         }
         mouseWheel = new Dictionary<MouseWheelAction, string>();
         var wheelNames = Enum.GetNames(typeof(MouseWheelAction));
-        var wheelValues = (MouseWheelAction[])Enum.GetValues(typeof(MouseWheelAction));
+        MouseWheelAction[] wheelValues = (MouseWheelAction[])Enum.GetValues(typeof(MouseWheelAction));
         for (int i = 0; i < wheelNames.Length; ++i)
         {
             mouseWheel.TryAdd(wheelValues[i], wheelNames[i]);

@@ -25,8 +25,8 @@ public struct SphereRayTester : IRayTester<Sphere>
     {
         float effectiveRadius = Math.Max(0, shape.Radius - innerMargin);
         float radiusSquared = effectiveRadius * effectiveRadius;
-        var min = new Vector3(effectiveRadius, effectiveRadius, effectiveRadius);
-        var span = min * 2;
+        Vector3 min = new(effectiveRadius, effectiveRadius, effectiveRadius);
+        Vector3 span = min * 2;
         min = -min;
         do
         {
@@ -63,13 +63,13 @@ public struct CapsuleRayTester : IRayTester<Capsule>
         float distanceSquared;
         float effectiveRadius = Math.Max(0, capsule.Radius - innerMargin);
         float radiusSquared = effectiveRadius * effectiveRadius;
-        var min = new Vector3(effectiveRadius, effectiveRadius + capsule.HalfLength, effectiveRadius);
-        var span = min * 2;
+        Vector3 min = new(effectiveRadius, effectiveRadius + capsule.HalfLength, effectiveRadius);
+        Vector3 span = min * 2;
         min = -min;
         do
         {
             localPointInCapsule = min + span * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
-            var projectedCandidate = new Vector3(0, Math.Max(-capsule.HalfLength, Math.Min(capsule.HalfLength, localPointInCapsule.Y)), 0);
+            Vector3 projectedCandidate = new(0, Math.Max(-capsule.HalfLength, Math.Min(capsule.HalfLength, localPointInCapsule.Y)), 0);
             distanceSquared = Vector3.DistanceSquared(projectedCandidate, localPointInCapsule);
 
         } while (distanceSquared > radiusSquared);
@@ -79,8 +79,8 @@ public struct CapsuleRayTester : IRayTester<Capsule>
     {
         float distanceSquared;
         float radiusSquared = capsule.Radius * capsule.Radius;
-        var min = new Vector3(capsule.Radius, capsule.Radius + capsule.HalfLength, capsule.Radius);
-        var span = min * 2;
+        Vector3 min = new(capsule.Radius, capsule.Radius + capsule.HalfLength, capsule.Radius);
+        Vector3 span = min * 2;
         Vector3 offset, projectedCandidate;
         min = -min;
         do
@@ -119,8 +119,8 @@ public struct CylinderRayTester : IRayTester<Cylinder>
         float effectiveRadius = Math.Max(0, cylinder.Radius - innerMargin);
         float effectiveHalfLength = Math.Max(0, cylinder.HalfLength - innerMargin);
         float radiusSquared = effectiveRadius * effectiveRadius;
-        var min = new Vector2(effectiveRadius);
-        var span = min * 2;
+        Vector2 min = new(effectiveRadius);
+        Vector2 span = min * 2;
         min = -min;
         Vector2 randomHorizontal;
         do
@@ -135,8 +135,8 @@ public struct CylinderRayTester : IRayTester<Cylinder>
     public static void GetSurface(Random random, ref Cylinder cylinder, out Vector3 localPointOnCylinder, out Vector3 localNormal)
     {
         float distanceSquared;
-        var min = new Vector2(cylinder.Radius);
-        var span = min * 2;
+        Vector2 min = new(cylinder.Radius);
+        Vector2 span = min * 2;
         min = -min;
 
         var sideArea = 4 * MathF.PI * cylinder.Radius * cylinder.HalfLength;
@@ -153,9 +153,9 @@ public struct CylinderRayTester : IRayTester<Cylinder>
                 distanceSquared = randomHorizontal.LengthSquared();
 
             } while (distanceSquared < 1e-7f);
-            var horizontalNormal = randomHorizontal / (float)Math.Sqrt(distanceSquared);
+            Vector2 horizontalNormal = randomHorizontal / (float)Math.Sqrt(distanceSquared);
             localNormal = new Vector3(horizontalNormal.X, 0, horizontalNormal.Y);
-            var horizontalOffset = horizontalNormal * cylinder.Radius;
+            Vector2 horizontalOffset = horizontalNormal * cylinder.Radius;
             localPointOnCylinder = new Vector3(horizontalOffset.X, -cylinder.HalfLength + 2 * cylinder.HalfLength * random.NextSingle(), horizontalOffset.Y);
         }
         else
@@ -210,8 +210,8 @@ public struct BoxRayTester : IRayTester<Box>
     }
     public static void GetPointInVolume(Random random, float innerMargin, ref Box box, out Vector3 localPoint)
     {
-        var min = new Vector3(box.HalfWidth - innerMargin, box.HalfHeight - innerMargin, box.HalfLength - innerMargin);
-        var span = min * 2;
+        Vector3 min = new(box.HalfWidth - innerMargin, box.HalfHeight - innerMargin, box.HalfLength - innerMargin);
+        Vector3 span = min * 2;
         min = -min;
         localPoint = min + span * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
     }
@@ -250,8 +250,8 @@ public struct BoxRayTester : IRayTester<Box>
     {
         //Cast a ray against the box's bounding planes from the local origin using the local point as the direction.
         //In effect, all we're doing here is making sure that the closest plane impact has an offset similar to its box extent.
-        var halfExtents = new Vector3(box.HalfWidth, box.HalfHeight, box.HalfLength);
-        var t = (halfExtents * halfExtents) / Vector3.Max(new Vector3(1e-15f), Vector3.Abs(localPoint)) - halfExtents;
+        Vector3 halfExtents = new(box.HalfWidth, box.HalfHeight, box.HalfLength);
+        Vector3 t = (halfExtents * halfExtents) / Vector3.Max(new Vector3(1e-15f), Vector3.Abs(localPoint)) - halfExtents;
         var minT = t.X < t.Y ? t.X : t.Y;
         if (t.Z < minT)
             minT = t.Z;
@@ -321,11 +321,11 @@ public static class RayTesting
         float basisXLengthSquared;
         do
         {
-            GetUnitDirection(random, out var randomDirection);
+            GetUnitDirection(random, out Vector3 randomDirection);
             basisX = Vector3.Cross(normal, randomDirection);
             basisXLengthSquared = basisX.LengthSquared();
         } while (basisXLengthSquared < 1e-7f);
-        var basisZ = Vector3.Cross(normal, basisX);
+        Vector3 basisZ = Vector3.Cross(normal, basisX);
         point = anchor + basisX * localPoint.X + basisZ * localPoint.Y;
     }
 
@@ -336,7 +336,7 @@ public static class RayTesting
         Vector3Wide.Broadcast(origin, out rayWide.Origin);
         Vector3Wide.Broadcast(direction, out rayWide.Direction);
 
-        shapeWide.RayTest(ref poses, ref rayWide, out var intersectedWide, out var tWide, out var normalWide);
+        shapeWide.RayTest(ref poses, ref rayWide, out Vector<int> intersectedWide, out Vector<float> tWide, out Vector3Wide normalWide);
         if (intersectedWide[0] < 0 != intersected)
         {
             Console.WriteLine($"Wide ray boolean result disagrees with scalar ray.");
@@ -382,39 +382,39 @@ public static class RayTesting
 
         const float outwardPointingSpan = 1000f;
 
-        var random = new Random(5);
+        Random random = new(5);
         TShapeWide shapeWide = default;
         for (int shapeIteration = 0; shapeIteration < shapeIterations; ++shapeIteration)
         {
-            TTester.GetRandomShape(random, out var shape);
+            TTester.GetRandomShape(random, out TShape shape);
             shapeWide.Broadcast(shape);
             for (int transformIteration = 0; transformIteration < transformIterations; ++transformIteration)
             {
                 RigidPose pose;
                 pose.Position = new Vector3(positionMin) + positionBoundsSpan * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
                 GetUnitQuaternion(random, out pose.Orientation);
-                Matrix3x3.CreateFromQuaternion(pose.Orientation, out var orientation);
+                Matrix3x3.CreateFromQuaternion(pose.Orientation, out Matrix3x3 orientation);
                 RigidPoseWide poses;
                 Vector3Wide.Broadcast(pose.Position, out poses.Position);
                 QuaternionWide.Broadcast(pose.Orientation, out poses.Orientation);
                 for (int rayIndex = 0; rayIndex < outsideToInsideRays; ++rayIndex)
                 {
-                    TTester.GetSurface(random, ref shape, out var pointOnSurface, out var normal);
-                    var localSourcePoint = pointOnSurface + normal * (outsideMinimumDistance + random.NextSingle() * outsideDistanceSpan);
-                    TTester.GetPointInVolume(random, volumeInnerMargin, ref shape, out var localTargetPoint);
+                    TTester.GetSurface(random, ref shape, out Vector3 pointOnSurface, out Vector3 normal);
+                    Vector3 localSourcePoint = pointOnSurface + normal * (outsideMinimumDistance + random.NextSingle() * outsideDistanceSpan);
+                    TTester.GetPointInVolume(random, volumeInnerMargin, ref shape, out Vector3 localTargetPoint);
 
-                    Matrix3x3.Transform(localSourcePoint, orientation, out var sourcePoint);
+                    Matrix3x3.Transform(localSourcePoint, orientation, out Vector3 sourcePoint);
                     sourcePoint += pose.Position;
                     var directionScale = (0.01f + 2 * random.NextSingle());
-                    var localDirection = (localTargetPoint - localSourcePoint) * directionScale;
-                    Matrix3x3.Transform(localDirection, orientation, out var direction);
+                    Vector3 localDirection = (localTargetPoint - localSourcePoint) * directionScale;
+                    Matrix3x3.Transform(localDirection, orientation, out Vector3 direction);
 
                     bool intersected;
-                    if (intersected = shape.RayTest(pose, sourcePoint, direction, out var t, out var rayTestedNormal))
+                    if (intersected = shape.RayTest(pose, sourcePoint, direction, out var t, out Vector3 rayTestedNormal))
                     {
                         //If the ray start is outside the shape and the target point is inside, then the ray impact should exist on the surface of the shape.
-                        var hitLocation = sourcePoint + t * direction;
-                        var localHitLocation = hitLocation - pose.Position;
+                        Vector3 hitLocation = sourcePoint + t * direction;
+                        Vector3 localHitLocation = hitLocation - pose.Position;
                         Matrix3x3.TransformTranspose(localHitLocation, orientation, out localHitLocation);
                         if (!TTester.PointIsOnSurface(ref shape, ref localHitLocation))
                         {
@@ -429,17 +429,17 @@ public static class RayTesting
                 }
                 for (int rayIndex = 0; rayIndex < insideRays; ++rayIndex)
                 {
-                    TTester.GetPointInVolume(random, volumeInnerMargin, ref shape, out var localSourcePoint);
-                    Matrix3x3.Transform(localSourcePoint, orientation, out var sourcePoint);
+                    TTester.GetPointInVolume(random, volumeInnerMargin, ref shape, out Vector3 localSourcePoint);
+                    Matrix3x3.Transform(localSourcePoint, orientation, out Vector3 sourcePoint);
                     sourcePoint += pose.Position;
 
                     var directionScale = (0.01f + 100 * random.NextSingle());
-                    GetUnitDirection(random, out var direction);
+                    GetUnitDirection(random, out Vector3 direction);
                     direction *= directionScale;
 
                     //If the ray start is inside the shape, then the impact t should be 0.
                     bool intersected;
-                    if (intersected = shape.RayTest(pose, sourcePoint, direction, out var t, out var rayTestedNormal))
+                    if (intersected = shape.RayTest(pose, sourcePoint, direction, out var t, out Vector3 rayTestedNormal))
                     {
                         if (t > 0)
                         {
@@ -455,18 +455,18 @@ public static class RayTesting
                 for (int rayIndex = 0; rayIndex < outsideRays; ++rayIndex)
                 {
                     //Create a ray that lies on one of the shape's tangent planes, offset from the surface some amount to avoid numerical limitations.
-                    TTester.GetSurface(random, ref shape, out var pointOnSurface, out var localNormal);
-                    var localTargetPoint = pointOnSurface + localNormal * (tangentMinimumDistance + random.NextSingle() * tangentDistanceSpan);
+                    TTester.GetSurface(random, ref shape, out Vector3 pointOnSurface, out Vector3 localNormal);
+                    Vector3 localTargetPoint = pointOnSurface + localNormal * (tangentMinimumDistance + random.NextSingle() * tangentDistanceSpan);
                     var exclusion = tangentCentralExclusionMin + random.NextSingle() * tangentCentralExclusionSpan;
                     var span = 2 * exclusion + tangentSourceSpanMin + tangentSourceSpanSpan * random.NextSingle();
-                    GetPointOnPlane(random, exclusion, span, ref localTargetPoint, ref localNormal, out var localSourcePoint);
+                    GetPointOnPlane(random, exclusion, span, ref localTargetPoint, ref localNormal, out Vector3 localSourcePoint);
                     var directionScale = (0.01f + 2 * random.NextSingle());
-                    var localDirection = (localTargetPoint - localSourcePoint) * directionScale;
-                    Matrix3x3.Transform(localSourcePoint, orientation, out var sourcePoint);
+                    Vector3 localDirection = (localTargetPoint - localSourcePoint) * directionScale;
+                    Matrix3x3.Transform(localSourcePoint, orientation, out Vector3 sourcePoint);
                     sourcePoint += pose.Position;
-                    Matrix3x3.Transform(localDirection, orientation, out var direction);
+                    Matrix3x3.Transform(localDirection, orientation, out Vector3 direction);
                     bool intersected;
-                    if (intersected = shape.RayTest(pose, sourcePoint, direction, out var t, out var rayTestedNormal))
+                    if (intersected = shape.RayTest(pose, sourcePoint, direction, out var t, out Vector3 rayTestedNormal))
                     {
                         Console.WriteLine($"Outside ray incorrectly detected an impact.");
                     }
@@ -474,20 +474,20 @@ public static class RayTesting
                 }
                 for (int rayIndex = 0; rayIndex < outwardPointingRays; ++rayIndex)
                 {
-                    TTester.GetSurface(random, ref shape, out var pointOnSurface, out var localNormal);
-                    var localSourcePoint = pointOnSurface + localNormal * (tangentMinimumDistance + random.NextSingle() * tangentDistanceSpan);
+                    TTester.GetSurface(random, ref shape, out Vector3 pointOnSurface, out Vector3 localNormal);
+                    Vector3 localSourcePoint = pointOnSurface + localNormal * (tangentMinimumDistance + random.NextSingle() * tangentDistanceSpan);
                     Vector3 localTargetPoint;
                     do
                     {
                         localTargetPoint = localSourcePoint + new Vector3(-0.5f * outwardPointingSpan) + new Vector3(outwardPointingSpan) * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
                     } while (Vector3.Dot(localTargetPoint - localSourcePoint, localNormal) < 0);
                     var directionScale = (0.01f + 2 * random.NextSingle());
-                    var localDirection = (localTargetPoint - localSourcePoint) * directionScale;
-                    Matrix3x3.Transform(localSourcePoint, orientation, out var sourcePoint);
+                    Vector3 localDirection = (localTargetPoint - localSourcePoint) * directionScale;
+                    Matrix3x3.Transform(localSourcePoint, orientation, out Vector3 sourcePoint);
                     sourcePoint += pose.Position;
-                    Matrix3x3.Transform(localDirection, orientation, out var direction);
+                    Matrix3x3.Transform(localDirection, orientation, out Vector3 direction);
                     bool intersected;
-                    if (intersected = shape.RayTest(pose, sourcePoint, direction, out var t, out var rayTestedNormal))
+                    if (intersected = shape.RayTest(pose, sourcePoint, direction, out var t, out Vector3 rayTestedNormal))
                     {
                         Console.WriteLine($"Outward ray incorrectly detected an impact.");
                     }

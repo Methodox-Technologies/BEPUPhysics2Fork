@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BEPUutilitiesTests
 {
@@ -13,9 +9,9 @@ namespace BEPUutilitiesTests
         {
             GC.Collect();
             function(warmupIterations);
-            var start = Stopwatch.GetTimestamp();
-            var accumulator = function(benchmarkIterations);
-            var end = Stopwatch.GetTimestamp();
+            long start = Stopwatch.GetTimestamp();
+            float accumulator = function(benchmarkIterations);
+            long end = Stopwatch.GetTimestamp();
             Console.WriteLine($"{testName} time: {(end - start) / (double)Stopwatch.Frequency}");
         }
     }

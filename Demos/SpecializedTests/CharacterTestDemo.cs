@@ -19,14 +19,14 @@ public class CharacterTestDemo : Demo
         camera.Position = new Vector3(20, 10, 20);
         camera.Yaw = MathHelper.Pi * -1f / 4;
         camera.Pitch = MathHelper.Pi * 0.05f;
-        var masks = new CollidableProperty<ulong>();
+        CollidableProperty<ulong> masks = new();
         characters = new CharacterControllers(BufferPool);
         Simulation = Simulation.Create(BufferPool, new CharacterNarrowphaseCallbacks(characters), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var random = new Random(5);
+        Random random = new(5);
         for (int i = 0; i < 8192; ++i)
         {
-            ref var character = ref characters.AllocateCharacter(
+            ref CharacterController character = ref characters.AllocateCharacter(
                 Simulation.Bodies.Add(
                     BodyDescription.CreateDynamic(
                         new Vector3(250 * random.NextSingle() - 125, 2, 250 * random.NextSingle() - 125), new BodyInertia { InverseMass = 1 },
@@ -44,8 +44,8 @@ public class CharacterTestDemo : Demo
             character.JumpVelocity = 4;
         }
 
-        var origin = new Vector3(-3f, 0, 0);
-        var spacing = new Vector3(0.5f, 0, -0.5f);
+        Vector3 origin = new(-3f, 0, 0);
+        Vector3 spacing = new(0.5f, 0, -0.5f);
         //for (int i = 0; i < 12; ++i)
         //{
         //    for (int j = 0; j < 100; ++j)
@@ -78,10 +78,10 @@ public class CharacterTestDemo : Demo
 
         const int planeWidth = 256;
         const int planeHeight = 256;
-        var planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
+        Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
             (int x, int y) =>
             {
-                Vector2 offsetFromCenter = new Vector2(x - planeWidth / 2, y - planeHeight / 2);
+                Vector2 offsetFromCenter = new(x - planeWidth / 2, y - planeHeight / 2);
                 return new Vector3(offsetFromCenter.X, MathF.Cos(x / 2f) + MathF.Sin(y / 2f), offsetFromCenter.Y);
             }, new Vector3(2, 1, 2), BufferPool);
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, -2, 0), QuaternionEx.CreateFromAxisAngle(new Vector3(0, 1, 0), MathF.PI / 2), Simulation.Shapes.Add(planeMesh)));
@@ -93,13 +93,13 @@ public class CharacterTestDemo : Demo
     int frameIndex;
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        var rotation = Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), 0.5f * dt);
+        Matrix3x3 rotation = Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), 0.5f * dt);
         for (int i = 0; i < characters.CharacterCount; ++i)
         {
-            ref var character = ref characters.GetCharacterByIndex(i);
+            ref CharacterController character = ref characters.GetCharacterByIndex(i);
             if ((frameIndex + i) % 128 == 0)
                 character.TryJump = true;
-            var tangent = Vector3.Cross(new BodyReference(character.BodyHandle, Simulation.Bodies).Pose.Position, Vector3.UnitY);
+            Vector3 tangent = Vector3.Cross(new BodyReference(character.BodyHandle, Simulation.Bodies).Pose.Position, Vector3.UnitY);
             var tangentLengthSquared = tangent.LengthSquared();
             if (tangentLengthSquared > 1e-12f)
                 tangent = tangent / MathF.Sqrt(tangentLengthSquared);

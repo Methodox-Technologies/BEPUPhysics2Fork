@@ -23,19 +23,19 @@ public class DancerDemo : Demo
     static BodyHandle[,] CreateDressBodyGrid(Vector3 position, int widthInNodes, float spacing, float bodyRadius, float massPerBody,
         int instanceId, Simulation simulation, CollidableProperty<ClothCollisionFilter> filters)
     {
-        var description = BodyDescription.CreateDynamic(QuaternionEx.Identity, new BodyInertia { InverseMass = 1f / massPerBody }, simulation.Shapes.Add(new Sphere(bodyRadius)), 0.01f);
+        BodyDescription description = BodyDescription.CreateDynamic(QuaternionEx.Identity, new BodyInertia { InverseMass = 1f / massPerBody }, simulation.Shapes.Add(new Sphere(bodyRadius)), 0.01f);
         BodyHandle[,] handles = new BodyHandle[widthInNodes, widthInNodes];
-        var armHoleCenter = new Vector2(DemoDancers.ArmOffsetX + 0.065f, 0);
+        Vector2 armHoleCenter = new(DemoDancers.ArmOffsetX + 0.065f, 0);
         var armHoleRadius = 0.095f;
         var armHoleRadiusSquared = armHoleRadius * armHoleRadius;
         var halfWidth = widthInNodes * spacing / 2;
         var halfWidthSquared = halfWidth * halfWidth;
-        var halfWidthOffset = new Vector2(halfWidth);
+        Vector2 halfWidthOffset = new(halfWidth);
         for (int rowIndex = 0; rowIndex < widthInNodes; ++rowIndex)
         {
             for (int columnIndex = 0; columnIndex < widthInNodes; ++columnIndex)
             {
-                var horizontalPosition = new Vector2(columnIndex, rowIndex) * spacing - halfWidthOffset;
+                Vector2 horizontalPosition = new Vector2(columnIndex, rowIndex) * spacing - halfWidthOffset;
                 var distanceSquared0 = Vector2.DistanceSquared(horizontalPosition, armHoleCenter);
                 var distanceSquared1 = Vector2.DistanceSquared(horizontalPosition, -armHoleCenter);
                 var centerDistanceSquared = horizontalPosition.LengthSquared();
@@ -47,7 +47,7 @@ public class DancerDemo : Demo
                 else
                 {
                     description.Pose.Position = new Vector3(horizontalPosition.X, 0, horizontalPosition.Y) + position;
-                    var handle = simulation.Bodies.Add(description);
+                    BodyHandle handle = simulation.Bodies.Add(description);
                     handles[rowIndex, columnIndex] = handle;
                     if (filters != null)
                         filters.Allocate(handle) = new ClothCollisionFilter(rowIndex, columnIndex, instanceId);
@@ -64,8 +64,8 @@ public class DancerDemo : Demo
             //In this demo, we use -1 in the body handle slot to represent 'no body'.
             if (aHandle.Value >= 0 && bHandle.Value >= 0)
             {
-                var a = simulation.Bodies[aHandle];
-                var b = simulation.Bodies[bHandle];
+                BodyReference a = simulation.Bodies[aHandle];
+                BodyReference b = simulation.Bodies[bHandle];
                 //Note the use of a limit; the distance is allowed to go smaller.
                 //This helps stop the cloth from having unnatural rigidity.
                 var distance = Vector3.Distance(a.Pose.Position, b.Pose.Position);
@@ -110,10 +110,10 @@ public class DancerDemo : Demo
         var scale = MathF.Pow(2, levelOfDetail);
         var widthInBodies = (int)MathF.Ceiling(fullDetailWidthInBodies / scale);
         var spacing = spacingAtFullDetail * scale;
-        var chest = simulation.Bodies[bodyHandles.Chest];
-        ref var chestShape = ref simulation.Shapes.GetShape<Capsule>(chest.Collidable.Shape.Index);
+        BodyReference chest = simulation.Bodies[bodyHandles.Chest];
+        ref Capsule chestShape = ref simulation.Shapes.GetShape<Capsule>(chest.Collidable.Shape.Index);
         var topOfChestHeight = chest.Pose.Position.Y + chestShape.Radius + bodyRadius;
-        var bodies = CreateDressBodyGrid(new Vector3(0, topOfChestHeight, 0) + DemoDancers.GetOffsetForDancer(dancerIndex, dancerGridWidth), widthInBodies, spacing, bodyRadius, 0.01f, dancerIndex, simulation, filters);
+        BodyHandle[,] bodies = CreateDressBodyGrid(new Vector3(0, topOfChestHeight, 0) + DemoDancers.GetOffsetForDancer(dancerIndex, dancerGridWidth), widthInBodies, spacing, bodyRadius, 0.01f, dancerIndex, simulation, filters);
         //Create constraints that bind the cloth bodies closest to the chest, to the chest. This keeps the dress from sliding around.
         //In the higher resolution simulations, the arm holes and cloth bodies can actually handle it with no help, but for lower levels of detail it can be useful.
         //Also, it's very common to want to control how cloth sticks to a character. You could extend this approach to, for example, keep cloth near the body at the waist like a belt.
@@ -132,11 +132,11 @@ public class DancerDemo : Demo
         {
             for (int x = minX; x <= maxX; ++x)
             {
-                var clothNodeHandle = bodies[z, x];
+                BodyHandle clothNodeHandle = bodies[z, x];
                 //When creating bodies, we set handles for bodies that don't exist to -1.
                 if (clothNodeHandle.Value >= 0)
                 {
-                    var clothNodeBody = simulation.Bodies[clothNodeHandle];
+                    BodyReference clothNodeBody = simulation.Bodies[clothNodeHandle];
                     simulation.Solver.Add(chest.Handle, clothNodeBody.Handle,
                         new BallSocket
                         {
@@ -156,7 +156,7 @@ public class DancerDemo : Demo
         camera.Yaw = 0;
         camera.Pitch = 0;
 
-        var collisionFilters = new CollidableProperty<SubgroupCollisionFilter>();
+        CollidableProperty<SubgroupCollisionFilter> collisionFilters = new();
         Simulation = Simulation.Create(BufferPool, new SubgroupFilteredCallbacks(collisionFilters), new DemoPoseIntegratorCallbacks(new Vector3(0, 0, 0)), new SolveDescription(8, 1));
 
         dancers = new DemoDancers().Initialize<ClothCallbacks, ClothCollisionFilter>(16, 16, Simulation, collisionFilters, ThreadDispatcher, BufferPool, new SolveDescription(1, 4), TailorDress, new ClothCollisionFilter(0, 0, -1));
@@ -173,7 +173,7 @@ public class DancerDemo : Demo
         renderer.Shapes.AddInstances(dancers.Simulations, ThreadDispatcher);
         renderer.Lines.Extract(dancers.Simulations, ThreadDispatcher);
 
-        var resolution = renderer.Surface.Resolution;
+        Int2 resolution = renderer.Surface.Resolution;
         renderer.TextBatcher.Write(text.Clear().Append("Cosmetic simulations, like cloth, often don't need to be in a game's main simulation."), new Vector2(16, resolution.Y - 144), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Every background dancer in this demo has its own simulation. All dancers can be easily updated in parallel."), new Vector2(16, resolution.Y - 128), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Dancers further from the main dancer use sparser cloth and disable self collision for extra performance."), new Vector2(16, resolution.Y - 112), 16, Vector3.One, font);

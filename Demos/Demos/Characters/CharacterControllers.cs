@@ -183,7 +183,7 @@ public unsafe class CharacterControllers : IDisposable
         if (bodyHandle.Value >= bodyHandleToCharacterIndex.Length)
             ResizeBodyHandleCapacity(Math.Max(bodyHandle.Value + 1, bodyHandleToCharacterIndex.Length * 2));
         var characterIndex = characters.Count;
-        ref var character = ref characters.Allocate(pool);
+        ref CharacterController character = ref characters.Allocate(pool);
         character = default;
         character.BodyHandle = bodyHandle;
         bodyHandleToCharacterIndex[bodyHandle.Value] = characterIndex;
@@ -197,7 +197,7 @@ public unsafe class CharacterControllers : IDisposable
     public void RemoveCharacterByIndex(int characterIndex)
     {
         Debug.Assert(characterIndex >= 0 && characterIndex < characters.Count, "Character index must exist in the set of characters.");
-        ref var character = ref characters[characterIndex];
+        ref CharacterController character = ref characters[characterIndex];
         Debug.Assert(character.BodyHandle.Value >= 0 && character.BodyHandle.Value < bodyHandleToCharacterIndex.Length && bodyHandleToCharacterIndex[character.BodyHandle.Value] == characterIndex,
             "Character must exist in the set of characters.");
         bodyHandleToCharacterIndex[character.BodyHandle.Value] = -1;
@@ -257,12 +257,12 @@ public unsafe class CharacterControllers : IDisposable
     {
         if (characterCollidable.Mobility == CollidableMobility.Dynamic && characterCollidable.BodyHandle.Value < bodyHandleToCharacterIndex.Length)
         {
-            var characterBodyHandle = characterCollidable.BodyHandle;
+            BodyHandle characterBodyHandle = characterCollidable.BodyHandle;
             var characterIndex = bodyHandleToCharacterIndex[characterBodyHandle.Value];
             if (characterIndex >= 0)
             {
                 //This is actually a character.
-                ref var character = ref characters[characterIndex];
+                ref CharacterController character = ref characters[characterIndex];
                 //Our job here is to process the manifold into a support representation. That means a single point, normal, and importance heuristic.
                 //Note that we cannot safely pick from the candidates in this function- it is likely executed from a multithreaded context, so all we can do is
                 //output the pair's result into a worker-exclusive buffer.
@@ -277,14 +277,14 @@ public unsafe class CharacterControllers : IDisposable
 
                 //Note that the body may be inactive during this callback even though it will be activated by new constraints after the narrow phase flushes.
                 //Have to take into account the current potentially inactive location.
-                ref var bodyLocation = ref Simulation.Bodies.HandleToLocation[character.BodyHandle.Value];
-                ref var set = ref Simulation.Bodies.Sets[bodyLocation.SetIndex];
-                ref var pose = ref set.DynamicsState[bodyLocation.Index].Motion.Pose;
-                QuaternionEx.Transform(character.LocalUp, pose.Orientation, out var up);
+                ref BodyMemoryLocation bodyLocation = ref Simulation.Bodies.HandleToLocation[character.BodyHandle.Value];
+                ref BodySet set = ref Simulation.Bodies.Sets[bodyLocation.SetIndex];
+                ref RigidPose pose = ref set.DynamicsState[bodyLocation.Index].Motion.Pose;
+                QuaternionEx.Transform(character.LocalUp, pose.Orientation, out Vector3 up);
                 //Note that this branch is compiled out- the generic constraints force type specialization.
                 if (manifold.Convex)
                 {
-                    ref var convexManifold = ref Unsafe.As<TManifold, ConvexContactManifold>(ref manifold);
+                    ref ConvexContactManifold convexManifold = ref Unsafe.As<TManifold, ConvexContactManifold>(ref manifold);
                     var normalUpDot = Vector3.Dot(convexManifold.Normal, up);
                     //The narrow phase generates contacts with normals pointing from B to A by convention.
                     //If the character is collidable B, then we need to negate the comparison.
@@ -305,13 +305,13 @@ public unsafe class CharacterControllers : IDisposable
                         }
                         if (maximumDepth >= character.MinimumSupportDepth || (character.Supported && maximumDepth > character.MinimumSupportContinuationDepth))
                         {
-                            ref var supportCandidate = ref contactCollectionWorkerCaches[workerIndex].SupportCandidates[characterIndex];
+                            ref SupportCandidate supportCandidate = ref contactCollectionWorkerCaches[workerIndex].SupportCandidates[characterIndex];
                             if (supportCandidate.Depth < maximumDepth)
                             {
                                 //This support candidate should be replaced.
                                 supportCandidate.Depth = maximumDepth;
-                                ref var deepestContact = ref Unsafe.Add(ref convexManifold.Contact0, maximumDepthIndex);
-                                var offsetFromB = deepestContact.Offset - convexManifold.OffsetB;
+                                ref ConvexContact deepestContact = ref Unsafe.Add(ref convexManifold.Contact0, maximumDepthIndex);
+                                Vector3 offsetFromB = deepestContact.Offset - convexManifold.OffsetB;
                                 if (pair.B.Packed == characterCollidable.Packed)
                                 {
                                     supportCandidate.Normal = -convexManifold.Normal;
@@ -331,7 +331,7 @@ public unsafe class CharacterControllers : IDisposable
                 }
                 else
                 {
-                    ref var nonconvexManifold = ref Unsafe.As<TManifold, NonconvexContactManifold>(ref manifold);
+                    ref NonconvexContactManifold nonconvexManifold = ref Unsafe.As<TManifold, NonconvexContactManifold>(ref manifold);
                     //The narrow phase generates contacts with normals pointing from B to A by convention.
                     //If the character is collidable B, then we need to negate the comparison.
                     //This manifold has a slope that is potentially supportive.
@@ -340,7 +340,7 @@ public unsafe class CharacterControllers : IDisposable
                     var maximumDepthIndex = -1;
                     for (int i = 0; i < nonconvexManifold.Count; ++i)
                     {
-                        ref var candidate = ref Unsafe.Add(ref nonconvexManifold.Contact0, i);
+                        ref Contact candidate = ref Unsafe.Add(ref nonconvexManifold.Contact0, i);
                         if (candidate.Depth > maximumDepth)
                         {
                             //All the nonconvex candidates can have different normals, so we have to perform the (calibrated) normal test on every single one.
@@ -354,13 +354,13 @@ public unsafe class CharacterControllers : IDisposable
                     }
                     if (maximumDepth >= character.MinimumSupportDepth || (character.Supported && maximumDepth > character.MinimumSupportContinuationDepth))
                     {
-                        ref var supportCandidate = ref contactCollectionWorkerCaches[workerIndex].SupportCandidates[characterIndex];
+                        ref SupportCandidate supportCandidate = ref contactCollectionWorkerCaches[workerIndex].SupportCandidates[characterIndex];
                         if (supportCandidate.Depth < maximumDepth)
                         {
                             //This support candidate should be replaced.
-                            ref var deepestContact = ref Unsafe.Add(ref nonconvexManifold.Contact0, maximumDepthIndex);
+                            ref Contact deepestContact = ref Unsafe.Add(ref nonconvexManifold.Contact0, maximumDepthIndex);
                             supportCandidate.Depth = maximumDepth;
-                            var offsetFromB = deepestContact.Offset - nonconvexManifold.OffsetB;
+                            Vector3 offsetFromB = deepestContact.Offset - nonconvexManifold.OffsetB;
                             if (pair.B.Packed == characterCollidable.Packed)
                             {
                                 supportCandidate.Normal = -deepestContact.Normal;
@@ -420,13 +420,13 @@ public unsafe class CharacterControllers : IDisposable
         var end = start + count;
         for (int i = start; i < end; ++i)
         {
-            ref var character = ref characters[i];
-            var characterBody = Simulation.Bodies[character.BodyHandle];
+            ref CharacterController character = ref characters[i];
+            BodyReference characterBody = Simulation.Bodies[character.BodyHandle];
             if (characterBody.Awake)
             {
-                Simulation.BroadPhase.GetActiveBoundsPointers(characterBody.Collidable.BroadPhaseIndex, out var min, out var max);
-                QuaternionEx.Transform(character.LocalUp, characterBody.Pose.Orientation, out var characterUp);
-                var supportExpansion = character.MinimumSupportContinuationDepth * characterUp;
+                Simulation.BroadPhase.GetActiveBoundsPointers(characterBody.Collidable.BroadPhaseIndex, out Vector3* min, out Vector3* max);
+                QuaternionEx.Transform(character.LocalUp, characterBody.Pose.Orientation, out Vector3 characterUp);
+                Vector3 supportExpansion = character.MinimumSupportContinuationDepth * characterUp;
                 *min += Vector3.Min(Vector3.Zero, supportExpansion);
                 *max += Vector3.Max(Vector3.Zero, supportExpansion);
             }
@@ -443,7 +443,7 @@ public unsafe class CharacterControllers : IDisposable
             var jobIndex = Interlocked.Increment(ref boundingBoxExpansionJobIndex);
             if (jobIndex < boundingBoxExpansionJobs.Length)
             {
-                ref var job = ref boundingBoxExpansionJobs[jobIndex];
+                ref (int Start, int Count) job = ref boundingBoxExpansionJobs[jobIndex];
                 ExpandBoundingBoxes(job.Start, job.Count);
             }
             else
@@ -483,7 +483,7 @@ public unsafe class CharacterControllers : IDisposable
             for (int jobIndex = 0; jobIndex < jobCount; ++jobIndex)
             {
                 var charactersForJob = jobIndex < remainder ? charactersPerJob + 1 : charactersPerJob;
-                ref var job = ref boundingBoxExpansionJobs[jobIndex];
+                ref (int Start, int Count) job = ref boundingBoxExpansionJobs[jobIndex];
                 job.Start = previousEnd;
                 job.Count = charactersForJob;
                 previousEnd += job.Count;
@@ -545,19 +545,19 @@ public unsafe class CharacterControllers : IDisposable
 
     void AnalyzeContactsForCharacterRegion(int start, int exclusiveEnd, int workerIndex)
     {
-        ref var analyzeContactsWorkerCache = ref analyzeContactsWorkerCaches[workerIndex];
+        ref AnalyzeContactsWorkerCache analyzeContactsWorkerCache = ref analyzeContactsWorkerCaches[workerIndex];
         for (int characterIndex = start; characterIndex < exclusiveEnd; ++characterIndex)
         {
             //Note that this iterates over both active and inactive characters rather than segmenting inactive characters into their own collection.
             //This demands branching, but the expectation is that the vast majority of characters will be active, so there is less value in copying them into stasis.                
-            ref var character = ref characters[characterIndex];
-            ref var bodyLocation = ref Simulation.Bodies.HandleToLocation[character.BodyHandle.Value];
+            ref CharacterController character = ref characters[characterIndex];
+            ref BodyMemoryLocation bodyLocation = ref Simulation.Bodies.HandleToLocation[character.BodyHandle.Value];
             if (bodyLocation.SetIndex == 0)
             {
-                var supportCandidate = contactCollectionWorkerCaches[0].SupportCandidates[characterIndex];
+                SupportCandidate supportCandidate = contactCollectionWorkerCaches[0].SupportCandidates[characterIndex];
                 for (int j = 1; j < contactCollectionWorkerCaches.Length; ++j)
                 {
-                    ref var workerCandidate = ref contactCollectionWorkerCaches[j].SupportCandidates[characterIndex];
+                    ref SupportCandidate workerCandidate = ref contactCollectionWorkerCaches[j].SupportCandidates[characterIndex];
                     if (workerCandidate.Depth > supportCandidate.Depth)
                     {
                         supportCandidate = workerCandidate;
@@ -596,24 +596,24 @@ public unsafe class CharacterControllers : IDisposable
                 //If the character is jumping, don't create a constraint.
                 if (supportCandidate.Depth > float.MinValue && character.TryJump)
                 {
-                    QuaternionEx.Transform(character.LocalUp, Simulation.Bodies.ActiveSet.DynamicsState[bodyLocation.Index].Motion.Pose.Orientation, out var characterUp);
+                    QuaternionEx.Transform(character.LocalUp, Simulation.Bodies.ActiveSet.DynamicsState[bodyLocation.Index].Motion.Pose.Orientation, out Vector3 characterUp);
                     //Note that we assume that character orientations are constant. This isn't necessarily the case in all uses, but it's a decent approximation.
                     var characterUpVelocity = Vector3.Dot(Simulation.Bodies.ActiveSet.DynamicsState[bodyLocation.Index].Motion.Velocity.Linear, characterUp);
                     //We don't want the character to be able to 'superboost' by simply adding jump speed on top of horizontal motion.
                     //Instead, jumping targets a velocity change necessary to reach character.JumpVelocity along the up axis.
                     if (character.Support.Mobility != CollidableMobility.Static)
                     {
-                        ref var supportingBodyLocation = ref Simulation.Bodies.HandleToLocation[character.Support.BodyHandle.Value];
+                        ref BodyMemoryLocation supportingBodyLocation = ref Simulation.Bodies.HandleToLocation[character.Support.BodyHandle.Value];
                         Debug.Assert(supportingBodyLocation.SetIndex == 0, "If the character is active, any support should be too.");
-                        ref var supportVelocity = ref Simulation.Bodies.ActiveSet.DynamicsState[supportingBodyLocation.Index].Motion.Velocity;
-                        var wxr = Vector3.Cross(supportVelocity.Angular, supportCandidate.OffsetFromSupport);
-                        var supportContactVelocity = supportVelocity.Linear + wxr;
+                        ref BodyVelocity supportVelocity = ref Simulation.Bodies.ActiveSet.DynamicsState[supportingBodyLocation.Index].Motion.Velocity;
+                        Vector3 wxr = Vector3.Cross(supportVelocity.Angular, supportCandidate.OffsetFromSupport);
+                        Vector3 supportContactVelocity = supportVelocity.Linear + wxr;
                         var supportUpVelocity = Vector3.Dot(supportContactVelocity, characterUp);
 
                         //If the support is dynamic, apply an opposing impulse. Note that velocity changes cannot safely be applied during multithreaded execution;
                         //characters could share support bodies, and a character might be a support of another character.
                         //That's really not concerning from a performance perspective- characters don't jump many times per frame.
-                        ref var jump = ref analyzeContactsWorkerCache.Jumps.AllocateUnsafely();
+                        ref Jump jump = ref analyzeContactsWorkerCache.Jumps.AllocateUnsafely();
                         jump.CharacterBodyIndex = bodyLocation.Index;
                         jump.CharacterVelocityChange = characterUp * MathF.Max(0, character.JumpVelocity - (characterUpVelocity - supportUpVelocity));
                         if (character.Support.Mobility == CollidableMobility.Dynamic)
@@ -630,7 +630,7 @@ public unsafe class CharacterControllers : IDisposable
                     else
                     {
                         //Static bodies have no velocity, so we don't have to consider the support.
-                        ref var jump = ref analyzeContactsWorkerCache.Jumps.AllocateUnsafely();
+                        ref Jump jump = ref analyzeContactsWorkerCache.Jumps.AllocateUnsafely();
                         jump.CharacterBodyIndex = bodyLocation.Index;
                         jump.CharacterVelocityChange = characterUp * MathF.Max(0, character.JumpVelocity - characterUpVelocity);
                         jump.SupportBodyIndex = -1;
@@ -646,7 +646,7 @@ public unsafe class CharacterControllers : IDisposable
                     Matrix3x3 surfaceBasis;
                     surfaceBasis.Y = supportCandidate.Normal;
                     //Note negation: we're using a right handed basis where -Z is forward, +Z is backward.
-                    QuaternionEx.Transform(character.LocalUp, Simulation.Bodies.ActiveSet.DynamicsState[bodyLocation.Index].Motion.Pose.Orientation, out var up);
+                    QuaternionEx.Transform(character.LocalUp, Simulation.Bodies.ActiveSet.DynamicsState[bodyLocation.Index].Motion.Pose.Orientation, out Vector3 up);
                     var rayDistance = Vector3.Dot(character.ViewDirection, surfaceBasis.Y);
                     var rayVelocity = Vector3.Dot(up, surfaceBasis.Y);
                     Debug.Assert(rayVelocity > 0,
@@ -659,15 +659,15 @@ public unsafe class CharacterControllers : IDisposable
                     }
                     else
                     {
-                        QuaternionEx.GetQuaternionBetweenNormalizedVectors(Vector3.UnitY, surfaceBasis.Y, out var rotation);
+                        QuaternionEx.GetQuaternionBetweenNormalizedVectors(Vector3.UnitY, surfaceBasis.Y, out Quaternion rotation);
                         QuaternionEx.TransformUnitZ(rotation, out surfaceBasis.Z);
                     }
                     surfaceBasis.X = Vector3.Cross(surfaceBasis.Y, surfaceBasis.Z);
-                    QuaternionEx.CreateFromRotationMatrix(surfaceBasis, out var surfaceBasisQuaternion);
+                    QuaternionEx.CreateFromRotationMatrix(surfaceBasis, out Quaternion surfaceBasisQuaternion);
                     if (supportCandidate.Support.Mobility != CollidableMobility.Static)
                     {
                         //The character is supported by a body.
-                        var motionConstraint = new DynamicCharacterMotionConstraint
+                        DynamicCharacterMotionConstraint motionConstraint = new()
                         {
                             MaximumHorizontalForce = character.MaximumHorizontalForce,
                             MaximumVerticalForce = character.MaximumVerticalForce,
@@ -685,7 +685,7 @@ public unsafe class CharacterControllers : IDisposable
                         else
                         {
                             //Doesn't exist, mark it for addition.
-                            ref var pendingConstraint = ref analyzeContactsWorkerCache.DynamicConstraintsToAdd.AllocateUnsafely();
+                            ref PendingDynamicConstraint pendingConstraint = ref analyzeContactsWorkerCache.DynamicConstraintsToAdd.AllocateUnsafely();
                             pendingConstraint.Description = motionConstraint;
                             pendingConstraint.CharacterIndex = characterIndex;
                         }
@@ -693,7 +693,7 @@ public unsafe class CharacterControllers : IDisposable
                     else
                     {
                         //The character is supported by a static.
-                        var motionConstraint = new StaticCharacterMotionConstraint
+                        StaticCharacterMotionConstraint motionConstraint = new()
                         {
                             MaximumHorizontalForce = character.MaximumHorizontalForce,
                             MaximumVerticalForce = character.MaximumVerticalForce,
@@ -710,7 +710,7 @@ public unsafe class CharacterControllers : IDisposable
                         else
                         {
                             //Doesn't exist, mark it for addition.
-                            ref var pendingConstraint = ref analyzeContactsWorkerCache.StaticConstraintsToAdd.AllocateUnsafely();
+                            ref PendingStaticConstraint pendingConstraint = ref analyzeContactsWorkerCache.StaticConstraintsToAdd.AllocateUnsafely();
                             pendingConstraint.Description = motionConstraint;
                             pendingConstraint.CharacterIndex = characterIndex;
                         }
@@ -744,7 +744,7 @@ public unsafe class CharacterControllers : IDisposable
         int jobIndex;
         while ((jobIndex = Interlocked.Increment(ref analysisJobIndex)) < analysisJobCount)
         {
-            ref var job = ref jobs[jobIndex];
+            ref AnalyzeContactsJob job = ref jobs[jobIndex];
             AnalyzeContactsForCharacterRegion(job.Start, job.ExclusiveEnd, workerIndex);
         }
     }
@@ -781,7 +781,7 @@ public unsafe class CharacterControllers : IDisposable
                 var previousEnd = 0;
                 for (int i = 0; i < analysisJobCount; ++i)
                 {
-                    ref var job = ref jobs[i];
+                    ref AnalyzeContactsJob job = ref jobs[i];
                     job.Start = previousEnd;
                     job.ExclusiveEnd = job.Start + (i < remainder ? baseCount + 1 : baseCount);
                     previousEnd = job.ExclusiveEnd;
@@ -804,7 +804,7 @@ public unsafe class CharacterControllers : IDisposable
             //caused by the new and old constraint affecting the same bodies.
             for (int threadIndex = 0; threadIndex < analyzeContactsWorkerCaches.Length; ++threadIndex)
             {
-                ref var cache = ref analyzeContactsWorkerCaches[threadIndex];
+                ref AnalyzeContactsWorkerCache cache = ref analyzeContactsWorkerCaches[threadIndex];
                 for (int i = 0; i < cache.ConstraintHandlesToRemove.Count; ++i)
                 {
                     Simulation.Solver.Remove(cache.ConstraintHandlesToRemove[i]);
@@ -812,25 +812,25 @@ public unsafe class CharacterControllers : IDisposable
             }
             for (int threadIndex = 0; threadIndex < analyzeContactsWorkerCaches.Length; ++threadIndex)
             {
-                ref var workerCache = ref analyzeContactsWorkerCaches[threadIndex];
+                ref AnalyzeContactsWorkerCache workerCache = ref analyzeContactsWorkerCaches[threadIndex];
                 for (int i = 0; i < workerCache.StaticConstraintsToAdd.Count; ++i)
                 {
-                    ref var pendingConstraint = ref workerCache.StaticConstraintsToAdd[i];
-                    ref var character = ref characters[pendingConstraint.CharacterIndex];
+                    ref PendingStaticConstraint pendingConstraint = ref workerCache.StaticConstraintsToAdd[i];
+                    ref CharacterController character = ref characters[pendingConstraint.CharacterIndex];
                     Debug.Assert(character.Support.Mobility == CollidableMobility.Static);
                     character.MotionConstraintHandle = Simulation.Solver.Add(character.BodyHandle, pendingConstraint.Description);
                 }
                 for (int i = 0; i < workerCache.DynamicConstraintsToAdd.Count; ++i)
                 {
-                    ref var pendingConstraint = ref workerCache.DynamicConstraintsToAdd[i];
-                    ref var character = ref characters[pendingConstraint.CharacterIndex];
+                    ref PendingDynamicConstraint pendingConstraint = ref workerCache.DynamicConstraintsToAdd[i];
+                    ref CharacterController character = ref characters[pendingConstraint.CharacterIndex];
                     Debug.Assert(character.Support.Mobility != CollidableMobility.Static);
                     character.MotionConstraintHandle = Simulation.Solver.Add(character.BodyHandle, character.Support.BodyHandle, pendingConstraint.Description);
                 }
-                ref var activeSet = ref Simulation.Bodies.ActiveSet;
+                ref BodySet activeSet = ref Simulation.Bodies.ActiveSet;
                 for (int i = 0; i < workerCache.Jumps.Count; ++i)
                 {
-                    ref var jump = ref workerCache.Jumps[i];
+                    ref Jump jump = ref workerCache.Jumps[i];
                     activeSet.DynamicsState[jump.CharacterBodyIndex].Motion.Velocity.Linear += jump.CharacterVelocityChange;
                     if (jump.SupportBodyIndex >= 0)
                     {

@@ -86,8 +86,8 @@ struct Grabber
         }
         else if (shouldGrab && !active)
         {
-            var rayDirection = camera.GetRayDirection(mouseLocked, normalizedMousePosition);
-            var hitHandler = default(RayHitHandler);
+            Vector3 rayDirection = camera.GetRayDirection(mouseLocked, normalizedMousePosition);
+            RayHitHandler hitHandler = default(RayHitHandler);
             hitHandler.T = float.MaxValue;
             simulation.RayCast(camera.Position, rayDirection, float.MaxValue, pool, ref hitHandler);
             if (hitHandler.T < float.MaxValue && hitHandler.HitCollidable.Mobility == CollidableMobility.Dynamic)
@@ -95,11 +95,11 @@ struct Grabber
                 //Found something to grab!
                 t = hitHandler.T;
                 body = simulation.Bodies[hitHandler.HitCollidable.BodyHandle];
-                var hitLocation = camera.Position + rayDirection * t;
+                Vector3 hitLocation = camera.Position + rayDirection * t;
                 RigidPose.TransformByInverse(hitLocation, body.Pose, out localGrabPoint);
                 targetOrientation = body.Pose.Orientation;
                 active = true;
-                CreateMotorDescription(hitLocation, body.LocalInertia.InverseMass, out var linearDescription, out var angularDescription);
+                CreateMotorDescription(hitLocation, body.LocalInertia.InverseMass, out OneBodyLinearServo linearDescription, out OneBodyAngularServo angularDescription);
                 linearMotorHandle = simulation.Solver.Add(body.Handle, linearDescription);
                 if (!Bodies.HasLockedInertia(body.LocalInertia.InverseInertiaTensor))
                     angularMotorHandle = simulation.Solver.Add(body.Handle, angularDescription);
@@ -107,11 +107,11 @@ struct Grabber
         }
         else if (active)
         {
-            var rayDirection = camera.GetRayDirection(mouseLocked, normalizedMousePosition);
-            var targetPoint = camera.Position + rayDirection * t;
+            Vector3 rayDirection = camera.GetRayDirection(mouseLocked, normalizedMousePosition);
+            Vector3 targetPoint = camera.Position + rayDirection * t;
             targetOrientation = QuaternionEx.Normalize(QuaternionEx.Concatenate(targetOrientation, rotation));
 
-            CreateMotorDescription(targetPoint, body.LocalInertia.InverseMass, out var linearDescription, out var angularDescription);
+            CreateMotorDescription(targetPoint, body.LocalInertia.InverseMass, out OneBodyLinearServo linearDescription, out OneBodyAngularServo angularDescription);
             simulation.Solver.ApplyDescription(linearMotorHandle, linearDescription);
             if (!Bodies.HasLockedInertia(body.LocalInertia.InverseInertiaTensor))
                 simulation.Solver.ApplyDescription(angularMotorHandle, angularDescription);
@@ -124,10 +124,10 @@ struct Grabber
         if (shouldGrab && !active && mouseLocked)
         {
             //Draw a crosshair if there is no mouse cursor.
-            var center = camera.Position + camera.Forward * (camera.NearClip * 10);
+            Vector3 center = camera.Position + camera.Forward * (camera.NearClip * 10);
             var crosshairLength = 0.1f * camera.NearClip * MathF.Tan(camera.FieldOfView * 0.5f);
-            var rightOffset = camera.Right * crosshairLength;
-            var upOffset = camera.Up * crosshairLength;
+            Vector3 rightOffset = camera.Right * crosshairLength;
+            Vector3 upOffset = camera.Up * crosshairLength;
             lines.Allocate() = new LineInstance(center - rightOffset, center + rightOffset, new Vector3(1, 0, 0), new Vector3());
             lines.Allocate() = new LineInstance(center - upOffset, center + upOffset, new Vector3(1, 0, 0), new Vector3());
         }
