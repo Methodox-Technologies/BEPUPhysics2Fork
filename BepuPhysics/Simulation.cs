@@ -1,10 +1,11 @@
-﻿using BepuUtilities;
-using BepuUtilities.Memory;
-using BepuPhysics.Collidables;
+﻿using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
+using BepuPhysics.Trees;
+using BepuUtilities;
+using BepuUtilities.Memory;
 using System;
 using System.Diagnostics;
-using BepuPhysics.Trees;
+using System.Runtime.CompilerServices;
 
 #if !DEBUG
 [module: SkipLocalsInit]
