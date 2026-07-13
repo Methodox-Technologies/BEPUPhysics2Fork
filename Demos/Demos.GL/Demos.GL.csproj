@@ -29,10 +29,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../BepuPhysics/BepuPhysics.csproj" />
-    <ProjectReference Include="../BepuUtilities/BepuUtilities.csproj" />
     <ProjectReference Include="../DemoContentLoader/DemoContentLoader.csproj" />
-    <ProjectReference Include="../DemoRenderer.GL/DemoRenderer.csproj" />
+    <ProjectReference Include="../DemoRenderer.GL/DemoRenderer.GL.csproj" />
   </ItemGroup>
 
   <ItemGroup>

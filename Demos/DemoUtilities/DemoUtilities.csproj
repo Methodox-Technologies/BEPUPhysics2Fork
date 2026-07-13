@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTK" Version="4.9.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\BepuUtilities\BepuUtilities.csproj" />
+    <ProjectReference Include="..\..\..\..\Parcel.NExT\Packages\Divooka.OpenTK\Divooka.OpenTK.csproj" />
+    <ProjectReference Include="..\..\BepuUtilities\BepuUtilities.csproj" />
   </ItemGroup>
 
 </Project>
