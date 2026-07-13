@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Condition="'$(Configuration)'=='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)../Demos/Demos.content&quot; -debug" />
-    <Exec Condition="'$(Configuration)'!='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)../Demos/Demos.content&quot;" />
+    <Exec Condition="'$(Configuration)'=='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)../Demos.DX/Demos.content&quot; -debug" />
+    <Exec Condition="'$(Configuration)'!='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)../Demos.DX/Demos.content&quot;" />
   </Target>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -34,10 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="../Demos/**/*.cs" Exclude="../Demos/obj/**/*.cs" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+    <Compile Include="../Demos.DX/**/*.cs" Exclude="../Demos.DX/obj/**/*.cs" Link="%(RecursiveDir)%(FileName)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="../Demos/Demos.contentarchive" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+    <EmbeddedResource Include="../Demos.DX/Demos.contentarchive" Link="%(RecursiveDir)%(FileName)%(Extension)" />
   </ItemGroup>
 </Project>

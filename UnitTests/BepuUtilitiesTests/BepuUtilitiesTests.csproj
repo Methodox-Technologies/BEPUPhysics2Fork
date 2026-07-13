@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BepuUtilities\BepuUtilities.csproj" />
+    <ProjectReference Include="..\..\BepuUtilities\BepuUtilities.csproj" />
   </ItemGroup>
 
 </Project>
