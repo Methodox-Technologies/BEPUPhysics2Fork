@@ -4,6 +4,7 @@ using BepuPhysics.CollisionDetection;
 using BepuPhysics.CollisionDetection.CollisionTasks;
 using BepuUtilities;
 using BepuUtilities.Memory;
+using System;
 using System.Numerics;
 using static DemoBenchmarks.BenchmarkHelper;
 
