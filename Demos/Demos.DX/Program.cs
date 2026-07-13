@@ -21,7 +21,7 @@ class Program
 
         GameLoop loop = new(window);
         ContentArchive content;
-        using (Stream stream = typeof(Program).Assembly.GetManifestResourceStream("Demos.Demos.contentarchive"))
+        using (Stream stream = typeof(Program).Assembly.GetManifestResourceStream("Demos.GL.Demos.contentarchive"))
         {
             content = ContentArchive.Load(stream);
         }

@@ -64,7 +64,7 @@ namespace DemoRenderer
         {
             looper = new ParallelLooper();
             Surface = surface;
-            using (var stream = GetType().Assembly.GetManifestResourceStream("DemoRenderer.DemoRenderer.shaderarchive"))
+            using (var stream = GetType().Assembly.GetManifestResourceStream("DemoRenderer.DX.DemoRenderer.shaderarchive"))
             {
                 ShaderCache = ShaderCache.Load(stream);
             }

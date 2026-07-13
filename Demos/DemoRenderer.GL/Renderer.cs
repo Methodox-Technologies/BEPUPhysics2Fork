@@ -53,7 +53,7 @@ namespace DemoRenderer
         {
             Surface = surface;
             ContentArchive content;
-            using (var stream = GetType().Assembly.GetManifestResourceStream("DemoRenderer.DemoRenderer.contentarchive"))
+            using (var stream = GetType().Assembly.GetManifestResourceStream("DemoRenderer.GL.DemoRenderer.contentarchive"))
             {
                 content = ContentArchive.Load(stream);
             }
