@@ -17,17 +17,29 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="../DemoRenderer.DX/ParallelLooper.cs" Link="%(RecursiveDir)%(FileName)%(Extension)" />
-    <Compile Include="../DemoRenderer.DX/Constraints/*.cs" Exclude="../DemoRenderer.DX/Constraints/LineRenderer.cs" Link="Constraints/%(RecursiveDir)%(FileName)%(Extension)" />
-    <Compile Include="../DemoRenderer.DX/ShapeDrawing/RayTracedInstances.cs" Link="ShapeDrawing/%(RecursiveDir)%(FileName)%(Extension)" />
-    <Compile Include="../DemoRenderer.DX/UI/GlyphBatch.cs" Link="UI/%(RecursiveDir)%(FileName)%(Extension)" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="DemoRenderer.contentarchive" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="OpenTK" Version="4.9.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Constraints\ContactLineExtractors.tt">
+      <LastGenOutput>ContactLineExtractors.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Constraints\ContactLineExtractors.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ContactLineExtractors.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
