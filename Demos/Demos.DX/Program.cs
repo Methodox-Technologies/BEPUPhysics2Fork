@@ -14,10 +14,7 @@ class Program
         MonitorInfo primaryMonitor = Monitors.GetPrimaryMonitor();
         Box2i videoMode = primaryMonitor.ClientArea;
 
-        Window window = new(
-            "pretty cool multicolored window",
-            new Int2((int)(videoMode.Size.X * 0.75f), (int)(videoMode.Size.Y * 0.75f)),
-            WindowMode.Windowed);
+        Window window = new("pretty cool multicolored window", new Int2((int)(videoMode.Size.X * 0.75f), (int)(videoMode.Size.Y * 0.75f)), WindowMode.Windowed);
 
         GameLoop loop = new(window);
         ContentArchive content;

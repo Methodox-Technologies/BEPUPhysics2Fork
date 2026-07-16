@@ -193,7 +193,7 @@ namespace DemoUtilities
                 }
 
                 long time = Stopwatch.GetTimestamp();
-                var dt = (float)((time - previousTime) / (double)Stopwatch.Frequency);
+                float dt = (float)((time - previousTime) / (double)Stopwatch.Frequency);
                 previousTime = time;
 
                 if (window.WindowState != OpenTK.Windowing.Common.WindowState.Minimized)

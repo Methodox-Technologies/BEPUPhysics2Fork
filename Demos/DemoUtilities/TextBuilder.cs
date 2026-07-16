@@ -55,7 +55,7 @@ namespace DemoUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TextBuilder Append(string text, int start, int count)
         {
-            var newCount = this.count + count;
+            int newCount = this.count + count;
             if (newCount > characters.Length)
                 Array.Resize(ref characters, (int)BitOperations.RoundUpToPowerOf2((uint)newCount));
             int end = start + count;
@@ -90,7 +90,7 @@ namespace DemoUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void AddDigit(ref double value, ref double multiplier)
         {
-            var digit = (int)((value * multiplier) % 10);
+            int digit = (int)((value * multiplier) % 10);
             Add(GetCharForDigit(digit));
             value -= digit / multiplier;
             multiplier *= 10;
@@ -132,9 +132,9 @@ namespace DemoUtilities
                 Add('-');
             }
             value = Math.Round(value, decimalCount);
-            var place = (int)Math.Floor(Math.Log10(value));
-            var multiplier = Math.Pow(0.1, place);
-            var epsilon = Math.Pow(0.1, decimalCount);
+            int place = (int)Math.Floor(Math.Log10(value));
+            double multiplier = Math.Pow(0.1, place);
+            double epsilon = Math.Pow(0.1, decimalCount);
             if (value < epsilon)
             {
                 Add('0');
