@@ -204,7 +204,7 @@ ModelManifest.xml
 .vs/
 
 # Don't ignore content files that happen to use the .obj extension.
-!Demos/Demos.DX/Content/*.obj
+!Demos/Demos.GL/Content/*.obj
 
 # JetBrains Rider
 .idea/

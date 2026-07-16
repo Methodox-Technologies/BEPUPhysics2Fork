@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Condition="'$(Configuration)'=='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)../Demos.DX/Demos.content&quot; -debug" />
-    <Exec Condition="'$(Configuration)'!='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)../Demos.DX/Demos.content&quot;" />
+    <Exec Condition="'$(Configuration)'=='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)Demos.content&quot; -debug" />
+    <Exec Condition="'$(Configuration)'!='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)Demos.content&quot;" />
   </Target>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -29,15 +29,31 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Demos.contentarchive" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../DemoContentLoader/DemoContentLoader.csproj" />
     <ProjectReference Include="../DemoRenderer.GL/DemoRenderer.GL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="../Demos.DX/**/*.cs" Exclude="../Demos.DX/obj/**/*.cs" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+    <None Update="Demos\Characters\CharacterMotionConstraint.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CharacterMotionConstraint.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="../Demos.DX/Demos.contentarchive" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Demos\Characters\CharacterMotionConstraint.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CharacterMotionConstraint.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>
