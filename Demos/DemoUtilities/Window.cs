@@ -184,7 +184,7 @@ namespace DemoUtilities
                     resized = false;
                 }
 
-                window.ProcessEvents(10);
+                window.ProcessEvents(0);
 
                 if (tryToClose || window.IsExiting)
                 {
