@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Condition="'$(Configuration)'=='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)DemoRenderer.content&quot; -debug" />
+    <Exec Condition="'$(Configuration)'!='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)DemoRenderer.content&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="../../BepuPhysics/BepuPhysics.csproj" />
+    <ProjectReference Include="../DemoContentLoader/DemoContentLoader.csproj" />
+    <ProjectReference Include="../DemoUtilities/DemoUtilities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../DemoRenderer.DX/ParallelLooper.cs" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+    <Compile Include="../DemoRenderer.DX/Constraints/*.cs" Exclude="../DemoRenderer.DX/Constraints/LineRenderer.cs" Link="Constraints/%(RecursiveDir)%(FileName)%(Extension)" />
+    <Compile Include="../DemoRenderer.DX/ShapeDrawing/RayTracedInstances.cs" Link="ShapeDrawing/%(RecursiveDir)%(FileName)%(Extension)" />
+    <Compile Include="../DemoRenderer.DX/UI/GlyphBatch.cs" Link="UI/%(RecursiveDir)%(FileName)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="DemoRenderer.contentarchive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTK" Version="4.9.4" />
+  </ItemGroup>
+</Project>

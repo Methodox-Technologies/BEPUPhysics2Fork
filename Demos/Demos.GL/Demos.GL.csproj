@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Configurations>Debug;Release</Configurations>
+    <LangVersion>latest</LangVersion>
+    <!--<TieredCompilation>false</TieredCompilation>-->
+  </PropertyGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Condition="'$(Configuration)'=='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)../Demos.DX/Demos.content&quot; -debug" />
+    <Exec Condition="'$(Configuration)'!='Debug'" Command="dotnet run --project &quot;$(ProjectDir)../DemoContentBuilder&quot; -- &quot;$(ProjectDir)../Demos.DX/Demos.content&quot;" />
+  </Target>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>OPENGL</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../DemoContentLoader/DemoContentLoader.csproj" />
+    <ProjectReference Include="../DemoRenderer.GL/DemoRenderer.GL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../Demos.DX/**/*.cs" Exclude="../Demos.DX/obj/**/*.cs" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="../Demos.DX/Demos.contentarchive" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+  </ItemGroup>
+</Project>
