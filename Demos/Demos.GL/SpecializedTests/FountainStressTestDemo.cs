@@ -11,6 +11,7 @@ using System.Diagnostics;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

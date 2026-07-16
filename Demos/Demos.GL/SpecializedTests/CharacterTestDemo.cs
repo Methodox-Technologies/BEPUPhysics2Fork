@@ -8,6 +8,7 @@ using DemoContentLoader;
 using DemoUtilities;
 using Demos.Demos.Characters;
 using BepuUtilities.Collections;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

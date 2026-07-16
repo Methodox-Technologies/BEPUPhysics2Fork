@@ -13,6 +13,7 @@ using BepuPhysics.Collidables;
 using Demos.Demos.Characters;
 using Helpers = DemoRenderer.Helpers;
 using BepuUtilities;
+using Demos.GL;
 
 namespace Demos.Demos.Sponsors;
 

@@ -6,6 +6,7 @@ using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using Demos;
 using Demos.Demos;
+using Demos.GL;
 using Demos.SpecializedTests;
 using System;
 using System.Collections.Generic;

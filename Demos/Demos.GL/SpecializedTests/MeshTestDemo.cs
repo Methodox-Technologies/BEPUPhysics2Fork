@@ -6,6 +6,7 @@ using System;
 using System.Numerics;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

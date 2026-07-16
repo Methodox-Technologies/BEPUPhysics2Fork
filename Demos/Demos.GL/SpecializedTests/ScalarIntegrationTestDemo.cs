@@ -7,6 +7,7 @@ using DemoRenderer;
 using System;
 using System.Numerics;
 using BepuUtilities.Collections;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

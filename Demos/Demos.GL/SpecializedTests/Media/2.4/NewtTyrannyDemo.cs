@@ -7,6 +7,7 @@ using DemoUtilities;
 using BepuUtilities.Collections;
 using BepuPhysics.Collidables;
 using Demos.Demos.Characters;
+using Demos.GL;
 
 namespace Demos.Demos.Sponsors;
 

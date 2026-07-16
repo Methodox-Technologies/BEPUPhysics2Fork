@@ -2,6 +2,7 @@
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
+using Demos.GL;
 using Demos.UI;
 using DemoUtilities;
 using System;

@@ -9,6 +9,7 @@ using BepuPhysics.Constraints;
 using System.Threading;
 using System.Runtime.InteropServices;
 using BepuUtilities.TaskScheduling;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

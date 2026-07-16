@@ -5,6 +5,7 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

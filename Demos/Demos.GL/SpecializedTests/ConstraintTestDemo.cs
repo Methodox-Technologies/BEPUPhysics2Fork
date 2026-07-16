@@ -7,6 +7,7 @@ using DemoContentLoader;
 using BepuPhysics.Constraints;
 using Demos.Demos;
 using System;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

@@ -7,6 +7,7 @@ using DemoRenderer;
 using DemoRenderer.UI;
 using Demos.Demos;
 using Demos.Demos.Dancers;
+using Demos.GL;
 using DemoUtilities;
 using System;
 using System.Numerics;

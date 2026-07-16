@@ -10,6 +10,7 @@ using DemoRenderer;
 using BepuPhysics;
 using BepuPhysics.Constraints;
 using BepuPhysics.Collidables;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

@@ -9,6 +9,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using BepuPhysics.CollisionDetection.SweepTasks;
 using BepuUtilities.Collections;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

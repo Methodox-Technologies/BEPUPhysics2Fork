@@ -8,6 +8,7 @@ using BepuPhysics.Collidables;
 using System.Diagnostics;
 using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

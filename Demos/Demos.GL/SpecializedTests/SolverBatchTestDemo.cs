@@ -7,6 +7,7 @@ using System;
 using System.Numerics;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
+using Demos.GL;
 
 namespace Demos.Demos;
 

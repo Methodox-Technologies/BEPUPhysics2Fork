@@ -14,6 +14,7 @@ using DemoRenderer.UI;
 using System.Threading;
 using DemoContentLoader;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

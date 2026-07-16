@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
+using Demos.GL;
 
 namespace Demos.Demos;
 

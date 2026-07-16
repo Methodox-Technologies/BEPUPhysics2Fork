@@ -11,6 +11,7 @@ using DemoContentLoader;
 using BepuPhysics.Constraints;
 using BepuPhysics.CollisionDetection;
 using BepuUtilities.Memory;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

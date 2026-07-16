@@ -7,6 +7,7 @@ using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using DemoUtilities;
 using DemoRenderer.UI;
+using Demos.GL;
 
 namespace Demos.Demos;
 

@@ -17,6 +17,7 @@ using System.Threading;
 using Demos.SpecializedTests;
 using DemoContentLoader;
 using Helpers = DemoRenderer.Helpers;
+using Demos.GL;
 
 namespace Demos;
 

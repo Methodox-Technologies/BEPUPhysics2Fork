@@ -6,6 +6,7 @@ using Demos.Demos.Characters;
 using Demos.Demos.Dancers;
 using Demos.Demos.Sponsors;
 using Demos.Demos.Tanks;
+using Demos.GL;
 using System;
 using System.Collections.Generic;
 

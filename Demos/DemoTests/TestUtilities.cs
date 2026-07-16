@@ -2,7 +2,7 @@
 using DemoContentLoader;
 using System.Runtime.CompilerServices;
 using Xunit;
-using Demos;
+using Demos.GL;
 
 namespace DemoTests
 {

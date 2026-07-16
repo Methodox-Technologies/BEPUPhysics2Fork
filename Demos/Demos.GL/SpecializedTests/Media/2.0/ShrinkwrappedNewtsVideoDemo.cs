@@ -5,6 +5,7 @@ using BepuUtilities;
 using BepuUtilities.Collections;
 using DemoContentLoader;
 using DemoRenderer;
+using Demos.GL;
 using DemoUtilities;
 using System;
 using System.Numerics;

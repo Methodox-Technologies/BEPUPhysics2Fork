@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using DemoContentLoader;
+using Demos.GL;
 
 namespace Demos.SpecializedTests;
 

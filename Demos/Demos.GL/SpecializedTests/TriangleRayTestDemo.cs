@@ -4,6 +4,7 @@ using BepuPhysics.Constraints;
 using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
+using Demos.GL;
 using System;
 using System.Diagnostics;
 using System.Numerics;
