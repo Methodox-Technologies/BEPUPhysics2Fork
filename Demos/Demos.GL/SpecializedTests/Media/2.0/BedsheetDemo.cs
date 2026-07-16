@@ -16,7 +16,7 @@ namespace Demos.Demos.Media;
 /// <summary>
 /// Shows a few different examples of cloth-ish constraint lattices.
 /// </summary>
-public class BedsheetDemo : Demo
+public class BedsheetDemo : DemoBase
 {
     delegate bool KinematicDecider(int rowIndex, int columnIndex, int width, int height);
 

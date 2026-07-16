@@ -8,7 +8,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class ConstrainedKinematicIntegrationTest : Demo
+public class ConstrainedKinematicIntegrationTest : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

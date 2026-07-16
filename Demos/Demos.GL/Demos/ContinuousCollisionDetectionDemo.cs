@@ -15,7 +15,7 @@ namespace Demos.Demos;
 /// Shows how different kinds of continuous collision detection work.
 /// See the ContinuousCollisionDetection.md documentation for more information.
 /// </summary>
-public class ContinuousCollisionDetectionDemo : Demo
+public class ContinuousCollisionDetectionDemo : DemoBase
 {
     ConstraintHandle spinnerMotorDefaultA, spinnerMotorDefaultB, spinnerMotorSweepA, spinnerMotorSweepB;
     RolloverInfo rolloverInfo;

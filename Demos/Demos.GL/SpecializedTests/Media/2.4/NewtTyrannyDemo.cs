@@ -11,7 +11,7 @@ using Demos.GL;
 
 namespace Demos.Demos.Sponsors;
 
-public class NewtTyrannyDemo : Demo
+public class NewtTyrannyDemo : DemoBase
 {
     QuickList<SponsorNewt> newts;
 

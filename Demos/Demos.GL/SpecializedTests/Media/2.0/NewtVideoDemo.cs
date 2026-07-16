@@ -14,7 +14,7 @@ using System.Numerics;
 
 namespace Demos.SpecializedTests.Media;
 
-public class NewtVideoDemo : Demo
+public class NewtVideoDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

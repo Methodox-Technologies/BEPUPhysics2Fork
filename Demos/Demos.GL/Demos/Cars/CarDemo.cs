@@ -14,7 +14,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Demos.Demos.Cars;
 
-public class CarDemo : Demo
+public class CarDemo : DemoBase
 {
     SimpleCarController playerController;
 

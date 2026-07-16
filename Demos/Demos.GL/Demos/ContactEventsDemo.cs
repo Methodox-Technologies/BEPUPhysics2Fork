@@ -657,7 +657,7 @@ public struct ContactEventCallbacks : INarrowPhaseCallbacks
 /// <summary>
 /// Shows how to use the contact event handler above to respond to new collisions.
 /// </summary>
-public class ContactEventsDemo : Demo
+public class ContactEventsDemo : DemoBase
 {
     struct ContactResponseParticle
     {

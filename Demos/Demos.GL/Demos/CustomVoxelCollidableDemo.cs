@@ -363,7 +363,7 @@ public unsafe struct CompoundVoxelsContinuations<TCompoundA> : ICompoundPairCont
 
 }
 
-public class CustomVoxelCollidableDemo : Demo
+public class CustomVoxelCollidableDemo : DemoBase
 {
     Voxels voxels;
     StaticHandle handle;

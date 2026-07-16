@@ -14,7 +14,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class TreeFiddlingTestDemo : Demo
+public class TreeFiddlingTestDemo : DemoBase
 {
     struct Pair : IEquatable<Pair>
     {

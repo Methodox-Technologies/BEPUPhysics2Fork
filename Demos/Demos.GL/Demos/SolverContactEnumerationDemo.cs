@@ -20,7 +20,7 @@ namespace Demos.Demos;
 /// <summary>
 /// Shows how to enumerate contact constraints in the solver using contact accessors and <see cref="ISolverContactDataExtractor"/>.
 /// </summary>
-public class SolverContactEnumerationDemo : Demo
+public class SolverContactEnumerationDemo : DemoBase
 {
     /// <summary>
     /// Stores the easy to read data associated with a single contact extracted from solver contact constraints.

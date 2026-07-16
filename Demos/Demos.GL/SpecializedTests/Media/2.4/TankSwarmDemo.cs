@@ -17,7 +17,7 @@ using System.Numerics;
 
 namespace Demos.SpecializedTests.Media;
 
-public class TankSwarmDemo : Demo
+public class TankSwarmDemo : DemoBase
 {
     CollidableProperty<TankDemoBodyProperties> bodyProperties;
     TankController playerController;

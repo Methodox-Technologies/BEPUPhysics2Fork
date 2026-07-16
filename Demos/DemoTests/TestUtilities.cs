@@ -28,13 +28,13 @@ namespace DemoTests
             return constant * (ComputeHash(ref v.X, 13) + ComputeHash(ref v.Y, 31) + ComputeHash(ref v.Z, 53));
         }
 
-        static long ExecuteSimulation<T>(ContentArchive content, int frameCount) where T : Demo, new()
+        static long ExecuteSimulation<T>(ContentArchive content, int frameCount) where T : DemoBase, new()
         {
             var demo = new T();
             demo.Initialize(content, new DemoRenderer.Camera(1, 1, 1, 1));
             for (int i = 0; i < frameCount; ++i)
             {
-                demo.Update(null, null, null, Demo.TimestepDuration);
+                demo.Update(null, null, null, DemoBase.TimestepDuration);
             }
             long hash = 0;
 
@@ -58,7 +58,7 @@ namespace DemoTests
             return hash;
         }
 
-        public static void TestDeterminism<T>(int runCount, int frameCount) where T : Demo, new()
+        public static void TestDeterminism<T>(int runCount, int frameCount) where T : DemoBase, new()
         {
             var archive = GetDemosContentArchive();
             var originalHash = ExecuteSimulation<T>(archive, frameCount);

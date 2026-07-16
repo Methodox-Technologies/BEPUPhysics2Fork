@@ -115,7 +115,7 @@ struct ClothCallbacks : INarrowPhaseCallbacks, Dancers.IDancerNarrowPhaseCallbac
 /// <summary>
 /// Shows a few different examples of cloth-ish constraint lattices.
 /// </summary>
-public class ClothDemo : Demo
+public class ClothDemo : DemoBase
 {
     delegate bool KinematicDecider(int rowIndex, int columnIndex, int width, int height);
 

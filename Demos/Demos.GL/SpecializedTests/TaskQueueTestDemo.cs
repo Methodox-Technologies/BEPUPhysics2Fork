@@ -14,7 +14,7 @@ using Demos.GL;
 namespace Demos.SpecializedTests;
 
 
-public unsafe class TaskQueueTestDemo : Demo
+public unsafe class TaskQueueTestDemo : DemoBase
 {
     static int DoSomeWork(int iterations, int sum)
     {

@@ -14,7 +14,7 @@ using System.Numerics;
 
 namespace Demos.SpecializedTests;
 
-public class BroadPhaseStressTestDemo : Demo
+public class BroadPhaseStressTestDemo : DemoBase
 {
 
     public struct NoNarrowphaseTestingCallbacks : INarrowPhaseCallbacks

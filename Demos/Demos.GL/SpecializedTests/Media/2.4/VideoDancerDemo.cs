@@ -18,7 +18,7 @@ namespace Demos.SpecializedTests.Media;
 /// A bunch of background dancers struggle to keep up with the masterful purple prancer while wearing dresses made of out of balls connected by constraints.
 /// Combined with the <see cref="DemoDancers"/> implementation, this provides a starting point for cosmetic cloth attached to characters. 
 /// </summary>
-public class VideoDancerDemo : Demo
+public class VideoDancerDemo : DemoBase
 {
     //This demo relies on the DemoDancers to manage all the ragdolls and their simulations. 
     //All this demo needs to do is make a dress out of balls and drape it onto them.

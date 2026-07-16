@@ -16,7 +16,7 @@ namespace Demos.Demos;
 /// <summary>
 /// Shows how to use substepping to solve extremely difficult simulations at a not-completely-absurd cost.
 /// </summary>
-public class SubsteppingDemo : Demo
+public class SubsteppingDemo : DemoBase
 {
     RolloverInfo rolloverInfo;
 

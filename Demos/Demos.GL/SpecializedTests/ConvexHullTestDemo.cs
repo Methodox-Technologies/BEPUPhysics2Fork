@@ -21,7 +21,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class ConvexHullTestDemo : Demo
+public class ConvexHullTestDemo : DemoBase
 {
     Vector3[] CreateRandomConvexHullPoints()
     {

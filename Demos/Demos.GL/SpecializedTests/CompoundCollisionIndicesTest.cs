@@ -65,7 +65,7 @@ public struct IndexReportingNarrowPhaseCallbacks : INarrowPhaseCallbacks
 
 }
 
-public class CompoundCollisionIndicesTest : Demo
+public class CompoundCollisionIndicesTest : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

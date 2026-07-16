@@ -82,7 +82,7 @@ struct RopeNarrowPhaseCallbacks : INarrowPhaseCallbacks
 /// <summary>
 /// Shows a bundle of ropes being tangled up by spinning weights.
 /// </summary>
-public class RopeTwistDemo : Demo
+public class RopeTwistDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

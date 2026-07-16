@@ -11,7 +11,7 @@ using System.Numerics;
 
 namespace Demos.SpecializedTests.Media;
 
-public class NewtDemandingSacrificeVideoDemo : Demo
+public class NewtDemandingSacrificeVideoDemo : DemoBase
 {
     CollidableProperty<SubgroupCollisionFilter> filters;
     public override void Initialize(ContentArchive content, Camera camera)

@@ -25,7 +25,7 @@ namespace Demos.Demos;
 /// This implementation focuses more on simplicity than performance.
 /// It's not too slow, but if you run into bottlenecks with tens of thousands of bodies with tracked collisions, be advised that you can make it faster!
 /// </remarks>
-public class CollisionTrackingDemo : Demo
+public class CollisionTrackingDemo : DemoBase
 {
     /// <summary>
     /// Refers to a collidable, or a child within a collidable.

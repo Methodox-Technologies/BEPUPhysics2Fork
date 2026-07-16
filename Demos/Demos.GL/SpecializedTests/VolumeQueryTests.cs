@@ -18,7 +18,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class VolumeQueryTests : Demo
+public class VolumeQueryTests : DemoBase
 {
     public struct NoCollisionCallbacks : INarrowPhaseCallbacks
     {

@@ -19,7 +19,7 @@ namespace Demos.Demos;
 /// <summary>
 /// Shows one way of handling collision queries that require contact-level test accuracy.
 /// </summary>
-public class CollisionQueryDemo : Demo
+public class CollisionQueryDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

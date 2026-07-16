@@ -12,7 +12,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class CharacterTestDemo : Demo
+public class CharacterTestDemo : DemoBase
 {
     CharacterControllers characters;
     public override void Initialize(ContentArchive content, Camera camera)

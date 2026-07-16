@@ -12,7 +12,7 @@ using System.Numerics;
 
 namespace Demos.SpecializedTests.Media;
 
-public class ShrinkwrappedNewtsVideoDemo : Demo
+public class ShrinkwrappedNewtsVideoDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

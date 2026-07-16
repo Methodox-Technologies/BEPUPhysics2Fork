@@ -18,7 +18,7 @@ namespace Demos.SpecializedTests.Media;
 /// <summary>
 /// Subjects a bunch of unfortunate ragdolls to a tumble dry cycle.
 /// </summary>
-public class RagdollTubeVideoDemo : Demo
+public class RagdollTubeVideoDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

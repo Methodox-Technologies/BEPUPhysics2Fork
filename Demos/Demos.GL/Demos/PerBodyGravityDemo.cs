@@ -16,7 +16,7 @@ namespace Demos.Demos;
 /// <summary>
 /// Shows how to use custom velocity integration to implement per-body gravity.
 /// </summary>
-public class PerBodyGravityDemo : Demo
+public class PerBodyGravityDemo : DemoBase
 {
     internal struct PerBodyGravityDemoCallbacks : IPoseIntegratorCallbacks
     {

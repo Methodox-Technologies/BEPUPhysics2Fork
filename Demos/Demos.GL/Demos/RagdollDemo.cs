@@ -151,7 +151,7 @@ struct SubgroupFilteredCallbacks : INarrowPhaseCallbacks
     }
 }
 
-public class RagdollDemo : Demo
+public class RagdollDemo : DemoBase
 {
     static BodyHandle AddBody<TShape>(TShape shape, float mass, in RigidPose pose, Simulation simulation) where TShape : unmanaged, IConvexShape
     {

@@ -26,7 +26,7 @@ namespace Demos.Demos;
 /// For a similar example of friction, see the <see cref="FrictionDemo"/>.
 /// </para>
 /// </remarks>
-public class BouncinessDemo : Demo
+public class BouncinessDemo : DemoBase
 {
     public struct SimpleMaterial
     {

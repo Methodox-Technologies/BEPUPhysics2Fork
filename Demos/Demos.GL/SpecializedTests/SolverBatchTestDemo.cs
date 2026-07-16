@@ -11,7 +11,7 @@ using Demos.GL;
 
 namespace Demos.Demos;
 
-public class SolverBatchTestDemo : Demo
+public class SolverBatchTestDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

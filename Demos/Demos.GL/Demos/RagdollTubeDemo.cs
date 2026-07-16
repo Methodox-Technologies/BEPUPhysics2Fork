@@ -17,7 +17,7 @@ namespace Demos.Demos;
 /// <summary>
 /// Subjects a bunch of unfortunate ragdolls to a tumble dry cycle.
 /// </summary>
-public class RagdollTubeDemo : Demo
+public class RagdollTubeDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

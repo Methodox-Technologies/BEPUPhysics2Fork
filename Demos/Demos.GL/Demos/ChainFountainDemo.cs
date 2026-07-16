@@ -16,7 +16,7 @@ namespace Demos.Demos;
 /// <summary>
 /// A segmented rope chain thing launches itself out of a container. See also: https://en.wikipedia.org/wiki/Chain_fountain
 /// </summary>
-public class ChainFountainDemo : Demo
+public class ChainFountainDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

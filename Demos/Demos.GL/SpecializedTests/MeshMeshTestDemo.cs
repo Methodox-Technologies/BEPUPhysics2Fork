@@ -13,7 +13,7 @@ namespace Demos.SpecializedTests;
 /// <summary>
 /// Shows how to be mean to the physics engine by using meshes as dynamic colliders. Why would someone be so cruel? Be nice to the physics engine, save your CPU some work.
 /// </summary>
-public class MeshMeshTestDemo : Demo
+public class MeshMeshTestDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

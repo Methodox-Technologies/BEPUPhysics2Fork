@@ -15,7 +15,7 @@ namespace Demos.SpecializedTests;
 /// The type of solver currently used does not handle the conservation of momentum over the constraint graph in the expected way.
 /// The bounce gets distributed fuzzily.
 /// </summary>
-public class NewtonsCradleDemo : Demo
+public class NewtonsCradleDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

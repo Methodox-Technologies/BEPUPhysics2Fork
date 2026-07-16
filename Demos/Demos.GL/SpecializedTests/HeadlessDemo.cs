@@ -7,7 +7,7 @@ namespace Demos.SpecializedTests;
 
 static class HeadlessTest
 {
-    public static void Test<T>(ContentArchive content, int runCount, int warmUpFrames, int frameCount) where T : Demo, new()
+    public static void Test<T>(ContentArchive content, int runCount, int warmUpFrames, int frameCount) where T : DemoBase, new()
     {
         var runFrameTimes = new double[runCount];
         ulong maximumMemoryUsedInMainPool = 0;
@@ -20,7 +20,7 @@ static class HeadlessTest
             GC.Collect(3, GCCollectionMode.Forced, true, true);
             for (int i = 0; i < warmUpFrames; ++i)
             {
-                demo.Update(null, null, null, Demo.TimestepDuration);
+                demo.Update(null, null, null, DemoBase.TimestepDuration);
             }
             Console.WriteLine($"Warmup {runIndex} complete");
             double time = 0;
@@ -30,7 +30,7 @@ static class HeadlessTest
             {
                 //CacheBlaster.Blast();
                 var start = Stopwatch.GetTimestamp();
-                demo.Update(null, null, null, Demo.TimestepDuration);
+                demo.Update(null, null, null, DemoBase.TimestepDuration);
                 var end = Stopwatch.GetTimestamp();
                 time += (end - start) / (double)Stopwatch.Frequency;
                 if (i % 32 == 0)

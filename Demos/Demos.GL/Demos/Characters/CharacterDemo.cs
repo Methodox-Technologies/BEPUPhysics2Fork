@@ -15,7 +15,7 @@ namespace Demos.Demos.Characters;
 /// <summary>
 /// Shows one way of using the dynamic character controller in the context of a giant newt and levitating pads.
 /// </summary>
-public class CharacterDemo : Demo
+public class CharacterDemo : DemoBase
 {
     CharacterControllers characters;
     public override void Initialize(ContentArchive content, Camera camera)

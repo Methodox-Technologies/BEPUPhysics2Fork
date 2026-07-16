@@ -13,7 +13,7 @@ using Demos.GL;
 
 namespace Demos.Demos;
 
-public class CompoundDemo : Demo
+public class CompoundDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

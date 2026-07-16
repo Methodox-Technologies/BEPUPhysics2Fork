@@ -9,7 +9,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class ClothLatticeDemo : Demo
+public class ClothLatticeDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

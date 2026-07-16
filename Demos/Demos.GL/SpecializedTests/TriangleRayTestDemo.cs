@@ -11,7 +11,7 @@ using System.Numerics;
 
 namespace Demos.SpecializedTests;
 
-public class TriangleRayTestDemo : Demo
+public class TriangleRayTestDemo : DemoBase
 {
     void GetPointOnTriangle(Random random, in Triangle triangle, in RigidPose pose, out Vector3 pointOnTriangle)
     {

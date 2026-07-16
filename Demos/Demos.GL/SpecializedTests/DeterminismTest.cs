@@ -6,7 +6,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public static class DeterminismTest<T> where T : Demo, new()
+public static class DeterminismTest<T> where T : DemoBase, new()
 {
     static Dictionary<int, MotionState> ExecuteSimulation(ContentArchive content, int frameCount)
     {
@@ -15,7 +15,7 @@ public static class DeterminismTest<T> where T : Demo, new()
         Console.Write("Completed frames: ");
         for (int i = 0; i < frameCount; ++i)
         {
-            demo.Update(null, null, null, Demo.TimestepDuration);
+            demo.Update(null, null, null, DemoBase.TimestepDuration);
             //InvasiveHashDiagnostics.Instance.MoveToNextHashFrame();
             if ((i + 1) % 32 == 0)
                 Console.Write($"{i + 1}, ");

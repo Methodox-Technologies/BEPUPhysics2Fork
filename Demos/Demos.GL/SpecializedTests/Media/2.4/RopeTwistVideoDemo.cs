@@ -14,7 +14,7 @@ namespace Demos.SpecializedTests.Media;
 /// <summary>
 /// Shows a bundle of ropes being tangled up by spinning weights.
 /// </summary>
-public class RopeTwistVideoDemo : Demo
+public class RopeTwistVideoDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

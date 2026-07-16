@@ -15,7 +15,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class TriangleTestDemo : Demo
+public class TriangleTestDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

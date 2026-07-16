@@ -44,7 +44,7 @@ struct GyroscopicIntegratorCallbacks : IPoseIntegratorCallbacks
 
 }
 
-public class GyroscopeTestDemo : Demo
+public class GyroscopeTestDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

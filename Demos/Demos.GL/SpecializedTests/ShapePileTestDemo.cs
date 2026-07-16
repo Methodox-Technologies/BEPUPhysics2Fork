@@ -11,7 +11,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class ShapePileTestDemo : Demo
+public class ShapePileTestDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

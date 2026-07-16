@@ -412,7 +412,7 @@ public class DemoDancers
             targetMotionState.Pose.Position += GetOffsetForDancer(dancerIndex, DancerGridWidth);
         }
         //Update the simulation for the dancer.
-        dancerSimulation.Timestep(Demo.TimestepDuration);
+        dancerSimulation.Timestep(DemoBase.TimestepDuration);
     }
 
     double time;
@@ -420,7 +420,7 @@ public class DemoDancers
     public unsafe void UpdateTargets(Simulation mainSimulation)
     {
         //Using a fixed interval here, matching the time used in the Demo.
-        time += Demo.TimestepDuration;
+        time += DemoBase.TimestepDuration;
         Vector3 hipsTarget = new(0, 0, 3 * (float)Math.Sin(time / 4));
         hipsControl.UpdateTarget(mainSimulation, hipsTarget);
         const float stepDuration = 3.5f;

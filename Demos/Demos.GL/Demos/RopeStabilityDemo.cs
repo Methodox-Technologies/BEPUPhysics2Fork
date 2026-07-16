@@ -15,7 +15,7 @@ namespace Demos.Demos;
 /// <summary>
 /// Shows a few different ways of making a rope with a heavy thing attached not freak out.
 /// </summary>
-public class RopeStabilityDemo : Demo
+public class RopeStabilityDemo : DemoBase
 {
     public static BodyHandle[] BuildRopeBodies(Simulation simulation, Vector3 start, int bodyCount, float bodySize, float bodySpacing, float massPerBody, float inverseInertiaScale)
     {

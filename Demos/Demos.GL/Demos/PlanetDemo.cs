@@ -16,7 +16,7 @@ namespace Demos.Demos;
 /// <summary>
 /// Shows how to use custom velocity integration to implement planetary gravity.
 /// </summary>
-public class PlanetDemo : Demo
+public class PlanetDemo : DemoBase
 {
     struct PlanetaryGravityCallbacks : IPoseIntegratorCallbacks
     {

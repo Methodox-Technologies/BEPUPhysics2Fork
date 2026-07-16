@@ -15,7 +15,7 @@ namespace Demos.SpecializedTests.Media;
 /// <summary>
 /// Version of the colosseum demo for video purposes.
 /// </summary>
-public class ColosseumVideoDemo : Demo
+public class ColosseumVideoDemo : DemoBase
 {
     void CreateRingWall(Vector3 position, Box ringBoxShape, BodyDescription bodyDescription, int height, float radius)
     {
@@ -128,7 +128,7 @@ public class ColosseumVideoDemo : Demo
             }
             if (characterActive)
             {
-                character.UpdateCharacterGoals(input, camera, Demo.TimestepDuration);
+                character.UpdateCharacterGoals(input, camera, DemoBase.TimestepDuration);
             }
 
             if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))

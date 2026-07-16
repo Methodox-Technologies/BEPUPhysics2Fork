@@ -12,7 +12,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class CylinderTestDemo : Demo
+public class CylinderTestDemo : DemoBase
 {
     private static void BruteForceSearch(Vector3 lineOrigin, Vector3 lineDirection, float halfLength, in Cylinder cylinder, out float closestT, out float closestDistanceSquared, out float errorMargin)
     {

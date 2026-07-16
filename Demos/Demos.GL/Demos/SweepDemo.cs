@@ -16,7 +16,7 @@ using System.Runtime.CompilerServices;
 
 namespace Demos.Demos;
 
-public class SweepDemo : Demo
+public class SweepDemo : DemoBase
 {
     struct Filter : ISweepFilter
     {

@@ -11,7 +11,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public unsafe class ScalarIntegrationTestDemo : Demo
+public unsafe class ScalarIntegrationTestDemo : DemoBase
 {
     struct ScalarIntegrationCallbacks : IPoseIntegratorCallbacks
     {

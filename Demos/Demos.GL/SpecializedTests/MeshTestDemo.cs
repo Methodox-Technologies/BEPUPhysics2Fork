@@ -10,7 +10,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class MeshTestDemo : Demo
+public class MeshTestDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

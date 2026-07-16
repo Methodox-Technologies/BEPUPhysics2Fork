@@ -11,7 +11,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class CapsuleTestDemo : Demo
+public class CapsuleTestDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

@@ -13,7 +13,7 @@ namespace Demos.SpecializedTests;
 /// <summary>
 /// Stress tests contact manifold reduction heuristics at a variety of scales using box-box tests.
 /// </summary>
-public class ManifoldReductionScaleTestDemo : Demo
+public class ManifoldReductionScaleTestDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

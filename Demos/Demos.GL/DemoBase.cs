@@ -13,7 +13,7 @@ namespace Demos.GL
     /// A very simple helper class that contains a few properties and functions used across all demos.
     /// It creates a <see cref="BufferPool"/> and <see cref="ThreadDispatcher"/> and provides a basic <see cref="Update"/> implementation that just calls Simulation.Timestep once with a fixed duration.
     /// </summary>
-    public abstract class Demo : IDisposable
+    public abstract class DemoBase : IDisposable
     {
         /// <summary>
         /// Gets the simulation created by the demo's Initialize call.
@@ -32,7 +32,7 @@ namespace Demos.GL
         /// </summary>
         public ThreadDispatcher ThreadDispatcher { get; private set; }
 
-        protected Demo()
+        protected DemoBase()
         {
             BufferPool = new BufferPool();
             //Generally, shoving as many threads as possible into the simulation won't produce the best results on systems with multiple logical cores per physical core.

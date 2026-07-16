@@ -15,7 +15,7 @@ namespace Demos.SpecializedTests.Media;
 /// <summary>
 /// A pyramid of boxes, because you can't have a physics engine without pyramids of boxes.
 /// </summary>
-public class ExcessivePyramidVideoDemo : Demo
+public class ExcessivePyramidVideoDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

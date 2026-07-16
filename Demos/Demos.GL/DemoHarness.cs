@@ -36,7 +36,7 @@ public class DemoHarness : IDisposable
 
     DemoSwapper swapper;
     internal DemoSet demoSet;
-    Demo demo;
+    DemoBase demo;
     internal void TryChangeToDemo(int demoIndex)
     {
         if (demoIndex >= 0 && demoIndex < demoSet.Count)

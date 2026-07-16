@@ -20,7 +20,7 @@ namespace Demos.Demos;
 /// <remarks>
 /// For a similar example of bounciness, see the <see cref="BouncinessDemo"/>.
 /// </remarks>
-public class FrictionDemo : Demo
+public class FrictionDemo : DemoBase
 {
     public struct SimpleMaterial
     {

@@ -14,7 +14,7 @@ namespace Demos.Demos;
 /// <summary>
 /// Repeatedly checks for bugs related to multithreaded awakening and narrow phase flushing.
 /// </summary>
-public class PyramidAwakenerTestDemo : Demo
+public class PyramidAwakenerTestDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

@@ -595,7 +595,7 @@ struct DeformableCallbacks : INarrowPhaseCallbacks, Dancers.IDancerNarrowPhaseCa
 /// <summary>
 /// Some blobs composed of springy welds and volume preservation constraints.
 /// </summary>
-public class NewtDemo : Demo
+public class NewtDemo : DemoBase
 {
     struct Edge : IEqualityComparerRef<Edge>
     {

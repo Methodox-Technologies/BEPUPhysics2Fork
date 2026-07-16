@@ -16,7 +16,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Demos.Demos.Tanks;
 
-public class TankDemo : Demo
+public class TankDemo : DemoBase
 {
     CollidableProperty<TankDemoBodyProperties> bodyProperties;
     TankController playerController;

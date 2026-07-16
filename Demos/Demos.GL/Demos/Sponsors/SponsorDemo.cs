@@ -23,7 +23,7 @@ public struct Sponsor
     public RenderableImage RewardImage;
 }
 
-public class SponsorDemo : Demo
+public class SponsorDemo : DemoBase
 {
     List<string> sponsors0 = new();
     List<Sponsor> sponsors1 = new();

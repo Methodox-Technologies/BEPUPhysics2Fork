@@ -13,7 +13,7 @@ using Demos.GL;
 
 namespace Demos.Demos;
 
-public class CompoundBoundTests : Demo
+public class CompoundBoundTests : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

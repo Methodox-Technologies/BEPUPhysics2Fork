@@ -115,7 +115,7 @@ public struct WrappedMesh : IHomogeneousCompoundShape<Triangle, TriangleWide>
 /// Between them the demo exercises every branch of <see cref="MeshReduction.ReduceManifolds"/> for a non-<see cref="Mesh"/>
 /// IHomogeneousCompoundShape so boundary smoothing can be validated on the type-erased path.
 /// </summary>
-public class CustomMeshSmoothingTestDemo : Demo
+public class CustomMeshSmoothingTestDemo : DemoBase
 {
     (StaticHandle Handle, Mesh InnerMesh)[] wrappedMeshes;
 

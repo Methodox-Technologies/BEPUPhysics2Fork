@@ -18,7 +18,7 @@ namespace Demos.Demos.Dancers;
 /// A bunch of somewhat overweight background dancers struggle to keep up with the masterful purple prancer.
 /// Combined with the <see cref="DemoDancers"/> implementation, this shows an example of how cosmetic deformable physics could be applied to characters.
 /// </summary>
-public class PlumpDancerDemo : Demo
+public class PlumpDancerDemo : DemoBase
 {
     //This demo relies on the DemoDancers to manage all the ragdolls and their simulations. 
     //All this demo needs to do is make the fatsuits.

@@ -15,7 +15,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class FountainStressTestDemo : Demo
+public class FountainStressTestDemo : DemoBase
 {
     QuickQueue<StaticDescription> removedStatics;
     QuickQueue<BodyHandle> dynamicHandles;

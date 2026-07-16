@@ -20,11 +20,11 @@ public class DemoSet
     struct Option
     {
         public string Name;
-        public Func<ContentArchive, Camera, RenderSurface, Demo> Builder;
+        public Func<ContentArchive, Camera, RenderSurface, DemoBase> Builder;
     }
 
     List<Option> options = new();
-    void AddOption<T>() where T : Demo, new()
+    void AddOption<T>() where T : DemoBase, new()
     {
         options.Add(new Option
         {
@@ -82,7 +82,7 @@ public class DemoSet
         return options[index].Name;
     }
 
-    public Demo Build(int index, ContentArchive content, Camera camera, RenderSurface surface)
+    public DemoBase Build(int index, ContentArchive content, Camera camera, RenderSurface surface)
     {
         return options[index].Builder(content, camera, surface);
     }

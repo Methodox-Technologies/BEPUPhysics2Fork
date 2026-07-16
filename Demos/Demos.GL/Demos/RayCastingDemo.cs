@@ -21,7 +21,7 @@ using Demos.GL;
 
 namespace Demos;
 
-public class RayCastingDemo : Demo
+public class RayCastingDemo : DemoBase
 {
     public struct NoCollisionCallbacks : INarrowPhaseCallbacks
     {

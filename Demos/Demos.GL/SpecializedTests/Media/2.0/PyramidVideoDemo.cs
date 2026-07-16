@@ -15,7 +15,7 @@ namespace Demos.Demos.Media;
 /// <summary>
 /// A pyramid of boxes, because you can't have a physics engine without pyramids of boxes.
 /// </summary>
-public class PyramidVideoDemo : Demo
+public class PyramidVideoDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

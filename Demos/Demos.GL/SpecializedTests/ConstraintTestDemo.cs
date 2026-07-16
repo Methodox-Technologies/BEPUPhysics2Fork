@@ -11,7 +11,7 @@ using Demos.GL;
 
 namespace Demos.SpecializedTests;
 
-public class ConstraintTestDemo : Demo
+public class ConstraintTestDemo : DemoBase
 {
     static float GetNextPosition(ref float x)
     {

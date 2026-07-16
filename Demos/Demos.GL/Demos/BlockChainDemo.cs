@@ -19,7 +19,7 @@ namespace Demos.Demos;
 /// on which the accelerated development of #blockchain #solutions on the #cloud to magnify your business impact to imagine what could be achieve more by taking advantage of 
 /// truly #BigData with modern AI analytics augmented by deep-learned #blockchain #technology #to make some boxes act like a multipendulum.
 /// </summary>
-public class BlockChainDemo : Demo
+public class BlockChainDemo : DemoBase
 {
     public override void Initialize(ContentArchive content, Camera camera)
     {

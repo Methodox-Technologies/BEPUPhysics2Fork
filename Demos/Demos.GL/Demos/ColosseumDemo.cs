@@ -15,7 +15,7 @@ namespace Demos.Demos;
 /// <summary>
 /// A colosseum made out of boxes that is sometimes hit by large purple hail.
 /// </summary>
-public class ColosseumDemo : Demo
+public class ColosseumDemo : DemoBase
 {
     public static void CreateRingWall(Simulation simulation, Vector3 position, Box ringBoxShape, BodyDescription bodyDescription, int height, float radius)
     {
