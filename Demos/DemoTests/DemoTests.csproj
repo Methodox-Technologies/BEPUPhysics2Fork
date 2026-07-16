@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -16,7 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Demos.DX\Demos.DX.csproj" />
+    <ProjectReference Include="..\..\BepuPhysics\BepuPhysics.csproj" />
+    <ProjectReference Include="..\..\BepuUtilities\BepuUtilities.csproj" />
+    <ProjectReference Include="..\Demos.GL\Demos.GL.csproj" />
   </ItemGroup>
 
 </Project>
