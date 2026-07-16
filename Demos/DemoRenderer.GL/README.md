@@ -2,6 +2,12 @@
 
 ## TODO
 
+Enhancement:
+
+- [ ] Show FPS
+- [ ] Show active vs sleep physics objects
+- [ ] Change Shift/Ctrl to Q/E for camera control and use Shift/Ctrl for tempoerary movement speed boost
+
 Potentially reusable components (require significant refacotring):
 
 - Glyph rendering
