@@ -2,7 +2,7 @@
 using DemoContentLoader;
 using System.Runtime.CompilerServices;
 using Xunit;
-using Demos.GL;
+using BEPUPhysics.OpenGLDemos;
 
 namespace DemoTests
 {

@@ -18,7 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\BepuPhysics\BepuPhysics.csproj" />
     <ProjectReference Include="..\..\BepuUtilities\BepuUtilities.csproj" />
-    <ProjectReference Include="..\Demos.GL\Demos.GL.csproj" />
+    <ProjectReference Include="..\BEPUPhysics.OpenGLDemos\BEPUPhysics.OpenGLDemos.csproj" />
   </ItemGroup>
 
 </Project>
