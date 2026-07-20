@@ -51,8 +51,7 @@ public class DemoHarness : IDisposable
 
     SimulationTimeSamples timeSamples;
 
-    public DemoHarness(GameLoop loop, ContentArchive content,
-        BEPUDemoControlsBindings? controls = null)
+    public DemoHarness(GameLoop loop, ContentArchive content, BEPUDemoControlsBindings? controls = null)
     {
         this.loop = loop;
         this.content = content;
@@ -145,14 +144,6 @@ public class DemoHarness : IDisposable
     {
         UpdateTimingGraphForMode(timingDisplayMode);
     }
-
-    enum CameraMoveSpeedState
-    {
-        Regular,
-        Slow,
-        Fast
-    }
-    CameraMoveSpeedState cameraSpeedState;
     Int2? grabberCachedMousePosition;
 
     public void Update(float dt)
@@ -167,31 +158,6 @@ public class DemoHarness : IDisposable
             {
                 window.Close();
                 return;
-            }
-
-            if (controls.MoveFaster.WasTriggered(input))
-            {
-                switch (cameraSpeedState)
-                {
-                    case CameraMoveSpeedState.Slow:
-                        cameraSpeedState = CameraMoveSpeedState.Regular;
-                        break;
-                    case CameraMoveSpeedState.Regular:
-                        cameraSpeedState = CameraMoveSpeedState.Fast;
-                        break;
-                }
-            }
-            if (controls.MoveSlower.WasTriggered(input))
-            {
-                switch (cameraSpeedState)
-                {
-                    case CameraMoveSpeedState.Regular:
-                        cameraSpeedState = CameraMoveSpeedState.Slow;
-                        break;
-                    case CameraMoveSpeedState.Fast:
-                        cameraSpeedState = CameraMoveSpeedState.Regular;
-                        break;
-                }
             }
 
             Vector3 cameraOffset = new();
@@ -212,18 +178,13 @@ public class DemoHarness : IDisposable
             if (length > 1e-7f)
             {
                 float cameraMoveSpeed;
-                switch (cameraSpeedState)
-                {
-                    case CameraMoveSpeedState.Slow:
-                        cameraMoveSpeed = controls.CameraSlowMoveSpeed;
-                        break;
-                    case CameraMoveSpeedState.Fast:
-                        cameraMoveSpeed = controls.CameraFastMoveSpeed;
-                        break;
-                    default:
-                        cameraMoveSpeed = controls.CameraMoveSpeed;
-                        break;
-                }
+                if (controls.MoveFaster.IsDown(input))
+                    cameraMoveSpeed = controls.CameraFastMoveSpeed;
+                else if (controls.MoveSlower.IsDown(input))
+                    cameraMoveSpeed = controls.CameraSlowMoveSpeed;
+                else
+                    cameraMoveSpeed = controls.CameraMoveSpeed;
+
                 cameraOffset *= dt * cameraMoveSpeed / length;
             }
             else
@@ -232,17 +193,14 @@ public class DemoHarness : IDisposable
 
             bool grabRotationIsActive = controls.Grab.IsDown(input) && controls.GrabRotate.IsDown(input);
 
-            //Don't turn the camera while rotating a grabbed object.
-            if (!grabRotationIsActive)
+            // Don't turn the camera while rotating a grabbed object.
+            if (!grabRotationIsActive && (input.MouseLocked || controls.Look.IsDown(input)))
             {
-                if (input.MouseLocked)
+                Int2 delta = input.MouseDelta;
+                if (delta.X != 0 || delta.Y != 0)
                 {
-                    Int2 delta = input.MouseDelta;
-                    if (delta.X != 0 || delta.Y != 0)
-                    {
-                        camera.Yaw += delta.X * controls.MouseSensitivity;
-                        camera.Pitch += delta.Y * controls.MouseSensitivity;
-                    }
+                    camera.Yaw += delta.X * controls.MouseSensitivity;
+                    camera.Pitch += delta.Y * controls.MouseSensitivity;
                 }
             }
             if (controls.LockMouse.WasTriggered(input))
@@ -364,6 +322,7 @@ public class DemoHarness : IDisposable
             }
 
             WriteInstantName(nameof(controls.LockMouse), controls.LockMouse);
+            WriteHoldableName(nameof(controls.Look), controls.Look);
             WriteHoldableName(nameof(controls.Grab), controls.Grab);
             WriteHoldableName(nameof(controls.GrabRotate), controls.GrabRotate);
             WriteHoldableName(nameof(controls.MoveForward), controls.MoveForward);
@@ -372,8 +331,8 @@ public class DemoHarness : IDisposable
             WriteHoldableName(nameof(controls.MoveRight), controls.MoveRight);
             WriteHoldableName(nameof(controls.MoveUp), controls.MoveUp);
             WriteHoldableName(nameof(controls.MoveDown), controls.MoveDown);
-            WriteInstantName(nameof(controls.MoveSlower), controls.MoveSlower);
-            WriteInstantName(nameof(controls.MoveFaster), controls.MoveFaster);
+            WriteHoldableName(nameof(controls.MoveSlower), controls.MoveSlower);
+            WriteHoldableName(nameof(controls.MoveFaster), controls.MoveFaster);
             WriteHoldableName(nameof(controls.SlowTimesteps), controls.SlowTimesteps);
             WriteInstantName(nameof(controls.Exit), controls.Exit);
             WriteInstantName(nameof(controls.ShowConstraints), controls.ShowConstraints);

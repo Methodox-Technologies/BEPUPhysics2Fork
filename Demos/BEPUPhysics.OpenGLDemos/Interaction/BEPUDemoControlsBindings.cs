@@ -448,8 +448,9 @@ public struct BEPUDemoControlsBindings
     public HoldableBind MoveRight;
     public HoldableBind MoveUp;
     public HoldableBind MoveDown;
-    public InstantBind MoveSlower;
-    public InstantBind MoveFaster;
+    public HoldableBind MoveSlower;
+    public HoldableBind MoveFaster;
+    public HoldableBind Look;
     public HoldableBind Grab;
     public HoldableBind GrabRotate;
     public float MouseSensitivity;
@@ -477,12 +478,13 @@ public struct BEPUDemoControlsBindings
                 MoveBackward = Keys.S,
                 MoveLeft = Keys.A,
                 MoveRight = Keys.D,
-                MoveDown = Keys.LeftControl,
-                MoveUp = Keys.LeftShift,
-                MoveSlower = (MouseWheelAction.ScrollDown, Keys.Y),
-                MoveFaster = (MouseWheelAction.ScrollUp, Keys.U),
+                MoveDown = Keys.Q,
+                MoveUp = Keys.E,
+                MoveSlower = (Keys.LeftControl, Keys.RightControl),
+                MoveFaster = (Keys.LeftShift, Keys.RightShift),
+                Look = MouseButton.Left,
                 Grab = MouseButton.Right,
-                GrabRotate = Keys.Q,
+                GrabRotate = MouseButton.Left,
                 MouseSensitivity = 1.5e-3f,
                 CameraSlowMoveSpeed = 0.5f,
                 CameraMoveSpeed = 5,
