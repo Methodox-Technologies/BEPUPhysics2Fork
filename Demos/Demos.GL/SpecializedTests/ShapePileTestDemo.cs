@@ -8,6 +8,7 @@ using BepuUtilities.Collections;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.SpecializedTests;
 

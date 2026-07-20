@@ -3,7 +3,7 @@ using BepuUtilities.Memory;
 using Demos.UI;
 using System;
 
-namespace Demos;
+namespace Demos.GL.Types;
 
 public class TimingsRingBuffer : IDataSeries, IDisposable
 {

@@ -8,6 +8,7 @@ using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
 using Demos.GL;
+using Demos.GL.Types;
 using DemoUtilities;
 using System;
 using System.Numerics;

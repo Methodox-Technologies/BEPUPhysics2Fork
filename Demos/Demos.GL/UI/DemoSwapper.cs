@@ -1,4 +1,6 @@
 ﻿using DemoRenderer.UI;
+using Demos.GL.Helpers;
+using Demos.GL.Types;
 using DemoUtilities;
 using System;
 using System.Numerics;

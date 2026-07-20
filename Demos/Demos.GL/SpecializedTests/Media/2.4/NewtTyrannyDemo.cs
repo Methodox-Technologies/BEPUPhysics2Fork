@@ -8,6 +8,7 @@ using BepuUtilities.Collections;
 using BepuPhysics.Collidables;
 using Demos.Demos.Characters;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.Demos.Sponsors;
 

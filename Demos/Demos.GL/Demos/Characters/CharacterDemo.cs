@@ -9,6 +9,7 @@ using DemoContentLoader;
 using DemoUtilities;
 using DemoRenderer.UI;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.Demos.Characters;
 

@@ -10,6 +10,7 @@ using DemoRenderer.UI;
 using DemoUtilities;
 using BepuUtilities.Memory;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.Demos;
 

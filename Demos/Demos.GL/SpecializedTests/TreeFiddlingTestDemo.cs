@@ -11,6 +11,7 @@ using BepuPhysics;
 using BepuPhysics.Constraints;
 using BepuPhysics.Collidables;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.SpecializedTests;
 

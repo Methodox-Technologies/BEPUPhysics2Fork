@@ -8,6 +8,7 @@ using System;
 using System.Numerics;
 using BepuUtilities.Collections;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.SpecializedTests;
 

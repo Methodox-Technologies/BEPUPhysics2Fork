@@ -8,6 +8,7 @@ using DemoUtilities;
 using DemoRenderer.UI;
 using BepuUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using Demos.GL.Interaction;
 
 namespace Demos.Demos.Characters;
 

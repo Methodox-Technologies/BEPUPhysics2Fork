@@ -3,12 +3,14 @@ using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
 using Demos.GL;
+using Demos.GL.Interaction;
+using Demos.GL.Types;
 using Demos.UI;
 using DemoUtilities;
 using System;
 using System.Numerics;
 
-namespace Demos;
+namespace Demos.GL.Helpers;
 
 public class DemoHarness : IDisposable
 {
@@ -428,7 +430,7 @@ public class DemoHarness : IDisposable
 #if DEBUG
     ~DemoHarness()
     {
-        Helpers.CheckForUndisposed(disposed, this);
+        DemoHelpers.CheckForUndisposed(disposed, this);
     }
 #endif
 

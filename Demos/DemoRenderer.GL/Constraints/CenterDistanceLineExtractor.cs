@@ -18,7 +18,7 @@ namespace DemoRenderer.Constraints
             ref var poseB = ref bodies.Sets[setIndex].DynamicsState[bodyIndices[1]].Motion.Pose;
             var targetDistance = GatherScatter.GetFirst(ref prestepBundle.TargetDistance);
             var color = new Vector3(0.2f, 0.2f, 1f) * tint;
-            var packedColor = Helpers.PackColor(color);
+            var packedColor = DemoHelpers.PackColor(color);
             var backgroundColor = new Vector3(0f, 0f, 1f) * tint;
             //Draw a line from A to B. If the true distance is longer than the target distance, draw a red line to complete the gap.
             //If the true distance is shorter than the target distance, draw an overshooting red line.
@@ -26,8 +26,8 @@ namespace DemoRenderer.Constraints
             var length = offset.Length();
             var direction = length < 1e-9f ? new Vector3(1, 0, 0) : offset / length;
             var errorColor = new Vector3(1, 0, 0) * tint;
-            var packedErrorColor = Helpers.PackColor(errorColor);
-            var packedDistanceColor = Helpers.PackColor(color * 0.5f);
+            var packedErrorColor = DemoHelpers.PackColor(errorColor);
+            var packedDistanceColor = DemoHelpers.PackColor(color * 0.5f);
             var targetEnd = poseA.Position + direction * targetDistance;
             if (length < targetDistance)
             {

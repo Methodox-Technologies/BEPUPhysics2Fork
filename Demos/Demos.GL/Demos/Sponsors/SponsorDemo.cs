@@ -11,9 +11,10 @@ using System.Diagnostics;
 using BepuUtilities.Collections;
 using BepuPhysics.Collidables;
 using Demos.Demos.Characters;
-using Helpers = DemoRenderer.Helpers;
+using DemoHelpers = DemoRenderer.DemoHelpers;
 using BepuUtilities;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.Demos.Sponsors;
 
@@ -261,7 +262,7 @@ public class SponsorDemo : DemoBase
         //We'll hardcode the overlord newts. Not going to be a problem, I suspect.
         {
             Vector3 worldTextPosition = Simulation.Statics[overlordNewtHandle].Pose.Position + new Vector3(0, 48, 0);
-            Helpers.GetScreenLocation(worldTextPosition, viewProjection, resolution, out Vector2 screenspacePosition);
+            DemoHelpers.GetScreenLocation(worldTextPosition, viewProjection, resolution, out Vector2 screenspacePosition);
             const float nameHeight = 14;
             var name = sponsors3[0].Name;
             var nameLength = GlyphBatch.MeasureLength(name, font, nameHeight);

@@ -10,7 +10,7 @@ using Demos.GL;
 using System;
 using System.Collections.Generic;
 
-namespace Demos;
+namespace Demos.GL.Types;
 
 /// <summary>
 /// Constructs a demo from the set of available demos on demand.

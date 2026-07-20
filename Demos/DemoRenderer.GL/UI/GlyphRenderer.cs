@@ -49,7 +49,7 @@ namespace DemoRenderer.UI
                 packScaledScale = 65535f;
             Debug.Assert(sourceId >= 0 && sourceId < 65536);
             PackedScaleAndSourceId = (uint)packScaledScale | (uint)(sourceId << 16);
-            PackedColor = Helpers.PackColor(color);
+            PackedColor = DemoHelpers.PackColor(color);
         }
     }
 
@@ -72,7 +72,7 @@ namespace DemoRenderer.UI
         )
         {
             instances = new StructuredBuffer<GlyphInstance>(BufferTarget.ShaderStorageBuffer, maximumGlyphsPerDraw, "Glyph Instances");
-            indices = new IndexBuffer(Helpers.GetQuadIndices(maximumGlyphsPerDraw), "Glyph Indices");
+            indices = new IndexBuffer(DemoHelpers.GetQuadIndices(maximumGlyphsPerDraw), "Glyph Indices");
             vertexConstants = new ConstantsBuffer<VertexConstants>(BufferTarget.UniformBuffer, debugName: "Glyph Renderer Vertex Constants");
         }
 

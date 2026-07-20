@@ -10,6 +10,7 @@ using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
 using Demos.GL;
+using Demos.GL.Helpers;
 using DemoUtilities;
 using System;
 using System.Numerics;

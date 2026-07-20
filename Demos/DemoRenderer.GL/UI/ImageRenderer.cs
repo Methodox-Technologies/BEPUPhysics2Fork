@@ -46,7 +46,7 @@ namespace DemoRenderer.UI
             var scaledSize = size * sizeScale;
             var clampedSize = Vector2.Max(Vector2.Zero, Vector2.Min(new Vector2(65535f), scaledSize));
             PackedSize = (uint)clampedSize.X | (((uint)clampedSize.Y) << 16);           
-            PackedColor = Helpers.PackColor(color);
+            PackedColor = DemoHelpers.PackColor(color);
         }
     }
 
@@ -68,7 +68,7 @@ namespace DemoRenderer.UI
         )
         {
             instances = new StructuredBuffer<ImageInstance>(BufferTarget.ShaderStorageBuffer, maximumGlyphsPerDraw, "Image Instances");
-            indices = new IndexBuffer(Helpers.GetQuadIndices(maximumGlyphsPerDraw), "Image Indices");
+            indices = new IndexBuffer(DemoHelpers.GetQuadIndices(maximumGlyphsPerDraw), "Image Indices");
             vertexConstants = new ConstantsBuffer<VertexConstants>(BufferTarget.UniformBuffer, debugName: "Image Renderer Vertex Constants");
         }
 

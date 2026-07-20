@@ -3,6 +3,7 @@ using DemoUtilities;
 using System;
 using BepuUtilities;
 using BepuUtilities.Memory;
+using Demos.GL.Helpers;
 
 namespace Demos;
 

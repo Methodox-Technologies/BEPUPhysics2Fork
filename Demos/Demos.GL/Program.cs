@@ -1,5 +1,6 @@
 ﻿using BepuUtilities;
 using DemoContentLoader;
+using Demos.GL.Helpers;
 using DemoUtilities;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;

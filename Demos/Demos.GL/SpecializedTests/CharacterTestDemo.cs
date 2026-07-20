@@ -9,6 +9,7 @@ using DemoUtilities;
 using Demos.Demos.Characters;
 using BepuUtilities.Collections;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.SpecializedTests;
 

@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using BepuPhysics.CollisionDetection.SweepTasks;
 using BepuUtilities.Collections;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.SpecializedTests;
 

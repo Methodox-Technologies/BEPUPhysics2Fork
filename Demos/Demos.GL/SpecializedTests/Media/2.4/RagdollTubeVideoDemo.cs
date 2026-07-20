@@ -12,6 +12,7 @@ using BepuPhysics.Constraints;
 using DemoRenderer.UI;
 using BepuUtilities.Memory;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.SpecializedTests.Media;
 

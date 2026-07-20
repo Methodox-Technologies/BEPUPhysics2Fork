@@ -9,6 +9,7 @@ using System.Diagnostics;
 using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.SpecializedTests;
 

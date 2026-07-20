@@ -6,7 +6,7 @@ using BepuUtilities;
 
 namespace DemoRenderer
 {
-    public static class Helpers
+    public static class DemoHelpers
     {
 
         /// <summary>

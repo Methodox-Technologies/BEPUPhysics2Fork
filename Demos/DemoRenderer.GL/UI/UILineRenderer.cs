@@ -36,7 +36,7 @@ namespace DemoRenderer.UI
             PackedStart = (uint)(start.X * screenToPackedScale.X) | ((uint)(65535f - start.Y * screenToPackedScale.Y) << 16);
             PackedEnd = (uint)(end.X * screenToPackedScale.X) | ((uint)(65535f - end.Y * screenToPackedScale.Y) << 16);
             Radius = radius;
-            PackedColor = Helpers.PackColor(color);
+            PackedColor = DemoHelpers.PackColor(color);
         }
     }
 
@@ -59,7 +59,7 @@ namespace DemoRenderer.UI
         )
         {
             instances = new StructuredBuffer<UILineInstance>(BufferTarget.ShaderStorageBuffer, maximumLinesPerDraw, "UI Line Instances");
-            indices = new IndexBuffer(Helpers.GetQuadIndices(maximumLinesPerDraw), "UI Line Indices");
+            indices = new IndexBuffer(DemoHelpers.GetQuadIndices(maximumLinesPerDraw), "UI Line Indices");
             vertexConstants = new ConstantsBuffer<VertexConstants>(BufferTarget.UniformBuffer, debugName: "UI Line Renderer Vertex Constants");
         }
 

@@ -8,6 +8,7 @@ using DemoRenderer;
 using DemoRenderer.Constraints;
 using DemoRenderer.UI;
 using Demos.GL;
+using Demos.GL.Types;
 using DemoUtilities;
 using System;
 using System.Numerics;
@@ -243,7 +244,7 @@ public class BroadPhaseStressTestDemo : DemoBase
         Vector3 nodeColor = new(0.8f, 0.2f, 0.2f);
         renderer.Shapes.AddShape(new Sphere(0.3f), null, nodePosition, nodeColor);
 
-        if (DemoRenderer.Helpers.GetScreenLocation(nodePosition, camera.ViewProjection, renderer.Surface.Resolution, out Vector2 location))
+        if (DemoRenderer.DemoHelpers.GetScreenLocation(nodePosition, camera.ViewProjection, renderer.Surface.Resolution, out Vector2 location))
         {
             renderer.TextBatcher.Write(text.Clear().Append(nodeIndex), location, 10, new Vector3(1), font);
         }
@@ -268,7 +269,7 @@ public class BroadPhaseStressTestDemo : DemoBase
             // Leaf node
             renderer.Lines.Allocate() = new LineInstance(nodePosition, childAPosition, new Vector3(0.2f, 0.8f, 0.2f), default);
             renderer.Shapes.AddShape(new Sphere(0.15f), null, childAPosition, new Vector3(0.2f, 1f, 0.2f));
-            if (DemoRenderer.Helpers.GetScreenLocation(childAPosition, camera.ViewProjection, renderer.Surface.Resolution, out Vector2 childLocation))
+            if (DemoRenderer.DemoHelpers.GetScreenLocation(childAPosition, camera.ViewProjection, renderer.Surface.Resolution, out Vector2 childLocation))
                 renderer.TextBatcher.Write(text.Clear().Append(Tree.Encode(node.A.Index)), childLocation, 10, new Vector3(1), font);
         }
 
@@ -285,7 +286,7 @@ public class BroadPhaseStressTestDemo : DemoBase
             // Leaf node
             renderer.Lines.Allocate() = new LineInstance(nodePosition, childBPosition, new Vector3(0.2f, 0.8f, 0.2f), default);
             renderer.Shapes.AddShape(new Sphere(0.15f), null, childBPosition, new Vector3(0.2f, 1f, 0.2f));
-            if (DemoRenderer.Helpers.GetScreenLocation(childBPosition, camera.ViewProjection, renderer.Surface.Resolution, out Vector2 childLocation))
+            if (DemoRenderer.DemoHelpers.GetScreenLocation(childBPosition, camera.ViewProjection, renderer.Surface.Resolution, out Vector2 childLocation))
                 renderer.TextBatcher.Write(text.Clear().Append(Tree.Encode(node.B.Index)), childLocation, 10, new Vector3(1), font);
         }
     }

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace Demos;
+namespace Demos.GL.Interaction;
 
 
 /// <summary>

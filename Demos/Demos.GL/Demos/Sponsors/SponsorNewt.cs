@@ -7,7 +7,7 @@ using DemoUtilities;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Helpers = DemoRenderer.Helpers;
+using DemoHelpers = DemoRenderer.DemoHelpers;
 
 namespace Demos.Demos.Sponsors;
 
@@ -97,7 +97,7 @@ public struct SponsorNewt
     {
         var name = sponsors[SponsorIndex].Name;
         BodyReference body = simulation.Bodies[BodyHandle];
-        Helpers.GetScreenLocation(body.Pose.Position + new Vector3(0, 8, 0), viewProjection, resolution, out Vector2 screenspacePosition);
+        DemoHelpers.GetScreenLocation(body.Pose.Position + new Vector3(0, 8, 0), viewProjection, resolution, out Vector2 screenspacePosition);
         const float nameHeight = 14;
         var nameLength = GlyphBatch.MeasureLength(name, font, nameHeight);
         screenspacePosition.X -= nameLength * 0.5f;

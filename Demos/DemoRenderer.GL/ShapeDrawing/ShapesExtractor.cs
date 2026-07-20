@@ -92,8 +92,8 @@ namespace DemoRenderer.ShapeDrawing
                         SphereInstance instance;
                         instance.Position = pose.Position;
                         instance.Radius = Unsafe.AsRef<Sphere>(shapeData).Radius;
-                        Helpers.PackOrientation(pose.Orientation, out instance.PackedOrientation);
-                        instance.PackedColor = Helpers.PackColor(color);
+                        DemoHelpers.PackOrientation(pose.Orientation, out instance.PackedOrientation);
+                        instance.PackedColor = DemoHelpers.PackColor(color);
                         shapeCache.Spheres.Add(instance, pool);
                     }
                     break;
@@ -104,8 +104,8 @@ namespace DemoRenderer.ShapeDrawing
                         ref var capsule = ref Unsafe.AsRef<Capsule>(shapeData);
                         instance.Radius = capsule.Radius;
                         instance.HalfLength = capsule.HalfLength;
-                        instance.PackedOrientation = Helpers.PackOrientationU64(pose.Orientation);
-                        instance.PackedColor = Helpers.PackColor(color);
+                        instance.PackedOrientation = DemoHelpers.PackOrientationU64(pose.Orientation);
+                        instance.PackedColor = DemoHelpers.PackColor(color);
                         shapeCache.Capsules.Add(instance, pool);
                     }
                     break;
@@ -114,7 +114,7 @@ namespace DemoRenderer.ShapeDrawing
                         BoxInstance instance;
                         instance.Position = pose.Position;
                         ref var box = ref Unsafe.AsRef<Box>(shapeData);
-                        instance.PackedColor = Helpers.PackColor(color);
+                        instance.PackedColor = DemoHelpers.PackColor(color);
                         instance.Orientation = pose.Orientation;
                         instance.HalfWidth = box.HalfWidth;
                         instance.HalfHeight = box.HalfHeight;
@@ -127,10 +127,10 @@ namespace DemoRenderer.ShapeDrawing
                         ref var triangle = ref Unsafe.AsRef<Triangle>(shapeData);
                         TriangleInstance instance;
                         instance.A = triangle.A;
-                        instance.PackedColor = Helpers.PackColor(color);
+                        instance.PackedColor = DemoHelpers.PackColor(color);
                         instance.B = triangle.B;
                         instance.C = triangle.C;
-                        instance.PackedOrientation = Helpers.PackOrientationU64(pose.Orientation);
+                        instance.PackedOrientation = DemoHelpers.PackOrientationU64(pose.Orientation);
                         instance.X = pose.Position.X;
                         instance.Y = pose.Position.Y;
                         instance.Z = pose.Position.Z;
@@ -144,8 +144,8 @@ namespace DemoRenderer.ShapeDrawing
                         ref var cylinder = ref Unsafe.AsRef<Cylinder>(shapeData);
                         instance.Radius = cylinder.Radius;
                         instance.HalfLength = cylinder.HalfLength;
-                        instance.PackedOrientation = Helpers.PackOrientationU64(pose.Orientation);
-                        instance.PackedColor = Helpers.PackColor(color);
+                        instance.PackedOrientation = DemoHelpers.PackOrientationU64(pose.Orientation);
+                        instance.PackedColor = DemoHelpers.PackColor(color);
                         shapeCache.Cylinders.Add(instance, pool);
                     }
                     break;
@@ -154,8 +154,8 @@ namespace DemoRenderer.ShapeDrawing
                         ref var hull = ref Unsafe.AsRef<ConvexHull>(shapeData);
                         MeshInstance instance;
                         instance.Position = pose.Position;
-                        instance.PackedColor = Helpers.PackColor(color);
-                        instance.PackedOrientation = Helpers.PackOrientationU64(pose.Orientation);
+                        instance.PackedColor = DemoHelpers.PackColor(color);
+                        instance.PackedOrientation = DemoHelpers.PackOrientationU64(pose.Orientation);
                         instance.Scale = Vector3.One;
                         //Memory can be reused, so we slightly reduce the probability of a bad reuse by taking the first 64 bits of data into the hash.
                         var id = (ulong)hull.Points.Memory ^ (ulong)hull.Points.Length ^ (*(ulong*)hull.Points.Memory);
@@ -217,8 +217,8 @@ namespace DemoRenderer.ShapeDrawing
                         ref var mesh = ref Unsafe.AsRef<Mesh>(shapeData);
                         MeshInstance instance;
                         instance.Position = pose.Position;
-                        instance.PackedColor = Helpers.PackColor(color);
-                        instance.PackedOrientation = Helpers.PackOrientationU64(pose.Orientation);
+                        instance.PackedColor = DemoHelpers.PackColor(color);
+                        instance.PackedOrientation = DemoHelpers.PackOrientationU64(pose.Orientation);
                         instance.Scale = mesh.Scale;
                         //Memory can be reused, so we slightly reduce the probability of a bad reuse by taking the first 64 bits of data into the hash.
                         var id = (ulong)mesh.Triangles.Memory ^ (ulong)mesh.Triangles.Length ^ (*(ulong*)mesh.Triangles.Memory); ;
@@ -291,7 +291,7 @@ namespace DemoRenderer.ShapeDrawing
             //The handle is hashed to get variation.
             ref var activity = ref set.Activity[indexInSet];
             Vector3 color;
-            Helpers.UnpackColor((uint)HashHelper.Rehash(handle.Value), out Vector3 colorVariation);
+            DemoHelpers.UnpackColor((uint)HashHelper.Rehash(handle.Value), out Vector3 colorVariation);
             ref var state = ref set.DynamicsState[indexInSet];
             if (Bodies.IsKinematic(state.Inertia.Local))
             {
@@ -328,7 +328,7 @@ namespace DemoRenderer.ShapeDrawing
         {
             var handle = statics.IndexToHandle[index];
             //Statics don't have any activity states. Just some simple variation on a central static color.
-            Helpers.UnpackColor((uint)HashHelper.Rehash(handle.Value), out Vector3 colorVariation);
+            DemoHelpers.UnpackColor((uint)HashHelper.Rehash(handle.Value), out Vector3 colorVariation);
             var staticBase = new Vector3(0.1f, 0.057f, 0.014f);
             var staticVariationSpan = new Vector3(0.07f, 0.07f, 0.03f);
             var color = staticBase + staticVariationSpan * colorVariation;

@@ -20,7 +20,7 @@ namespace DemoRenderer.Constraints
             QuaternionEx.Transform(localOffsetB, poseB.Orientation, out var worldOffsetB);
             var anchor = poseB.Position + worldOffsetB;
             var color = new Vector3(0.2f, 0.2f, 1f) * tint;
-            var packedColor = Helpers.PackColor(color);
+            var packedColor = DemoHelpers.PackColor(color);
             var backgroundColor = new Vector3(0f, 0f, 1f) * tint;
             lines.AllocateUnsafely() = new LineInstance(poseA.Position, anchor, packedColor, 0);
             lines.AllocateUnsafely() = new LineInstance(poseB.Position, anchor, packedColor, 0);

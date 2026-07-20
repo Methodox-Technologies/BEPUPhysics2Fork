@@ -21,7 +21,7 @@ namespace DemoRenderer.Constraints
             QuaternionEx.Transform(localSwivelAxisA, poseA.Orientation, out var swivelAxis);
             QuaternionEx.Transform(localHingeAxisB, poseB.Orientation, out var hingeAxis);
             var color = new Vector3(0.2f, 0.7f, 1f) * tint;
-            var packedColor = Helpers.PackColor(color);
+            var packedColor = DemoHelpers.PackColor(color);
             var backgroundColor = new Vector3(0f, 0f, 1f) * tint;
             lines.AllocateUnsafely() = new LineInstance(poseA.Position, poseA.Position + swivelAxis, packedColor, 0);
             lines.AllocateUnsafely() = new LineInstance(poseB.Position, poseB.Position + hingeAxis, packedColor, 0);

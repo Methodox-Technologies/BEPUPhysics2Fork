@@ -30,8 +30,8 @@ namespace DemoRenderer.Constraints
             var planeOffset = Vector3.Dot(anchorB - anchorA, worldPlaneNormal);
             var closestPointOnPlane = anchorB - planeOffset * worldPlaneNormal;
 
-            var packedColor = Helpers.PackColor(new Vector3(0.2f, 0.2f, 1f) * tint);
-            var packedBasisColor = Helpers.PackColor(new Vector3(0.2f, 0.6f, 1f) * tint);
+            var packedColor = DemoHelpers.PackColor(new Vector3(0.2f, 0.2f, 1f) * tint);
+            var packedBasisColor = DemoHelpers.PackColor(new Vector3(0.2f, 0.6f, 1f) * tint);
             var backgroundColor = new Vector3(0f, 0f, 1f) * tint;
             lines.AllocateUnsafely() = new LineInstance(poseA.Position, anchorA, packedColor, 0);
             ContactLines.BuildOrthonormalBasis(localPlaneNormal, out var localTX, out var localTY);
@@ -48,7 +48,7 @@ namespace DemoRenderer.Constraints
                 worldPlaneNormal = -worldPlaneNormal;
             }
             var targetPoint = closestPointOnPlane + worldPlaneNormal * targetOffset;
-            var packedErrorColor = Helpers.PackColor(new Vector3(1, 0, 0) * tint);
+            var packedErrorColor = DemoHelpers.PackColor(new Vector3(1, 0, 0) * tint);
             if (planeOffset > targetOffset)
             {
                 lines.AllocateUnsafely() = new LineInstance(closestPointOnPlane, targetPoint, packedColor, 0);

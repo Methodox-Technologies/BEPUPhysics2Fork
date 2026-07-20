@@ -8,7 +8,7 @@ using DemoRenderer.Constraints;
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Helpers = DemoRenderer.Helpers;
+using DemoHelpers = DemoRenderer.DemoHelpers;
 
 namespace Demos.SpecializedTests;
 
@@ -16,8 +16,8 @@ public static class SimplexVisualizer
 {
     public static void Draw(Renderer renderer, Buffer<Vector3> simplex, Vector3 position, Vector3 lineColor, Vector3 backgroundColor)
     {
-        var packedLineColor = Helpers.PackColor(lineColor);
-        var packedBackgroundColor = Helpers.PackColor(backgroundColor);
+        var packedLineColor = DemoHelpers.PackColor(lineColor);
+        var packedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
         if (simplex.Length == 1)
         {
             renderer.Lines.Allocate() = new LineInstance(simplex[0], simplex[0], packedLineColor, packedBackgroundColor);
@@ -92,8 +92,8 @@ public static class MinkowskiShapeVisualizer
         TSupportFinderB supportFinderB = default(TSupportFinderB);
         var inverseSampleCount = 1f / sampleCount;
         pool.Take<LineInstance>(sampleCount + 3, out Buffer<LineInstance> lines);
-        var packedLineColor = Helpers.PackColor(lineColor);
-        var packedBackgroundColor = Helpers.PackColor(backgroundColor);
+        var packedLineColor = DemoHelpers.PackColor(lineColor);
+        var packedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
         for (int i = 0; i < sampleCount; ++i)
         {
             var index = i + 0.5f;
@@ -107,7 +107,7 @@ public static class MinkowskiShapeVisualizer
             Vector3Wide.ReadSlot(ref supportWide, 0, out Vector3 support);
             lines[i] = new LineInstance(basePosition + support, basePosition + support - sampleDirection * lineLength, packedLineColor, packedBackgroundColor);
         }
-        var packedOriginColor = Helpers.PackColor(originColor);
+        var packedOriginColor = DemoHelpers.PackColor(originColor);
         lines[sampleCount] = new LineInstance(basePosition - new Vector3(originLength, 0, 0), basePosition + new Vector3(originLength, 0, 0), packedOriginColor, packedBackgroundColor);
         lines[sampleCount + 1] = new LineInstance(basePosition - new Vector3(0, originLength, 0), basePosition + new Vector3(0, originLength, 0), packedOriginColor, packedBackgroundColor);
         lines[sampleCount + 2] = new LineInstance(basePosition - new Vector3(0, 0, originLength), basePosition + new Vector3(0, 0, originLength), packedOriginColor, packedBackgroundColor);

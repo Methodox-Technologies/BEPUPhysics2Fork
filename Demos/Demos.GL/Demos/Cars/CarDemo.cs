@@ -9,6 +9,8 @@ using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
 using Demos.GL;
+using Demos.GL.Helpers;
+using Demos.GL.Interaction;
 using DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 

@@ -1,5 +1,6 @@
 ﻿using BepuPhysics;
 using BepuUtilities.Memory;
+using Demos.GL.Types;
 
 namespace Demos;
 

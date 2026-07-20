@@ -16,8 +16,10 @@ using DemoRenderer.Constraints;
 using System.Threading;
 using Demos.SpecializedTests;
 using DemoContentLoader;
-using Helpers = DemoRenderer.Helpers;
+using DemoHelpers = DemoRenderer.DemoHelpers;
 using Demos.GL;
+using Demos.GL.Helpers;
+using Demos.GL.Types;
 
 namespace Demos;
 
@@ -474,10 +476,10 @@ public class RayCastingDemo : DemoBase
 
     void DrawRays(ref Buffer<RayHit> results, Renderer renderer, Vector3 foregroundMissColor, Vector3 foregroundHitColor, Vector3 foregroundNormalColor, Vector3 backgroundColor)
     {
-        var packedForegroundMiss = Helpers.PackColor(foregroundMissColor);
-        var packedForegroundHit = Helpers.PackColor(foregroundHitColor);
-        var packedForegroundNormal = Helpers.PackColor(foregroundNormalColor);
-        var packedBackground = Helpers.PackColor(backgroundColor);
+        var packedForegroundMiss = DemoHelpers.PackColor(foregroundMissColor);
+        var packedForegroundHit = DemoHelpers.PackColor(foregroundHitColor);
+        var packedForegroundNormal = DemoHelpers.PackColor(foregroundNormalColor);
+        var packedBackground = DemoHelpers.PackColor(backgroundColor);
         for (int i = 0; i < testRays.Count; ++i)
         {
             ref RayHit result = ref results[i];
@@ -490,7 +492,7 @@ public class RayCastingDemo : DemoBase
                 {
                     diffuseLight = -0.5f * diffuseLight;
                 }
-                renderer.Lines.Allocate() = new LineInstance(ray.Origin, end, Helpers.PackColor(foregroundHitColor * (0.2f + 0.8f * diffuseLight)), packedBackground);
+                renderer.Lines.Allocate() = new LineInstance(ray.Origin, end, DemoHelpers.PackColor(foregroundHitColor * (0.2f + 0.8f * diffuseLight)), packedBackground);
                 renderer.Lines.Allocate() = new LineInstance(end, end + result.Normal, packedForegroundNormal, packedBackground);
             }
             else
@@ -527,9 +529,9 @@ public class RayCastingDemo : DemoBase
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var batchedPackedColor = Helpers.PackColor(new Vector3(0.75f, 0.75f, 0));
-        var batchedPackedNormalColor = Helpers.PackColor(new Vector3(1f, 1f, 0));
-        var batchedPackedBackgroundColor = Helpers.PackColor(new Vector3());
+        var batchedPackedColor = DemoHelpers.PackColor(new Vector3(0.75f, 0.75f, 0));
+        var batchedPackedNormalColor = DemoHelpers.PackColor(new Vector3(1f, 1f, 0));
+        var batchedPackedBackgroundColor = DemoHelpers.PackColor(new Vector3());
 
         DrawRays(ref algorithms[0].Results, renderer, new Vector3(0.25f, 0, 0), new Vector3(0, 1, 0), new Vector3(1, 1, 0), new Vector3());
 

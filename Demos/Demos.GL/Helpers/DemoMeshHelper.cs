@@ -6,7 +6,7 @@ using DemoContentLoader;
 using BepuUtilities;
 using BepuPhysics.Trees;
 
-namespace Demos;
+namespace Demos.GL.Helpers;
 
 public static class DemoMeshHelper
 {

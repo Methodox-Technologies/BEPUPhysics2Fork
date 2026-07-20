@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Demos;
+namespace Demos.GL.Types;
 
 public class RolloverInfo
 {
@@ -39,7 +39,7 @@ public class RolloverInfo
         for (int i = 0; i < descriptions.Count; ++i)
         {
             Vector3 textPosition = descriptions[i].Position;
-            Helpers.GetScreenLocation(textPosition, camera.ViewProjection, resolution, out screenLocations[i]);
+            DemoHelpers.GetScreenLocation(textPosition, camera.ViewProjection, resolution, out screenLocations[i]);
             Int2 mouse = input.MousePosition;
             var distance = Vector2.Distance(new Vector2(mouse.X, mouse.Y), screenLocations[i]);
             if (distance < closestDistance)

@@ -10,7 +10,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Demos;
+namespace Demos.GL.Interaction;
 
 struct Grabber
 {

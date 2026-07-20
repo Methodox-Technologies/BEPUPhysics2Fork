@@ -9,6 +9,7 @@ using BepuPhysics.CollisionDetection.CollisionTasks;
 using System.Diagnostics;
 using BepuPhysics.Constraints;
 using Demos.GL;
+using Demos.GL.Helpers;
 
 namespace Demos.SpecializedTests;
 
