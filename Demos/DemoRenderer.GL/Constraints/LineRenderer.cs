@@ -27,9 +27,9 @@ namespace DemoRenderer.Constraints
         public LineInstance(in Vector3 start, in Vector3 end, in Vector3 color, in Vector3 backgroundColor)
         {
             Start = start;
-            PackedBackgroundColor = Helpers.PackColor(backgroundColor);
+            PackedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
             End = end;
-            PackedColor = Helpers.PackColor(color);
+            PackedColor = DemoHelpers.PackColor(color);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LineInstance(in Vector3 start, in Vector3 end, uint packedColor, uint packedBackgroundColor)
@@ -70,7 +70,7 @@ namespace DemoRenderer.Constraints
         )
         {
             instances = new StructuredBuffer<LineInstance>(BufferTarget.ShaderStorageBuffer, maximumInstancesPerDraw, "Line Instances");
-            indices = new IndexBuffer(Helpers.GetBoxIndices(maximumInstancesPerDraw), "Line Quad Indices");
+            indices = new IndexBuffer(DemoHelpers.GetBoxIndices(maximumInstancesPerDraw), "Line Quad Indices");
 
             vertexConstants = new ConstantsBuffer<VertexConstants>(BufferTarget.UniformBuffer, debugName: "Line Renderer Vertex Constants");
         }

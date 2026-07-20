@@ -23,13 +23,13 @@ namespace DemoRenderer.Constraints
             var endA = poseA.Position + worldOffsetA;
             var endB = poseB.Position + worldOffsetB;
             var color = new Vector3(0.2f, 0.2f, 1f) * tint;
-            var packedColor = Helpers.PackColor(color);
+            var packedColor = DemoHelpers.PackColor(color);
             var backgroundColor = new Vector3(0f, 0f, 1f) * tint;
             lines.AllocateUnsafely() = new LineInstance(poseA.Position, endA, packedColor, 0);
             lines.AllocateUnsafely() = new LineInstance(poseB.Position, endB, packedColor, 0);
 
             var errorColor = new Vector3(1, 0, 0) * tint;
-            var packedErrorColor = Helpers.PackColor(errorColor);
+            var packedErrorColor = DemoHelpers.PackColor(errorColor);
             lines.AllocateUnsafely() = new LineInstance(endA, endB, packedErrorColor, 0);
         }
     }

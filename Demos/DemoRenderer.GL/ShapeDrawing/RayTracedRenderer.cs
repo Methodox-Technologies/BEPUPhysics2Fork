@@ -57,7 +57,7 @@ namespace DemoRenderer.ShapeDrawing
         {
             var instanceTypeName = typeof(TInstance).Name;
             instances = new StructuredBuffer<TInstance>(BufferTarget.ShaderStorageBuffer, maximumInstancesPerDraw, $"{instanceTypeName} Instances");
-            indices = new IndexBuffer(Helpers.GetBoxIndices(maximumInstancesPerDraw), $"{instanceTypeName} AABB Indices");
+            indices = new IndexBuffer(DemoHelpers.GetBoxIndices(maximumInstancesPerDraw), $"{instanceTypeName} AABB Indices");
             vertexConstants = new ConstantsBuffer<RayTracedVertexConstants>(BufferTarget.UniformBuffer, debugName: $"{instanceTypeName} Renderer Vertex Constants");
             pixelConstants = new ConstantsBuffer<RayTracedPixelConstants>(BufferTarget.UniformBuffer, debugName: $"{instanceTypeName} Renderer Pixel Constants");
         }

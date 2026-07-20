@@ -28,11 +28,11 @@ namespace DemoRenderer.Constraints
             var closestPointOnLine = Vector3.Dot(anchorB - anchorA, worldDirection) * worldDirection + anchorA;
 
             var color = new Vector3(0.2f, 0.2f, 1f) * tint;
-            var packedColor = Helpers.PackColor(color);
+            var packedColor = DemoHelpers.PackColor(color);
             var backgroundColor = new Vector3(0f, 0f, 1f) * tint;
             lines.AllocateUnsafely() = new LineInstance(poseA.Position, anchorA, packedColor, 0);
             lines.AllocateUnsafely() = new LineInstance(anchorA, closestPointOnLine, packedColor, 0);
-            lines.AllocateUnsafely() = new LineInstance(closestPointOnLine, anchorB, Helpers.PackColor(new Vector3(1, 0, 0) * tint), 0);
+            lines.AllocateUnsafely() = new LineInstance(closestPointOnLine, anchorB, DemoHelpers.PackColor(new Vector3(1, 0, 0) * tint), 0);
             lines.AllocateUnsafely() = new LineInstance(anchorB, poseB.Position, packedColor, 0);
         }
     }

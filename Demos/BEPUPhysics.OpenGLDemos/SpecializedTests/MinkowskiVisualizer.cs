@@ -1,0 +1,124 @@
+﻿using BepuPhysics;
+using BepuPhysics.Collidables;
+using BepuPhysics.CollisionDetection;
+using BepuUtilities;
+using BepuUtilities.Memory;
+using DemoRenderer;
+using DemoRenderer.Constraints;
+using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using DemoHelpers = DemoRenderer.DemoHelpers;
+
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
+
+public static class SimplexVisualizer
+{
+    public static void Draw(Renderer renderer, Buffer<Vector3> simplex, Vector3 position, Vector3 lineColor, Vector3 backgroundColor)
+    {
+        uint packedLineColor = DemoHelpers.PackColor(lineColor);
+        uint packedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
+        if (simplex.Length == 1)
+        {
+            renderer.Lines.Allocate() = new LineInstance(simplex[0], simplex[0], packedLineColor, packedBackgroundColor);
+        }
+        else
+        {
+            for (int i = 0; i < simplex.Length; ++i)
+            {
+                for (int j = i + 1; j < simplex.Length; ++j)
+                {
+                    renderer.Lines.Allocate() = new LineInstance(simplex[i] + position, simplex[j] + position, packedLineColor, packedBackgroundColor);
+                }
+            }
+
+        }
+    }
+}
+
+public static class MinkowskiShapeVisualizer
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static void FindSupport<TShapeA, TShapeWideA, TSupportFinderA, TShapeB, TShapeWideB, TSupportFinderB>
+        (in TShapeWideA a, in TShapeWideB b, in Vector3Wide localOffsetB, in Matrix3x3Wide localOrientationB, ref TSupportFinderA supportFinderA, ref TSupportFinderB supportFinderB, in Vector3Wide direction,
+        in Vector<int> terminatedLanes, out Vector3Wide support)
+        where TShapeA : IConvexShape
+        where TShapeWideA : IShapeWide<TShapeA>
+        where TSupportFinderA : ISupportFinder<TShapeA, TShapeWideA>
+        where TShapeB : IConvexShape
+        where TShapeWideB : IShapeWide<TShapeB>
+        where TSupportFinderB : ISupportFinder<TShapeB, TShapeWideB>
+    {
+        //support(N, A) - support(-N, B)
+        supportFinderA.ComputeLocalSupport(a, direction, terminatedLanes, out Vector3Wide extremeA);
+        Vector3Wide.Negate(direction, out Vector3Wide negatedDirection);
+        supportFinderB.ComputeSupport(b, localOrientationB, negatedDirection, terminatedLanes, out Vector3Wide extremeB);
+        Vector3Wide.Add(extremeB, localOffsetB, out extremeB);
+
+        Vector3Wide.Subtract(extremeA, extremeB, out support);
+    }
+
+    public unsafe static Buffer<LineInstance> CreateLines<TShapeA, TShapeWideA, TSupportFinderA, TShapeB, TShapeWideB, TSupportFinderB>(
+        in TShapeA a, in TShapeB b, in RigidPose poseA, in RigidPose poseB, int sampleCount,
+        float lineLength, Vector3 lineColor,
+        float originLength, Vector3 originColor, Vector3 backgroundColor, Vector3 basePosition, BufferPool pool)
+        where TShapeA : unmanaged, IConvexShape
+        where TShapeWideA : unmanaged, IShapeWide<TShapeA>
+        where TSupportFinderA : struct, ISupportFinder<TShapeA, TShapeWideA>
+        where TShapeB : unmanaged, IConvexShape
+        where TShapeWideB : unmanaged, IShapeWide<TShapeB>
+        where TSupportFinderB : struct, ISupportFinder<TShapeB, TShapeWideB>
+    {
+        TShapeWideA aWide = default(TShapeWideA);
+        TShapeWideB bWide = default(TShapeWideB);
+        if(aWide.InternalAllocationSize > 0)
+        {
+            byte* memory = stackalloc byte[aWide.InternalAllocationSize];
+            aWide.Initialize(new Buffer<byte>(memory, aWide.InternalAllocationSize));
+        }
+        if (bWide.InternalAllocationSize > 0)
+        {
+            byte* memory = stackalloc byte[bWide.InternalAllocationSize];
+            bWide.Initialize(new Buffer<byte>(memory, bWide.InternalAllocationSize));
+        }
+        aWide.Broadcast(a);
+        bWide.Broadcast(b);
+        Vector3 worldOffsetB = poseB.Position - poseA.Position;
+        Matrix3x3 localOrientationB = Matrix3x3.CreateFromQuaternion(QuaternionEx.Concatenate(poseB.Orientation, QuaternionEx.Conjugate(poseA.Orientation)));
+        Vector3 localOffsetB = QuaternionEx.Transform(worldOffsetB, QuaternionEx.Conjugate(poseA.Orientation));
+        Vector3Wide.Broadcast(localOffsetB, out Vector3Wide localOffsetBWide);
+        Matrix3x3Wide.Broadcast(localOrientationB, out Matrix3x3Wide localOrientationBWide);
+        TSupportFinderA supportFinderA = default(TSupportFinderA);
+        TSupportFinderB supportFinderB = default(TSupportFinderB);
+        float inverseSampleCount = 1f / sampleCount;
+        pool.Take<LineInstance>(sampleCount + 3, out Buffer<LineInstance> lines);
+        uint packedLineColor = DemoHelpers.PackColor(lineColor);
+        uint packedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
+        for (int i = 0; i < sampleCount; ++i)
+        {
+            float index = i + 0.5f;
+            float phi = MathF.Acos(1f - 2f * index * inverseSampleCount);
+            float theta = (MathF.PI * (1f + 2.2360679775f)) * index;
+            float sinPhi = MathF.Sin(phi);
+            Vector3 sampleDirection = new(MathF.Cos(theta) * sinPhi, MathF.Sin(theta) * sinPhi, MathF.Cos(phi));
+            Vector3Wide.Broadcast(sampleDirection, out Vector3Wide sampleDirectionWide);
+            //Could easily use the fact that this is vectorized, but it's marginally easier not to!
+            FindSupport<TShapeA, TShapeWideA, TSupportFinderA, TShapeB, TShapeWideB, TSupportFinderB>(aWide, bWide, localOffsetBWide, localOrientationBWide, ref supportFinderA, ref supportFinderB, sampleDirectionWide, Vector<int>.Zero, out Vector3Wide supportWide);
+            Vector3Wide.ReadSlot(ref supportWide, 0, out Vector3 support);
+            lines[i] = new LineInstance(basePosition + support, basePosition + support - sampleDirection * lineLength, packedLineColor, packedBackgroundColor);
+        }
+        uint packedOriginColor = DemoHelpers.PackColor(originColor);
+        lines[sampleCount] = new LineInstance(basePosition - new Vector3(originLength, 0, 0), basePosition + new Vector3(originLength, 0, 0), packedOriginColor, packedBackgroundColor);
+        lines[sampleCount + 1] = new LineInstance(basePosition - new Vector3(0, originLength, 0), basePosition + new Vector3(0, originLength, 0), packedOriginColor, packedBackgroundColor);
+        lines[sampleCount + 2] = new LineInstance(basePosition - new Vector3(0, 0, originLength), basePosition + new Vector3(0, 0, originLength), packedOriginColor, packedBackgroundColor);
+        return lines;
+    }
+
+    public static void Draw(Buffer<LineInstance> lines, Renderer renderer)
+    {
+        for (int i = 0; i < lines.Length; ++i)
+        {
+            renderer.Lines.Allocate() = lines[i];
+        }
+    }
+}

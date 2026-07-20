@@ -1,0 +1,33 @@
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
+
+namespace BEPUPhysics.OpenGLDemos.Demos.Cars
+{
+    struct RaceTrack
+    {
+        public float QuadrantRadius;
+        public Vector2 Center;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetClosestPoint(in Vector2 point, float laneOffset, out Vector2 closestPoint, out Vector2 flowDirection)
+        {
+            Vector2 localPoint = point - Center;
+            Vector2 quadrantCenter = new(localPoint.X < 0 ? -QuadrantRadius : QuadrantRadius, localPoint.Y < 0 ? -QuadrantRadius : QuadrantRadius);
+            Vector2 quadrantCenterToPoint = new Vector2(localPoint.X, localPoint.Y) - quadrantCenter;
+            float distanceToQuadrantCenter = quadrantCenterToPoint.Length();
+            bool on01Or10 = localPoint.X * localPoint.Y < 0;
+            float signedLaneOffset = on01Or10 ? -laneOffset : laneOffset;
+            Vector2 toCircleEdgeDirection = distanceToQuadrantCenter > 0 ? quadrantCenterToPoint * (1f / distanceToQuadrantCenter) : new Vector2(QuadrantRadius + signedLaneOffset, 0);
+            Vector2 offsetFromQuadrantCircle = (QuadrantRadius + signedLaneOffset) * toCircleEdgeDirection;
+            closestPoint = quadrantCenter + offsetFromQuadrantCircle;
+            Vector2 perpendicular = new(toCircleEdgeDirection.Y, -toCircleEdgeDirection.X);
+            flowDirection = on01Or10 ? perpendicular : -perpendicular;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float GetDistance(in Vector2 point)
+        {
+            GetClosestPoint(point, 0, out Vector2 closest, out _);
+            return Vector2.Distance(closest, point);
+        }
+    }
+}

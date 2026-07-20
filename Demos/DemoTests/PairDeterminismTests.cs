@@ -4,15 +4,16 @@ using BepuPhysics.CollisionDetection;
 using BepuUtilities;
 using BepuUtilities.Collections;
 using BepuUtilities.Memory;
-using Demos;
 using Demos.Demos;
-using Demos.SpecializedTests;
+using BEPUPhysics.OpenGLDemos.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
+using BEPUPhysics.OpenGLDemos.SpecializedTests;
+using BEPUPhysics.OpenGLDemos.Types;
 
 namespace DemoTests
 {
@@ -69,7 +70,7 @@ namespace DemoTests
         static void ComputeCollisions(CollisionTaskRegistry registry, Shapes shapes, BufferPool pool,
             ref Manifolds manifolds, CollidableDescription a, CollidableDescription b, ref Buffer<RigidPose> posesA, ref Buffer<RigidPose> posesB, Buffer<int> remapIndices, int pairCount, Random random)
         {
-            const float dt = Demo.TimestepDuration;
+            const float dt = DemoBase.TimestepDuration;
             var callbacks = new BatcherCallbacks { Pool = pool, Manifolds = manifolds };
             var batcher = new CollisionBatcher<BatcherCallbacks>(pool, shapes, registry, dt, callbacks);
             int flushInterval = random.Next(Math.Max(1, pairCount / 5), pairCount);

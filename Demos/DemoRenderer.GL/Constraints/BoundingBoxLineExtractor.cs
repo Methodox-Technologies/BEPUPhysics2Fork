@@ -44,7 +44,7 @@ namespace DemoRenderer.Constraints
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteBoundsLines(Vector3 min, Vector3 max, Vector3 color, Vector3 backgroundColor, ref LineInstance targetLines)
         {
-            WriteBoundsLines(min, max, Helpers.PackColor(color), Helpers.PackColor(backgroundColor), ref targetLines);
+            WriteBoundsLines(min, max, DemoHelpers.PackColor(color), DemoHelpers.PackColor(backgroundColor), ref targetLines);
         }
         internal unsafe void ExecuteJob(Buffer<LineInstance> lines, Simulation simulation, ThreadJob job)
         {
@@ -58,8 +58,8 @@ namespace DemoRenderer.Constraints
                 color *= inactiveTint;
                 backgroundColor *= inactiveTint;
             }
-            var packedColor = Helpers.PackColor(color);
-            var packedBackgroundColor = Helpers.PackColor(backgroundColor);
+            var packedColor = DemoHelpers.PackColor(color);
+            var packedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
             for (int i = 0; i < job.LeafCount; ++i)
             {
                 var broadPhaseIndex = job.LeafStart + i;

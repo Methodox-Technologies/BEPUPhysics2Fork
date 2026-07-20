@@ -24,19 +24,19 @@ namespace DemoRenderer.Constraints
             QuaternionEx.Transform(localSwivelAxisA, poseA.Orientation, out var swivelAxis);
             QuaternionEx.Transform(localOffsetB, poseB.Orientation, out var offsetB);
             QuaternionEx.Transform(localHingeAxisB, poseB.Orientation, out var hingeAxis);
-            var packedAxisColor = Helpers.PackColor(new Vector3(0.2f, 0.7f, 1f) * tint);
+            var packedAxisColor = DemoHelpers.PackColor(new Vector3(0.2f, 0.7f, 1f) * tint);
             var backgroundColor = new Vector3(0f, 0f, 1f) * tint;
             var jointAnchorA = poseA.Position + offsetA;
             var jointAnchorB = poseB.Position + offsetB;
             lines.AllocateUnsafely() = new LineInstance(jointAnchorA, jointAnchorA + 0.2f * swivelAxis, packedAxisColor, 0);
             lines.AllocateUnsafely() = new LineInstance(jointAnchorB, jointAnchorB + 0.2f * hingeAxis, packedAxisColor, 0);
 
-            var packedOffsetColor = Helpers.PackColor(new Vector3(0.2f, 0.2f, 1f) * tint);
+            var packedOffsetColor = DemoHelpers.PackColor(new Vector3(0.2f, 0.2f, 1f) * tint);
             lines.AllocateUnsafely() = new LineInstance(poseA.Position, jointAnchorA, packedOffsetColor, 0);
             lines.AllocateUnsafely() = new LineInstance(poseB.Position, jointAnchorB, packedOffsetColor, 0);
 
             var errorColor = new Vector3(1, 0, 0) * tint;
-            var packedErrorColor = Helpers.PackColor(errorColor);
+            var packedErrorColor = DemoHelpers.PackColor(errorColor);
             lines.AllocateUnsafely() = new LineInstance(jointAnchorA, jointAnchorB, packedErrorColor, 0);
         }
 

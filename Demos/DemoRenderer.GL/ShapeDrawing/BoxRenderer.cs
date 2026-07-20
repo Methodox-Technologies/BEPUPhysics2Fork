@@ -27,7 +27,7 @@ namespace DemoRenderer.ShapeDrawing
         private readonly IndexBuffer indices;
 
         public BoxRenderer(ContentArchive content, int maximumInstancesPerDraw = 2048) : base(content, @"ShapeDrawing\RenderBoxes", maximumInstancesPerDraw) =>
-            indices = new IndexBuffer(Helpers.GetBoxIndices(maximumInstancesPerDraw), "Box Indices");
+            indices = new IndexBuffer(DemoHelpers.GetBoxIndices(maximumInstancesPerDraw), "Box Indices");
         protected override void OnDrawSetup() => indices.Bind();
         protected override void OnBatchDraw(int batchCount) =>
             GL.DrawElements(PrimitiveType.Triangles, 36 * batchCount, indices.Type, 0);
