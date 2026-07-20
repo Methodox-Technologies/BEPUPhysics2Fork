@@ -6,12 +6,13 @@ using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using DemoUtilities;
 using System;
 using System.Numerics;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// A segmented rope chain thing launches itself out of a container. See also: https://en.wikipedia.org/wiki/Chain_fountain

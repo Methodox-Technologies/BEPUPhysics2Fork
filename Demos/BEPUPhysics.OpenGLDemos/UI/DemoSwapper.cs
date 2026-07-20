@@ -5,7 +5,7 @@ using DemoUtilities;
 using System;
 using System.Numerics;
 
-namespace Demos.UI;
+namespace BEPUPhysics.OpenGLDemos.UI;
 
 struct DemoSwapper
 {

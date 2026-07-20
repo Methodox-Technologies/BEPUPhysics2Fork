@@ -5,10 +5,11 @@ using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
 using DemoRenderer;
-using Demos.Demos;
-using BEPUPhysics.OpenGLDemos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 /// <summary>
 /// Stress tests contact manifold reduction heuristics at a variety of scales using box-box tests.

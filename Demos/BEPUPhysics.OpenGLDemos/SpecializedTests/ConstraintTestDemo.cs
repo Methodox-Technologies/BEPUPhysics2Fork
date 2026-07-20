@@ -5,11 +5,12 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
-using Demos.Demos;
 using System;
-using BEPUPhysics.OpenGLDemos;
+using BEPUPhysics.OpenGLDemos.Demos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class ConstraintTestDemo : DemoBase
 {

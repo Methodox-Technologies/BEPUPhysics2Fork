@@ -14,10 +14,9 @@ using DemoRenderer.UI;
 using System.Threading;
 using DemoContentLoader;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class VolumeQueryTests : DemoBase
 {

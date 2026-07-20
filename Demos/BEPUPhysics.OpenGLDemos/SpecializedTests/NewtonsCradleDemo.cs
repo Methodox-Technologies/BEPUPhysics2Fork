@@ -3,12 +3,12 @@ using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
 using DemoRenderer;
-using BEPUPhysics.OpenGLDemos;
 using DemoUtilities;
 using System;
 using System.Numerics;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 /// <summary>
 /// Shows a newton's cradle, primarily for behavioral experimentation (in case an alternative solver is ever implemented).

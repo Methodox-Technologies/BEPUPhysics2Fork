@@ -6,12 +6,13 @@ using System.Numerics;
 using System;
 using DemoContentLoader;
 using DemoUtilities;
-using Demos.Demos.Characters;
 using BepuUtilities.Collections;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Demos.Characters;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class CharacterTestDemo : DemoBase
 {

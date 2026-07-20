@@ -7,7 +7,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Numerics;
 
-namespace Demos;
+namespace BEPUPhysics.OpenGLDemos.Types;
 
 public struct DemoPoseIntegratorCallbacks : IPoseIntegratorCallbacks
 {

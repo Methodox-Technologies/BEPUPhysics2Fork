@@ -8,10 +8,11 @@ using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class MeshReductionTestDemo : DemoBase
 {

@@ -5,15 +5,15 @@ using BepuUtilities;
 using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using Demos.Demos;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
-using Demos.SpecializedTests;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit;
+using BEPUPhysics.OpenGLDemos.SpecializedTests;
+using BEPUPhysics.OpenGLDemos.Types;
 
 namespace DemoTests
 {

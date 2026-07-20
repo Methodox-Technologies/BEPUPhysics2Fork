@@ -4,7 +4,7 @@ using BepuUtilities;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 //TODO: These are notes about the mathy bits underlying constraints. They were written for the original pre-2.4 version of the solver.
 //Most of it's still applicable, but 2.4 and up no longer have separate 'projection' states, and while packing is still important, it applies to *prestep data*.

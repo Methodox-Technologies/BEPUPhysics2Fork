@@ -10,7 +10,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using DemoHelpers = DemoRenderer.DemoHelpers;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public static class SimplexVisualizer
 {

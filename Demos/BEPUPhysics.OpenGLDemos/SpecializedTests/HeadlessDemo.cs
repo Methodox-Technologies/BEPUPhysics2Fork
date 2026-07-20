@@ -1,9 +1,9 @@
 ﻿using DemoContentLoader;
-using BEPUPhysics.OpenGLDemos;
 using System;
 using System.Diagnostics;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 static class HeadlessTest
 {

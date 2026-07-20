@@ -5,7 +5,7 @@ using BepuUtilities;
 using BepuUtilities.Memory;
 using BEPUPhysics.OpenGLDemos.Helpers;
 
-namespace Demos;
+namespace BEPUPhysics.OpenGLDemos;
 
 public class GameLoop : IDisposable
 {

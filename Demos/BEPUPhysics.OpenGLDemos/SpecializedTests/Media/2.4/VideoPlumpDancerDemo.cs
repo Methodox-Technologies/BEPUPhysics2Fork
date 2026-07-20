@@ -6,13 +6,13 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using Demos.Demos;
-using Demos.Demos.Dancers;
-using BEPUPhysics.OpenGLDemos;
 using DemoUtilities;
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using BEPUPhysics.OpenGLDemos.Demos;
+using BEPUPhysics.OpenGLDemos.Demos.Dancers;
+using BEPUPhysics.OpenGLDemos.Types;
 
 namespace Demos.SpecializedTests.Media;
 

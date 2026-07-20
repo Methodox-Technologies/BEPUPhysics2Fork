@@ -7,10 +7,10 @@ using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using DemoUtilities;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Types;
+using Demos;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Shows how different kinds of continuous collision detection work.

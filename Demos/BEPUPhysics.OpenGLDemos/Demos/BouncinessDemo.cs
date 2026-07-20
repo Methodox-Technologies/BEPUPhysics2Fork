@@ -6,13 +6,13 @@ using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using DemoUtilities;
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Shows how to configure things to bounce in the absence of a coefficient of restitution.

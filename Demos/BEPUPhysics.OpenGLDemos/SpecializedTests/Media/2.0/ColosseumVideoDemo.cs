@@ -4,11 +4,11 @@ using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using Demos.Demos.Characters;
-using BEPUPhysics.OpenGLDemos;
 using DemoUtilities;
 using System;
 using System.Numerics;
+using BEPUPhysics.OpenGLDemos.Demos.Characters;
+using BEPUPhysics.OpenGLDemos.Types;
 
 namespace Demos.SpecializedTests.Media;
 

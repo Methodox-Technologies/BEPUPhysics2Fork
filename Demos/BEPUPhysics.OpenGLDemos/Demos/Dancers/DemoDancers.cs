@@ -6,14 +6,16 @@ using BepuUtilities;
 using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 using DemoRenderer;
-using BEPUPhysics.OpenGLDemos;
 using System;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using BEPUPhysics.OpenGLDemos.Demos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos.Dancers;
+namespace BEPUPhysics.OpenGLDemos.Demos.Dancers;
 
 //This file contains all the shared helpers used in the DancerDemo and PlumpDancerDemo.
 //It is responsible for creating the main dancer, its constraints, its control mechanisms, and making it dance.

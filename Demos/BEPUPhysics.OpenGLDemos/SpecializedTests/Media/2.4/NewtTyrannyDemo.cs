@@ -6,9 +6,11 @@ using BepuPhysics;
 using DemoUtilities;
 using BepuUtilities.Collections;
 using BepuPhysics.Collidables;
-using Demos.Demos.Characters;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using BEPUPhysics.OpenGLDemos.Demos;
+using BEPUPhysics.OpenGLDemos.Demos.Characters;
+using BEPUPhysics.OpenGLDemos.Demos.Sponsors;
+using BEPUPhysics.OpenGLDemos.Types;
 
 namespace Demos.Demos.Sponsors;
 

@@ -5,11 +5,12 @@ using BepuUtilities;
 using BepuUtilities.Collections;
 using DemoContentLoader;
 using DemoRenderer;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
 using DemoUtilities;
 using System;
 using System.Numerics;
+using BEPUPhysics.OpenGLDemos.SpecializedTests;
+using BEPUPhysics.OpenGLDemos.Types;
 
 namespace Demos.SpecializedTests.Media;
 

@@ -4,9 +4,10 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
-using BEPUPhysics.OpenGLDemos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class ConstrainedKinematicIntegrationTest : DemoBase
 {

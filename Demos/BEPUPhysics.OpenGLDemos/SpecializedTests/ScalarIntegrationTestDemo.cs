@@ -7,10 +7,11 @@ using DemoRenderer;
 using System;
 using System.Numerics;
 using BepuUtilities.Collections;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public unsafe class ScalarIntegrationTestDemo : DemoBase
 {

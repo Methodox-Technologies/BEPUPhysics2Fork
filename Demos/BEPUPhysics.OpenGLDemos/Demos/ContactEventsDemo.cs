@@ -15,9 +15,10 @@ using BepuPhysics.Constraints;
 using System.Diagnostics;
 using System.Threading;
 using System.Runtime.InteropServices;
-using BEPUPhysics.OpenGLDemos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 //Bepuphysics v2 doesn't have any concept of 'events'. It has callbacks that report the current status of contact manifolds.
 //Events can be built around those callbacks. This demo shows one way of doing that.

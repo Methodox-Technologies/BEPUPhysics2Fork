@@ -9,10 +9,11 @@ using BepuPhysics.Constraints;
 using DemoRenderer.UI;
 using DemoUtilities;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 public class CompoundDemo : DemoBase
 {

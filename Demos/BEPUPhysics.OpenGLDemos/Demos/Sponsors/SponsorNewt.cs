@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using DemoHelpers = DemoRenderer.DemoHelpers;
 
-namespace Demos.Demos.Sponsors;
+namespace BEPUPhysics.OpenGLDemos.Demos.Sponsors;
 
 public struct SponsorNewt
 {

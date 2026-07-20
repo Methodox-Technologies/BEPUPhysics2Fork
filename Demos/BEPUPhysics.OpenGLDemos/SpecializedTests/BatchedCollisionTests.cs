@@ -9,10 +9,10 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using BepuPhysics.CollisionDetection.SweepTasks;
 using BepuUtilities.Collections;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public static class BatchedCollisionTests
 {

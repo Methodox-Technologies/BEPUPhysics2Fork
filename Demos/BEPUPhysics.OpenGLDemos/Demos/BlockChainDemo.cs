@@ -5,13 +5,14 @@ using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Numerics;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Shows how to build a decentralized ledger of transactions out of a sequence of connected blocks which could be used to revolutionize the backbone of finance while offering

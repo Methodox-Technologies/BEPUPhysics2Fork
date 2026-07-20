@@ -14,11 +14,12 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
 using DemoUtilities;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 /// <summary>
 /// Pure forwarding wrapper around <see cref="Mesh"/>. Has its own TypeId so the narrow phase treats it as a distinct shape,

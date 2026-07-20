@@ -6,7 +6,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 using System.IO;
 
-namespace Demos;
+namespace BEPUPhysics.OpenGLDemos;
 
 class Program
 {

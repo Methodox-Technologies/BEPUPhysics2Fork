@@ -7,7 +7,7 @@ using DemoRenderer.UI;
 using DemoContentLoader;
 using BepuUtilities;
 
-namespace BEPUPhysics.OpenGLDemos
+namespace BEPUPhysics.OpenGLDemos.Types
 {
     /// <summary>
     /// A very simple helper class that contains a few properties and functions used across all demos.

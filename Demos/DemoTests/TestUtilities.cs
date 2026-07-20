@@ -2,7 +2,8 @@
 using DemoContentLoader;
 using System.Runtime.CompilerServices;
 using Xunit;
-using BEPUPhysics.OpenGLDemos;
+using BEPUPhysics.OpenGLDemos.SpecializedTests;
+using BEPUPhysics.OpenGLDemos.Types;
 
 namespace DemoTests
 {
@@ -10,7 +11,7 @@ namespace DemoTests
     {
         public static ContentArchive GetDemosContentArchive()
         {
-            using (var stream = typeof(Demos.SpecializedTests.FountainStressTestDemo).Assembly.GetManifestResourceStream("Demos.Demos.contentarchive"))
+            using (var stream = typeof(FountainStressTestDemo).Assembly.GetManifestResourceStream("Demos.Demos.contentarchive"))
             {
                 return ContentArchive.Load(stream);
             }

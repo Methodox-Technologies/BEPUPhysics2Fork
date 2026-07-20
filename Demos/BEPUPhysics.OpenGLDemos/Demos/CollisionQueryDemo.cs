@@ -8,14 +8,15 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
 using DemoUtilities;
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Shows one way of handling collision queries that require contact-level test accuracy.

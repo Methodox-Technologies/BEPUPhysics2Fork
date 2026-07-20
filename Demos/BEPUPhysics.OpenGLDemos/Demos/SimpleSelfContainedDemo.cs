@@ -8,7 +8,7 @@ using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Shows a completely isolated usage of the engine without using any of the other demo physics-related types.

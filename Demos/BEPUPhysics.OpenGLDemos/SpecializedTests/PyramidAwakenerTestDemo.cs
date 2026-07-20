@@ -4,12 +4,12 @@ using BepuPhysics.Constraints;
 using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
-using BEPUPhysics.OpenGLDemos;
 using DemoUtilities;
 using System;
 using System.Numerics;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 /// <summary>
 /// Repeatedly checks for bugs related to multithreaded awakening and narrow phase flushing.

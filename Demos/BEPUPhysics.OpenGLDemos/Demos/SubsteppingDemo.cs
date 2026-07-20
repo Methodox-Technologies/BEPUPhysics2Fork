@@ -7,12 +7,13 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Types;
 using DemoUtilities;
 using System;
 using System.Numerics;
-namespace Demos.Demos;
+using Demos;
+
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Shows how to use substepping to solve extremely difficult simulations at a not-completely-absurd cost.

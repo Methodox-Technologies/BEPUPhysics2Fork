@@ -3,7 +3,7 @@ using BepuUtilities;
 using System;
 using System.Numerics;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public static class TestHelpers
 {

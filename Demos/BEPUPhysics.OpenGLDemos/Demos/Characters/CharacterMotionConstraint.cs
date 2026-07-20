@@ -7,7 +7,7 @@ using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
 using static BepuUtilities.GatherScatter;
 
-namespace Demos.Demos.Characters;
+namespace BEPUPhysics.OpenGLDemos.Demos.Characters;
 
 public struct CharacterMotionAccumulatedImpulse
 {

@@ -10,7 +10,7 @@ using BepuUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using BEPUPhysics.OpenGLDemos.Interaction;
 
-namespace Demos.Demos.Characters;
+namespace BEPUPhysics.OpenGLDemos.Demos.Characters;
 
 /// <summary>
 /// Convenience structure that wraps a CharacterController reference and its associated body.

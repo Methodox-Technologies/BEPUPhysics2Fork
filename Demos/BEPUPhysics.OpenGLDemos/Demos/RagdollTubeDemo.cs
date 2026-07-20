@@ -10,9 +10,9 @@ using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using DemoRenderer.UI;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Subjects a bunch of unfortunate ragdolls to a tumble dry cycle.

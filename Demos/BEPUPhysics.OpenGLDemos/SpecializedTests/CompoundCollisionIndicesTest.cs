@@ -9,9 +9,9 @@ using System.Runtime.CompilerServices;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public struct IndexReportingNarrowPhaseCallbacks : INarrowPhaseCallbacks
 {

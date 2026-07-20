@@ -7,10 +7,10 @@ using System.Numerics;
 using BepuUtilities.Collections;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class ShapePileTestDemo : DemoBase
 {

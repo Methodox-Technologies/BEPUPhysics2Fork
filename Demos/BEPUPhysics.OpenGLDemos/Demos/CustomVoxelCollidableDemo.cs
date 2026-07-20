@@ -15,9 +15,10 @@ using DemoUtilities;
 using System;
 using BepuPhysics.CollisionDetection.SweepTasks;
 using BepuPhysics.Constraints;
-using BEPUPhysics.OpenGLDemos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 //There are a variety of types related to collision pairs designed to work with particular interfaces.
 //We don't want to make a bunch of special cases, so we'll implement some of the interfaces.

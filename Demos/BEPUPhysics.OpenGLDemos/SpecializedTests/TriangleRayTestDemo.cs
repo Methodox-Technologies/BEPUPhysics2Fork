@@ -4,12 +4,13 @@ using BepuPhysics.Constraints;
 using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
-using BEPUPhysics.OpenGLDemos;
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class TriangleRayTestDemo : DemoBase
 {

@@ -10,13 +10,13 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Interaction;
 using DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos.Tanks;
+namespace BEPUPhysics.OpenGLDemos.Demos.Tanks;
 
 public class TankDemo : DemoBase
 {

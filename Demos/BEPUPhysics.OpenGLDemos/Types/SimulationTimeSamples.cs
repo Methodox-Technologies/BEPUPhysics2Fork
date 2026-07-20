@@ -1,8 +1,7 @@
 ﻿using BepuPhysics;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos;
+namespace BEPUPhysics.OpenGLDemos.Types;
 
 public struct TimelineStats
 {

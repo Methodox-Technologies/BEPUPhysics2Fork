@@ -4,7 +4,7 @@ using BepuPhysics.CollisionDetection;
 using System.Runtime.CompilerServices;
 using BepuPhysics.Constraints;
 
-namespace Demos.Demos.Characters;
+namespace BEPUPhysics.OpenGLDemos.Demos.Characters;
 
 /// <summary>
 /// Implements simple callbacks to inform the CharacterControllers system of created contacts.

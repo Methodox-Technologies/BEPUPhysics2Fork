@@ -5,9 +5,10 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
-using BEPUPhysics.OpenGLDemos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class ClothLatticeDemo : DemoBase
 {

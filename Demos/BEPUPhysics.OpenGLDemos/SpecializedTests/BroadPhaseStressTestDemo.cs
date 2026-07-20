@@ -7,13 +7,12 @@ using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.Constraints;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Types;
 using DemoUtilities;
 using System;
 using System.Numerics;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class BroadPhaseStressTestDemo : DemoBase
 {

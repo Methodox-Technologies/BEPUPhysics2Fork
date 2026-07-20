@@ -1,6 +1,6 @@
-﻿using BepuUtilities.Collections;
+﻿using BEPUPhysics.OpenGLDemos.UI;
+using BepuUtilities.Collections;
 using BepuUtilities.Memory;
-using Demos.UI;
 using System;
 
 namespace BEPUPhysics.OpenGLDemos.Types;

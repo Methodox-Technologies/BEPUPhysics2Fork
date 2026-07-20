@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using BepuPhysics;
 
-namespace Demos.Demos.Tanks;
+namespace BEPUPhysics.OpenGLDemos.Demos.Tanks;
 
 /// <summary>
 /// Applies control inputs to a tank instance.

@@ -2,13 +2,12 @@
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Interaction;
 using BEPUPhysics.OpenGLDemos.Types;
-using Demos.UI;
 using DemoUtilities;
 using System;
 using System.Numerics;
+using BEPUPhysics.OpenGLDemos.UI;
 
 namespace BEPUPhysics.OpenGLDemos.Helpers;
 

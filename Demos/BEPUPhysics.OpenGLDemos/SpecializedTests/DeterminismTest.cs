@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using DemoContentLoader;
-using BEPUPhysics.OpenGLDemos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public static class DeterminismTest<T> where T : DemoBase, new()
 {

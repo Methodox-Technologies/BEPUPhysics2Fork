@@ -10,10 +10,11 @@ using DemoRenderer;
 using BepuPhysics;
 using BepuPhysics.Constraints;
 using BepuPhysics.Collidables;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class TreeFiddlingTestDemo : DemoBase
 {

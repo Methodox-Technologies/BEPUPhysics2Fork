@@ -6,9 +6,9 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 struct GyroscopicIntegratorCallbacks : IPoseIntegratorCallbacks
 {

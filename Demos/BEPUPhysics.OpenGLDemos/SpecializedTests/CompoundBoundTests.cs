@@ -9,9 +9,10 @@ using DemoContentLoader;
 using DemoRenderer.UI;
 using DemoRenderer.Constraints;
 using BepuPhysics.Constraints;
-using BEPUPhysics.OpenGLDemos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class CompoundBoundTests : DemoBase
 {

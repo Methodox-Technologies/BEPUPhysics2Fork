@@ -11,10 +11,11 @@ using DemoContentLoader;
 using BepuPhysics.Constraints;
 using BepuPhysics.CollisionDetection;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class TriangleTestDemo : DemoBase
 {

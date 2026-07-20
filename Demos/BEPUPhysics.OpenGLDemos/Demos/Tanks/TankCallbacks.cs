@@ -4,9 +4,10 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
+using BEPUPhysics.OpenGLDemos.Demos;
 using BepuUtilities.Collections;
 
-namespace Demos.Demos.Tanks;
+namespace BEPUPhysics.OpenGLDemos.Demos.Tanks;
 
 /// <summary>
 /// Stores properties about a body in the tank demo.

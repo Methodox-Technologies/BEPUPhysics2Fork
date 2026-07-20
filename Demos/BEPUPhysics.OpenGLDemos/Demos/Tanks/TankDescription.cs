@@ -3,7 +3,7 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 
-namespace Demos.Demos.Tanks;
+namespace BEPUPhysics.OpenGLDemos.Demos.Tanks;
 
 /// <summary>
 /// Describes a tank's construction.

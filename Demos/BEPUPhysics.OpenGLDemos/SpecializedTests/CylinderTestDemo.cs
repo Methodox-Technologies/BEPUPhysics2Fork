@@ -8,10 +8,11 @@ using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection.CollisionTasks;
 using System.Diagnostics;
 using BepuPhysics.Constraints;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class CylinderTestDemo : DemoBase
 {

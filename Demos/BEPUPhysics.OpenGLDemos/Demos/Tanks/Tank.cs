@@ -4,11 +4,12 @@ using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
+using BEPUPhysics.OpenGLDemos.Demos;
 using BepuUtilities;
 using BepuUtilities.Collections;
 using BepuUtilities.Memory;
 
-namespace Demos.Demos.Tanks;
+namespace BEPUPhysics.OpenGLDemos.Demos.Tanks;
 
 /// <summary>
 /// Set of handles and references to a tank instance.

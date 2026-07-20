@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Demos.Demos.Cars
+namespace BEPUPhysics.OpenGLDemos.Demos.Cars
 {
     struct RaceTrack
     {

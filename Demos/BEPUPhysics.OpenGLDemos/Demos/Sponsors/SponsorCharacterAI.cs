@@ -1,11 +1,11 @@
 ﻿using BepuPhysics;
 using BepuPhysics.Collidables;
+using BEPUPhysics.OpenGLDemos.Demos.Characters;
 using BepuUtilities.Collections;
-using Demos.Demos.Characters;
 using System;
 using System.Numerics;
 
-namespace Demos.Demos.Sponsors;
+namespace BEPUPhysics.OpenGLDemos.Demos.Sponsors;
 
 public struct SponsorCharacterAI
 {

@@ -1,14 +1,13 @@
 ﻿using DemoContentLoader;
 using DemoRenderer;
-using Demos.Demos;
-using Demos.Demos.Cars;
-using Demos.Demos.Characters;
-using Demos.Demos.Dancers;
-using Demos.Demos.Sponsors;
-using Demos.Demos.Tanks;
-using BEPUPhysics.OpenGLDemos;
 using System;
 using System.Collections.Generic;
+using BEPUPhysics.OpenGLDemos.Demos;
+using BEPUPhysics.OpenGLDemos.Demos.Characters;
+using BEPUPhysics.OpenGLDemos.Demos.Dancers;
+using BEPUPhysics.OpenGLDemos.Demos.Sponsors;
+using BEPUPhysics.OpenGLDemos.Demos.Cars;
+using BEPUPhysics.OpenGLDemos.Demos.Tanks;
 
 namespace BEPUPhysics.OpenGLDemos.Types;
 

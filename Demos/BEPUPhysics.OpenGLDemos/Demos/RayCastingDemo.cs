@@ -14,14 +14,13 @@ using BepuPhysics.Trees;
 using DemoRenderer.UI;
 using DemoRenderer.Constraints;
 using System.Threading;
-using Demos.SpecializedTests;
 using DemoContentLoader;
 using DemoHelpers = DemoRenderer.DemoHelpers;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPUPhysics.OpenGLDemos.SpecializedTests;
 
-namespace Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 public class RayCastingDemo : DemoBase
 {

@@ -4,7 +4,7 @@ using BepuPhysics;
 using BepuUtilities;
 using BepuUtilities.Collections;
 
-namespace Demos.Demos.Tanks;
+namespace BEPUPhysics.OpenGLDemos.Demos.Tanks;
 
 public struct AITank
 {

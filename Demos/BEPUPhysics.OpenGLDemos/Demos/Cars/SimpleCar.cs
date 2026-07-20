@@ -4,7 +4,7 @@ using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using BepuUtilities;
 
-namespace Demos.Demos.Cars;
+namespace BEPUPhysics.OpenGLDemos.Demos.Cars;
 
 struct SimpleCar
 {

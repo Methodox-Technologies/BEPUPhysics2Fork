@@ -10,7 +10,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Demos.Demos.Characters;
+namespace BEPUPhysics.OpenGLDemos.Demos.Characters;
 
 /// <summary>
 /// Raw data for a dynamic character controller instance.

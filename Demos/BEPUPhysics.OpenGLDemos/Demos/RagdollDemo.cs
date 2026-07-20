@@ -9,9 +9,10 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
-using BEPUPhysics.OpenGLDemos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Bit masks which control whether different members of a group of objects can collide with each other.

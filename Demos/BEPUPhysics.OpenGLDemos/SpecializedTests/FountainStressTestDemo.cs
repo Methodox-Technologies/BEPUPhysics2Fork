@@ -11,10 +11,11 @@ using System.Diagnostics;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class FountainStressTestDemo : DemoBase
 {

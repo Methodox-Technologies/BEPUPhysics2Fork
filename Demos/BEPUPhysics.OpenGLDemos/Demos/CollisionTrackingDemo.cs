@@ -13,9 +13,10 @@ using BepuUtilities.Memory;
 using System.Runtime.CompilerServices;
 using BepuPhysics.Constraints;
 using System.Diagnostics;
-using BEPUPhysics.OpenGLDemos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Shows how to store out collision information provided in <see cref="INarrowPhaseCallbacks"/> for later analysis, 

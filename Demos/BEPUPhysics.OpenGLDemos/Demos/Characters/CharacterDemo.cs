@@ -8,10 +8,11 @@ using BepuPhysics.Constraints;
 using DemoContentLoader;
 using DemoUtilities;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos.Characters;
+namespace BEPUPhysics.OpenGLDemos.Demos.Characters;
 
 /// <summary>
 /// Shows one way of using the dynamic character controller in the context of a giant newt and levitating pads.

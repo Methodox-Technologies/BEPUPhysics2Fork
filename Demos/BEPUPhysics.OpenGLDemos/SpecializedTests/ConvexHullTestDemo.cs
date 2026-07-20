@@ -15,12 +15,11 @@ using BepuUtilities.Memory;
 using System.Text.Json;
 using System.IO;
 using System.Diagnostics;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-
-
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class ConvexHullTestDemo : DemoBase
 {

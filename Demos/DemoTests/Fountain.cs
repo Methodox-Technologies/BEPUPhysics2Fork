@@ -1,5 +1,5 @@
+using BEPUPhysics.OpenGLDemos.SpecializedTests;
 using Demos.Demos;
-using Demos.SpecializedTests;
 using System;
 using Xunit;
 

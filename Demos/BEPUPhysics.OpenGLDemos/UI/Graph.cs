@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Demos.UI;
+namespace BEPUPhysics.OpenGLDemos.UI;
 
 public interface IDataSeries
 {

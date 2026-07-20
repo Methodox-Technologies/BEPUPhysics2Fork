@@ -6,13 +6,14 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using DemoUtilities;
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using BEPUPhysics.OpenGLDemos.Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos.Dancers;
+namespace BEPUPhysics.OpenGLDemos.Demos.Dancers;
 
 /// <summary>
 /// A bunch of somewhat overweight background dancers struggle to keep up with the masterful purple prancer.

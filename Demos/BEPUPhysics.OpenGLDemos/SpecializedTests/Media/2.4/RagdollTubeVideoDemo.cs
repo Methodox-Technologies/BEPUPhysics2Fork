@@ -5,14 +5,14 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using System;
 using DemoContentLoader;
-using Demos.Demos;
 using DemoUtilities;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using DemoRenderer.UI;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using BEPUPhysics.OpenGLDemos.Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
 namespace Demos.SpecializedTests.Media;
 

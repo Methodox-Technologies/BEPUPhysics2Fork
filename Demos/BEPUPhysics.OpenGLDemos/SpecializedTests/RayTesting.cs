@@ -4,7 +4,7 @@ using BepuUtilities;
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-namespace Demos.SpecializedTests;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public interface IRayTester<T> where T : IShape
 {

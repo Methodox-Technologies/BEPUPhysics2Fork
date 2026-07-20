@@ -5,12 +5,13 @@ using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using DemoUtilities;
 using System;
 using System.Numerics;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos.Dancers;
+namespace BEPUPhysics.OpenGLDemos.Demos.Dancers;
 
 /// <summary>
 /// A bunch of background dancers struggle to keep up with the masterful purple prancer while wearing dresses made of out of balls connected by constraints.

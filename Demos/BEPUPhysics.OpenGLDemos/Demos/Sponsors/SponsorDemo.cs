@@ -10,13 +10,15 @@ using DemoUtilities;
 using System.Diagnostics;
 using BepuUtilities.Collections;
 using BepuPhysics.Collidables;
-using Demos.Demos.Characters;
 using DemoHelpers = DemoRenderer.DemoHelpers;
 using BepuUtilities;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Helpers;
+using BEPUPhysics.OpenGLDemos.Demos;
+using BEPUPhysics.OpenGLDemos.Demos.Characters;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos.Sponsors;
+namespace BEPUPhysics.OpenGLDemos.Demos.Sponsors;
 
 public struct Sponsor
 {

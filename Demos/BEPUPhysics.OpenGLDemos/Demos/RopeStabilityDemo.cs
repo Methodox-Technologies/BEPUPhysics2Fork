@@ -5,13 +5,13 @@ using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos;
 using BEPUPhysics.OpenGLDemos.Types;
 using DemoUtilities;
 using System;
 using System.Numerics;
+using Demos;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.Demos;
 
 /// <summary>
 /// Shows a few different ways of making a rope with a heavy thing attached not freak out.

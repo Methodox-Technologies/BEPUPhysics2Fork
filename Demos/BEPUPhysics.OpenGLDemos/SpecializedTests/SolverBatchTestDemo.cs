@@ -7,9 +7,10 @@ using System;
 using System.Numerics;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
-using BEPUPhysics.OpenGLDemos;
+using Demos;
+using BEPUPhysics.OpenGLDemos.Types;
 
-namespace Demos.Demos;
+namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
 public class SolverBatchTestDemo : DemoBase
 {
