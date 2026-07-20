@@ -8,3 +8,7 @@
 ## Notes
 
 * (20260716) Note BEPUPhysics is first and foremost a constraint solver. As such it can be used to simulate limited by variant range of physics effects, from solids to soft bodies - even springs and helical motions can be modeled this way - but not exact science like FEA or fluid.
+
+## References
+
+* Notes: See programming notes `BEPYPhsyics` md file.

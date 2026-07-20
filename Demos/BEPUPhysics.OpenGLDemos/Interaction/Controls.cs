@@ -6,55 +6,53 @@ using System.Runtime.InteropServices;
 
 namespace BEPUPhysics.OpenGLDemos.Interaction;
 
-
 /// <summary>
 /// Caches strings for enum values to avoid enum boxing.
 /// </summary>
-static class ControlStrings
+internal static class ControlStringsCache
 {
-    static Dictionary<Keys, string> keys;
-    static Dictionary<MouseButton, string> mouseButtons;
-    static Dictionary<MouseWheelAction, string> mouseWheel;
+    private static readonly Dictionary<Keys, string> _keys;
+    private static readonly Dictionary<MouseButton, string> _mouseButtons;
+    private static readonly Dictionary<MouseWheelAction, string> _mouseWheel;
 
     public static string GetName(Keys key)
     {
-        return keys[key];
+        return _keys[key];
     }
     public static string GetName(MouseButton button)
     {
-        return mouseButtons[button];
+        return _mouseButtons[button];
     }
     public static string GetName(MouseWheelAction wheelAction)
     {
-        return mouseWheel[wheelAction];
+        return _mouseWheel[wheelAction];
     }
 
-    static ControlStrings()
+    static ControlStringsCache()
     {
-        keys = [];
+        _keys = [];
         string[] keyNames = Enum.GetNames(typeof(Keys));
         Keys[] keyValues = (Keys[])Enum.GetValues(typeof(Keys));
         for (int i = 0; i < keyNames.Length; ++i)
         {
-            keys.TryAdd(keyValues[i], keyNames[i]);
+            _keys.TryAdd(keyValues[i], keyNames[i]);
         }
-        mouseButtons = [];
+        _mouseButtons = [];
         string[] mouseButtonNames = Enum.GetNames(typeof(MouseButton));
         MouseButton[] mouseButtonValues = (MouseButton[])Enum.GetValues(typeof(MouseButton));
         for (int i = 0; i < mouseButtonNames.Length; ++i)
         {
-            mouseButtons.TryAdd(mouseButtonValues[i], mouseButtonNames[i]);
+            _mouseButtons.TryAdd(mouseButtonValues[i], mouseButtonNames[i]);
         }
-        mouseWheel = [];
+        _mouseWheel = [];
         string[] wheelNames = Enum.GetNames(typeof(MouseWheelAction));
         MouseWheelAction[] wheelValues = (MouseWheelAction[])Enum.GetValues(typeof(MouseWheelAction));
         for (int i = 0; i < wheelNames.Length; ++i)
         {
-            mouseWheel.TryAdd(wheelValues[i], wheelNames[i]);
+            _mouseWheel.TryAdd(wheelValues[i], wheelNames[i]);
         }
     }
 }
-
 
 public enum HoldableControlType
 {
@@ -180,17 +178,17 @@ public struct HoldableBind
     public TextBuilder AppendString(TextBuilder text)
     {
         if (Type == HoldableControlType.Key)
-            text.Append(ControlStrings.GetName(Key));
+            text.Append(ControlStringsCache.GetName(Key));
         else if (Type == HoldableControlType.MouseButton)
-            text.Append(ControlStrings.GetName(Button));
+            text.Append(ControlStringsCache.GetName(Button));
         if (AlternativeType != HoldableControlType.None)
         {
             if (Type != HoldableControlType.None)
                 text.Append(" or ");
             if (AlternativeType == HoldableControlType.Key)
-                text.Append(ControlStrings.GetName(AlternativeKey));
+                text.Append(ControlStringsCache.GetName(AlternativeKey));
             else if (AlternativeType == HoldableControlType.MouseButton)
-                text.Append(ControlStrings.GetName(AlternativeButton));
+                text.Append(ControlStringsCache.GetName(AlternativeButton));
         }
         return text;
     }
@@ -410,13 +408,13 @@ public struct InstantBind
         switch (Type)
         {
             case InstantControlType.Key:
-                text.Append(ControlStrings.GetName(Key));
+                text.Append(ControlStringsCache.GetName(Key));
                 break;
             case InstantControlType.MouseButton:
-                text.Append(ControlStrings.GetName(Button));
+                text.Append(ControlStringsCache.GetName(Button));
                 break;
             case InstantControlType.MouseWheel:
-                text.Append(ControlStrings.GetName(Wheel));
+                text.Append(ControlStringsCache.GetName(Wheel));
                 break;
         }
         if (AlternativeType != InstantControlType.None)
@@ -428,13 +426,13 @@ public struct InstantBind
             switch (AlternativeType)
             {
                 case InstantControlType.Key:
-                    text.Append(ControlStrings.GetName(AlternativeKey));
+                    text.Append(ControlStringsCache.GetName(AlternativeKey));
                     break;
                 case InstantControlType.MouseButton:
-                    text.Append(ControlStrings.GetName(AlternativeButton));
+                    text.Append(ControlStringsCache.GetName(AlternativeButton));
                     break;
                 case InstantControlType.MouseWheel:
-                    text.Append(ControlStrings.GetName(AlternativeWheel));
+                    text.Append(ControlStringsCache.GetName(AlternativeWheel));
                     break;
             }
         }

@@ -212,13 +212,13 @@ public class CarDemo : DemoBase
 
         int textHeight = 16;
         Vector2 position = new(32, renderer.Surface.Resolution.Y - 128);
-        RenderControl(ref position, textHeight, nameof(Forward), ControlStrings.GetName(Forward), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Backward), ControlStrings.GetName(Backward), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Right), ControlStrings.GetName(Right), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Left), ControlStrings.GetName(Left), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Zoom), ControlStrings.GetName(Zoom), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Brake), ControlStrings.GetName(Brake), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(ToggleCar), ControlStrings.GetName(ToggleCar), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Forward), ControlStringsCache.GetName(Forward), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Backward), ControlStringsCache.GetName(Backward), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Right), ControlStringsCache.GetName(Right), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Left), ControlStringsCache.GetName(Left), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Zoom), ControlStringsCache.GetName(Zoom), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Brake), ControlStringsCache.GetName(Brake), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(ToggleCar), ControlStringsCache.GetName(ToggleCar), text, renderer.TextBatcher, font);
         base.Render(renderer, camera, input, text, font);
     }
 }

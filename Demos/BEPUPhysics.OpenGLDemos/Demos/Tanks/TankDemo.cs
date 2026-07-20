@@ -348,14 +348,14 @@ public class TankDemo : DemoBase
 
         int textHeight = 16;
         Vector2 position = new(32, renderer.Surface.Resolution.Y - 144);
-        RenderControl(ref position, textHeight, nameof(Fire), ControlStrings.GetName(Fire), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Forward), ControlStrings.GetName(Forward), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Backward), ControlStrings.GetName(Backward), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Right), ControlStrings.GetName(Right), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Left), ControlStrings.GetName(Left), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Zoom), ControlStrings.GetName(Zoom), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(Brake), ControlStrings.GetName(Brake), text, renderer.TextBatcher, font);
-        RenderControl(ref position, textHeight, nameof(ToggleTank), ControlStrings.GetName(ToggleTank), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Fire), ControlStringsCache.GetName(Fire), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Forward), ControlStringsCache.GetName(Forward), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Backward), ControlStringsCache.GetName(Backward), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Right), ControlStringsCache.GetName(Right), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Left), ControlStringsCache.GetName(Left), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Zoom), ControlStringsCache.GetName(Zoom), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(Brake), ControlStringsCache.GetName(Brake), text, renderer.TextBatcher, font);
+        RenderControl(ref position, textHeight, nameof(ToggleTank), ControlStringsCache.GetName(ToggleTank), text, renderer.TextBatcher, font);
 
         if (aiTanks.Count > 0)
             renderer.TextBatcher.Write(text.Clear().Append("Enemy tanks remaining: ").Append(aiTanks.Count), new Vector2(32, renderer.Surface.Resolution.Y - 172), 24, new Vector3(1, 1, 1), font);
