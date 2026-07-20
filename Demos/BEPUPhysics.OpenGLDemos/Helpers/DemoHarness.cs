@@ -56,8 +56,7 @@ public class DemoHarness : IDisposable
         this.loop = loop;
         this.content = content;
         timeSamples = new SimulationTimeSamples(512, loop.Pool);
-        if (controls == null)
-            this.controls = BEPUDemoControlsBindings.Default;
+        this.controls = controls ?? BEPUDemoControlsBindings.Default;
 
         FontContent fontContent = content.Load<FontContent>(@"Content\Carlito-Regular.ttf");
         font = new Font(
