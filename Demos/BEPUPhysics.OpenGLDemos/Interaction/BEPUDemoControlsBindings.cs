@@ -31,22 +31,22 @@ internal static class ControlStringsCache
     static ControlStringsCache()
     {
         _keys = [];
-        string[] keyNames = Enum.GetNames(typeof(Keys));
-        Keys[] keyValues = (Keys[])Enum.GetValues(typeof(Keys));
+        string[] keyNames = Enum.GetNames<Keys>();
+        Keys[] keyValues = Enum.GetValues<Keys>();
         for (int i = 0; i < keyNames.Length; ++i)
         {
             _keys.TryAdd(keyValues[i], keyNames[i]);
         }
         _mouseButtons = [];
-        string[] mouseButtonNames = Enum.GetNames(typeof(MouseButton));
-        MouseButton[] mouseButtonValues = (MouseButton[])Enum.GetValues(typeof(MouseButton));
+        string[] mouseButtonNames = Enum.GetNames<MouseButton>();
+        MouseButton[] mouseButtonValues = Enum.GetValues<MouseButton>();
         for (int i = 0; i < mouseButtonNames.Length; ++i)
         {
             _mouseButtons.TryAdd(mouseButtonValues[i], mouseButtonNames[i]);
         }
         _mouseWheel = [];
-        string[] wheelNames = Enum.GetNames(typeof(MouseWheelAction));
-        MouseWheelAction[] wheelValues = (MouseWheelAction[])Enum.GetValues(typeof(MouseWheelAction));
+        string[] wheelNames = Enum.GetNames<MouseWheelAction>();
+        MouseWheelAction[] wheelValues = Enum.GetValues<MouseWheelAction>();
         for (int i = 0; i < wheelNames.Length; ++i)
         {
             _mouseWheel.TryAdd(wheelValues[i], wheelNames[i]);
@@ -440,7 +440,7 @@ public struct InstantBind
     }
 }
 
-public struct Controls
+public struct BEPUDemoControlsBindings
 {
     public HoldableBind MoveForward;
     public HoldableBind MoveBackward;
@@ -467,11 +467,11 @@ public struct Controls
     public InstantBind ChangeDemo;
     public InstantBind ShowControls;
 
-    public static Controls Default
+    public static BEPUDemoControlsBindings Default
     {
         get
         {
-            return new Controls
+            return new BEPUDemoControlsBindings
             {
                 MoveForward = Keys.W,
                 MoveBackward = Keys.S,

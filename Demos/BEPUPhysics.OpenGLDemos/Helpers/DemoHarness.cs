@@ -16,7 +16,7 @@ public class DemoHarness : IDisposable
     internal GameLoop loop;
     ContentArchive content;
     Grabber grabber;
-    internal Controls controls;
+    internal BEPUDemoControlsBindings controls;
     Font font;
 
     bool showControls;
@@ -52,13 +52,13 @@ public class DemoHarness : IDisposable
     SimulationTimeSamples timeSamples;
 
     public DemoHarness(GameLoop loop, ContentArchive content,
-        Controls? controls = null)
+        BEPUDemoControlsBindings? controls = null)
     {
         this.loop = loop;
         this.content = content;
         timeSamples = new SimulationTimeSamples(512, loop.Pool);
         if (controls == null)
-            this.controls = Controls.Default;
+            this.controls = BEPUDemoControlsBindings.Default;
 
         FontContent fontContent = content.Load<FontContent>(@"Content\Carlito-Regular.ttf");
         font = new Font(
