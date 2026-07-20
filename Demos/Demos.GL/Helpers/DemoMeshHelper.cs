@@ -23,13 +23,13 @@ public static class DemoMeshHelper
 
     public static Mesh CreateFan(int triangleCount, float radius, Vector3 scaling, BufferPool pool)
     {
-        var anglePerTriangle = 2 * MathF.PI / triangleCount;
+        float anglePerTriangle = 2 * MathF.PI / triangleCount;
         pool.Take<Triangle>(triangleCount, out Buffer<Triangle> triangles);
 
         for (int i = 0; i < triangleCount; ++i)
         {
-            var firstAngle = i * anglePerTriangle;
-            var secondAngle = ((i + 1) % triangleCount) * anglePerTriangle;
+            float firstAngle = i * anglePerTriangle;
+            float secondAngle = ((i + 1) % triangleCount) * anglePerTriangle;
 
             ref Triangle triangle = ref triangles[i];
             triangle.A = new Vector3(radius * MathF.Cos(firstAngle), 0, radius * MathF.Sin(firstAngle));
@@ -50,16 +50,16 @@ public static class DemoMeshHelper
             }
         }
 
-        var quadWidth = width - 1;
-        var quadHeight = height - 1;
-        var triangleCount = quadWidth * quadHeight * 2;
+        int quadWidth = width - 1;
+        int quadHeight = height - 1;
+        int triangleCount = quadWidth * quadHeight * 2;
         pool.Take<Triangle>(triangleCount, out Buffer<Triangle> triangles);
 
         for (int i = 0; i < quadWidth; ++i)
         {
             for (int j = 0; j < quadHeight; ++j)
             {
-                var triangleIndex = (j * quadWidth + i) * 2;
+                int triangleIndex = (j * quadWidth + i) * 2;
                 ref Triangle triangle0 = ref triangles[triangleIndex];
                 ref Vector3 v00 = ref vertices[width * j + i];
                 ref Vector3 v01 = ref vertices[width * j + i + 1];

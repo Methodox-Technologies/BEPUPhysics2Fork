@@ -77,7 +77,7 @@ public class BlockChainDemo : DemoBase
             for (int i = 0; i < 128; ++i)
             {
                 Vector3 direction = new Vector3(-1) + 2 * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
-                var length = direction.Length();
+                float length = direction.Length();
                 if (length > 1e-7f)
                     direction /= length;
                 else

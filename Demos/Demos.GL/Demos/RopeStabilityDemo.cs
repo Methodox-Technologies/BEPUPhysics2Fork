@@ -44,7 +44,7 @@ public class RopeStabilityDemo : DemoBase
     public static BodyHandle[] BuildRope(Simulation simulation, Vector3 start, int bodyCount, float bodySize, float bodySpacing, float constraintOffsetLength, float massPerBody, float inverseInertiaScale, SpringSettings springSettings)
     {
         BodyHandle[] handles = BuildRopeBodies(simulation, start, bodyCount, bodySize, bodySpacing, massPerBody, inverseInertiaScale);
-        var maximumDistance = 2 * bodySize + bodySpacing - 2 * constraintOffsetLength;
+        float maximumDistance = 2 * bodySize + bodySpacing - 2 * constraintOffsetLength;
         for (int i = 0; i < handles.Length - 1; ++i)
         {
             simulation.Solver.Add(handles[i], handles[i + 1],
@@ -67,7 +67,7 @@ public class RopeStabilityDemo : DemoBase
     public static BodyHandle AttachWreckingBall(Simulation simulation, BodyHandle[] bodyHandles, float ropeBodyRadius, float bodySpacing, float constraintOffsetLength, float wreckingBallRadius, BodyInertia wreckingBallInertia, TypedIndex wreckingBallShapeIndex, SpringSettings springSettings)
     {
         BodyHandle wreckingBallBodyHandle = CreateWreckingBall(simulation, bodyHandles, ropeBodyRadius, bodySpacing, wreckingBallRadius, wreckingBallInertia, wreckingBallShapeIndex);
-        var maximumDistance = bodySpacing + ropeBodyRadius - constraintOffsetLength;
+        float maximumDistance = bodySpacing + ropeBodyRadius - constraintOffsetLength;
         simulation.Solver.Add(bodyHandles[bodyHandles.Length - 1], wreckingBallBodyHandle,
             new DistanceLimit(new Vector3(0, -constraintOffsetLength, 0), new Vector3(0, wreckingBallRadius, 0), maximumDistance * 0.1f, maximumDistance, springSettings));
         return wreckingBallBodyHandle;
@@ -197,7 +197,7 @@ public class RopeStabilityDemo : DemoBase
 
             BodyHandle wreckingBallHandle = AttachWreckingBall(Simulation, bodyHandles, bodyRadius, bodySpacing, 0, bigWreckingBall.Radius, bigWreckingBallInertia, bigWreckingBallIndex, springSettings);
             Vector3 wreckingBallConnectionOffset = new(0, bigWreckingBall.Radius, 0);
-            var maximumDistance = Vector3.Distance(
+            float maximumDistance = Vector3.Distance(
                 new BodyReference(bodyHandles[0], Simulation.Bodies).Pose.Position,
                 new BodyReference(wreckingBallHandle, Simulation.Bodies).Pose.Position + wreckingBallConnectionOffset);
             Simulation.Solver.Add(bodyHandles[0], wreckingBallHandle, new DistanceLimit(default, wreckingBallConnectionOffset, 0.01f, maximumDistance, springSettings));
@@ -219,7 +219,7 @@ public class RopeStabilityDemo : DemoBase
             {
                 if (handleIndexA >= bodyHandles.Length || handleIndexB >= bodyHandles.Length)
                     return false;
-                var maximumDistance = Vector3.Distance(
+                float maximumDistance = Vector3.Distance(
                     new BodyReference(bodyHandles[handleIndexA], Simulation.Bodies).Pose.Position,
                     new BodyReference(bodyHandles[handleIndexB], Simulation.Bodies).Pose.Position);
                 Simulation.Solver.Add(bodyHandles[handleIndexA], bodyHandles[handleIndexB], new DistanceLimit(default, default, .01f, maximumDistance, springSettings));
@@ -241,10 +241,10 @@ public class RopeStabilityDemo : DemoBase
             Vector3 wreckingBallConnectionOffset = new(0, bigWreckingBall.Radius, 0);
             for (int i = 1; i <= constraintsPerBody; ++i)
             {
-                var targetBodyHandleIndex = bodyHandles.Length - i;
+                int targetBodyHandleIndex = bodyHandles.Length - i;
                 if (targetBodyHandleIndex < 0)
                     break;
-                var maximumDistance = Vector3.Distance(
+                float maximumDistance = Vector3.Distance(
                     new BodyReference(bodyHandles[targetBodyHandleIndex], Simulation.Bodies).Pose.Position,
                     new BodyReference(wreckingBallHandle, Simulation.Bodies).Pose.Position + wreckingBallConnectionOffset);
                 Simulation.Solver.Add(bodyHandles[targetBodyHandleIndex], wreckingBallHandle, new DistanceLimit(default, wreckingBallConnectionOffset, 0.01f, maximumDistance, springSettings));
@@ -263,7 +263,7 @@ public class RopeStabilityDemo : DemoBase
     {
         rolloverInfo.Render(renderer, camera, input, text, font);
 
-        var bottomY = renderer.Surface.Resolution.Y;
+        int bottomY = renderer.Surface.Resolution.Y;
         renderer.TextBatcher.Write(text.Clear().Append("Heavy objects depending on light objects through constraints can lead to instability at slow solver update rates."), new Vector2(16, bottomY - 48), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("You could just increase the solver rate by calling Timestep more often or using substepping (see SubsteppingDemo), but this demo shows some alternatives."), new Vector2(16, bottomY - 32), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Even with a poor simulation configuration, decent body/constraint configuration can still support extreme mass ratios."), new Vector2(16, bottomY - 16), 16, Vector3.One, font);

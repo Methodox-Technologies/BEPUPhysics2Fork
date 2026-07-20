@@ -74,7 +74,7 @@ public class PerBodyGravityDemo : DemoBase
             Span<float> gravityValues = stackalloc float[Vector<float>.Count];
             for (int bundleSlotIndex = 0; bundleSlotIndex < Vector<int>.Count; ++bundleSlotIndex)
             {
-                var bodyIndex = bodyIndices[bundleSlotIndex];
+                int bodyIndex = bodyIndices[bundleSlotIndex];
                 //Not every slot in the SIMD vector is guaranteed to be filled.
                 //The integration mask tells us which ones are active in a way that's convenient for vectorized operations, but the bodyIndex for empty lanes will also be -1.
                 if (bodyIndex >= 0)
@@ -156,7 +156,7 @@ public class PerBodyGravityDemo : DemoBase
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var bottomY = renderer.Surface.Resolution.Y;
+        int bottomY = renderer.Surface.Resolution.Y;
         renderer.TextBatcher.Write(text.Clear().Append("The user-supplied IPoseIntegratorCallbacks.IntegrateVelocity implementation defines how body velocities change over time."), new Vector2(16, bottomY - 48), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("It's commonly used for gravity. Here, each body's gravity is defined independently."), new Vector2(16, bottomY - 32), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Spheres fall slowly, boxes quickly, and capsules are in between."), new Vector2(16, bottomY - 16), 16, Vector3.One, font);

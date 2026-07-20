@@ -20,7 +20,7 @@ public static class DeterminismTest<T> where T : DemoBase, new()
             if ((i + 1) % 32 == 0)
                 Console.Write($"{i + 1}, ");
         }
-        Dictionary<int, MotionState> motionStates = new();
+        Dictionary<int, MotionState> motionStates = [];
         for (int setIndex = 0; setIndex < demo.Simulation.Bodies.Sets.Length; ++setIndex)
         {
             ref BodySet set = ref demo.Simulation.Bodies.Sets[setIndex];

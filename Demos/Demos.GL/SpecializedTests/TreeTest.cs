@@ -18,7 +18,7 @@ public unsafe static class TreeTest
         const int leafCountAlongXAxis = 11;
         const int leafCountAlongYAxis = 13;
         const int leafCountAlongZAxis = 15;
-        var leafCount = leafCountAlongXAxis * leafCountAlongYAxis * leafCountAlongZAxis;
+        int leafCount = leafCountAlongXAxis * leafCountAlongYAxis * leafCountAlongZAxis;
         pool.Take<BoundingBox>(leafCount, out Buffer<BoundingBox> leafBounds);
 
         const float boundsSpan = 2;
@@ -31,7 +31,7 @@ public unsafe static class TreeTest
             {
                 for (int k = 0; k < leafCountAlongZAxis; ++k)
                 {
-                    var index = leafCountAlongXAxis * leafCountAlongYAxis * k + leafCountAlongXAxis * j + i;
+                    int index = leafCountAlongXAxis * leafCountAlongYAxis * k + leafCountAlongXAxis * j + i;
                     leafBounds[index].Min = new Vector3(i, j, k) * boundsSpacing;
                     leafBounds[index].Max = leafBounds[index].Min + new Vector3(boundsSpan) +
                         spanRange * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
@@ -40,7 +40,7 @@ public unsafe static class TreeTest
             }
         }
 
-        var prebuiltCount = Math.Max(leafCount / 2, 1);
+        int prebuiltCount = Math.Max(leafCount / 2, 1);
 
         tree.SweepBuild(pool, leafBounds.Slice(prebuiltCount));
         tree.Validate();
@@ -71,19 +71,19 @@ public unsafe static class TreeTest
         QuickList<int> removedLeafHandles = new(leafCount, pool);
         for (int i = 0; i < iterations; ++i)
         {
-            var changeCount = random.Next(maximumChangesPerIteration);
+            int changeCount = random.Next(maximumChangesPerIteration);
             for (int j = 0; j <= changeCount; ++j)
             {
-                var addedFraction = tree.LeafCount / (float)leafCount;
+                float addedFraction = tree.LeafCount / (float)leafCount;
                 if (random.NextDouble() < addedFraction)
                 {
                     //Remove a leaf.
-                    var leafIndexToRemove = random.Next(tree.LeafCount);
-                    var handleToRemove = leafIndexToHandle[leafIndexToRemove];
-                    var movedLeafIndex = tree.RemoveAt(leafIndexToRemove);
+                    int leafIndexToRemove = random.Next(tree.LeafCount);
+                    int handleToRemove = leafIndexToHandle[leafIndexToRemove];
+                    int movedLeafIndex = tree.RemoveAt(leafIndexToRemove);
                     if (movedLeafIndex >= 0)
                     {
-                        var movedHandle = leafIndexToHandle[movedLeafIndex];
+                        int movedHandle = leafIndexToHandle[movedLeafIndex];
                         handleToLeafIndex[movedHandle] = leafIndexToRemove;
                         leafIndexToHandle[leafIndexToRemove] = movedHandle;
                         leafIndexToHandle[movedLeafIndex] = -1;
@@ -102,10 +102,10 @@ public unsafe static class TreeTest
                 else
                 {
                     //Add a leaf.
-                    var indexInRemovedList = random.Next(removedLeafHandles.Count);
-                    var handleToAdd = removedLeafHandles[indexInRemovedList];
+                    int indexInRemovedList = random.Next(removedLeafHandles.Count);
+                    int handleToAdd = removedLeafHandles[indexInRemovedList];
                     removedLeafHandles.FastRemoveAt(indexInRemovedList);
-                    var leafIndex = tree.Add(leafBounds[handleToAdd], pool);
+                    int leafIndex = tree.Add(leafBounds[handleToAdd], pool);
                     leafIndexToHandle[leafIndex] = handleToAdd;
                     handleToLeafIndex[handleToAdd] = leafIndex;
 

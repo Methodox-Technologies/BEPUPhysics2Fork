@@ -28,7 +28,7 @@ public static class TestHelpers
 
         pose.Position = positionBounds.Min + span * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
         Vector3 axis = new(random.NextSingle(), random.NextSingle(), random.NextSingle());
-        var length = axis.Length();
+        float length = axis.Length();
         if (length > 0)
             axis /= length;
         else

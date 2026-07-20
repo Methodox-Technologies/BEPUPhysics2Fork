@@ -113,11 +113,11 @@ public class CompoundBoundTests : DemoBase
 
 
 
-        var angularSpeed = angularVelocity.Length();
+        float angularSpeed = angularVelocity.Length();
         Vector3 angularDirection = angularVelocity / angularSpeed;
-        var theta = angularSpeed * dt;
+        float theta = angularSpeed * dt;
         Matrix3x3.Transform(offset, Matrix3x3.CreateFromAxisAngle(angularDirection, MathHelper.Min(theta, MathHelper.Pi)), out Vector3 endpoint);
-        var distance = Vector3.Distance(endpoint, offset);
+        float distance = Vector3.Distance(endpoint, offset);
 
         maxExpansion = new Vector3(distance);
         minExpansion = -maxExpansion;
@@ -161,7 +161,7 @@ public class CompoundBoundTests : DemoBase
 
             for (int i = 0; i < pathPointCount; ++i)
             {
-                var t = (dt * i) / (pathPointCount - 1);
+                float t = (dt * i) / (pathPointCount - 1);
                 //local point = (aPosition + aLinear * t - bPosition - bLinear * t + localOffsetA * (orientationA * rotate(angularA * t)) * inverse(orientationB * rotate(angularB * t))
 
                 PoseIntegration.Integrate(orientationA, velocityA.Angular, t, out Quaternion integratedA);

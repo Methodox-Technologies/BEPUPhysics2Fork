@@ -116,7 +116,7 @@ public class RopeTwistDemo : DemoBase
 
             for (int ropeIndex = 0; ropeIndex < ropeCount; ++ropeIndex)
             {
-                var angle = ropeIndex * MathF.PI * 2 / ropeCount;
+                float angle = ropeIndex * MathF.PI * 2 / ropeCount;
                 const float ropeDistributionRadius = 1f;
                 Vector3 horizontalOffset = ropeDistributionRadius * new Vector3(MathF.Sin(angle), 0, MathF.Cos(angle));
                 Vector3 ropeStartLocation = startLocation + horizontalOffset;
@@ -132,7 +132,7 @@ public class RopeTwistDemo : DemoBase
                 {
                     if (handleIndexA >= bodyHandles.Length || handleIndexB >= bodyHandles.Length)
                         return false;
-                    var maximumDistance = Vector3.Distance(
+                    float maximumDistance = Vector3.Distance(
                         new BodyReference(bodyHandles[handleIndexA], Simulation.Bodies).Pose.Position,
                         new BodyReference(bodyHandles[handleIndexB], Simulation.Bodies).Pose.Position);
                     Simulation.Solver.Add(bodyHandles[handleIndexA], bodyHandles[handleIndexB], new DistanceLimit(default, default, .01f, maximumDistance, springSettings));
@@ -154,10 +154,10 @@ public class RopeTwistDemo : DemoBase
                 Vector3 ropeConnectionToBall = wreckingBallBody.Pose.Position + wreckingBallConnectionOffset;
                 for (int i = 1; i <= constraintsPerBody; ++i)
                 {
-                    var targetBodyHandleIndex = bodyHandles.Length - i;
+                    int targetBodyHandleIndex = bodyHandles.Length - i;
                     if (targetBodyHandleIndex < 0)
                         break;
-                    var maximumDistance = Vector3.Distance(
+                    float maximumDistance = Vector3.Distance(
                         new BodyReference(bodyHandles[targetBodyHandleIndex], Simulation.Bodies).Pose.Position,
                         ropeConnectionToBall);
                     Simulation.Solver.Add(bodyHandles[targetBodyHandleIndex], wreckingBallBodyHandle, new DistanceLimit(default, wreckingBallConnectionOffset, 0.01f, maximumDistance, springSettings));

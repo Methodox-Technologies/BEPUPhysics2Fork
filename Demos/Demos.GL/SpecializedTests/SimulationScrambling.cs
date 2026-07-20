@@ -69,8 +69,8 @@ public static class SimulationScrambling
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void LoopBody(int encodedBodyIndex)
         {
-            var bodyIndex = encodedBodyIndex & Bodies.BodyReferenceMask;
-            var entryIndex = HandlesToIdentity[Bodies.ActiveSet.IndexToHandle[bodyIndex].Value];
+            int bodyIndex = encodedBodyIndex & Bodies.BodyReferenceMask;
+            int entryIndex = HandlesToIdentity[Bodies.ActiveSet.IndexToHandle[bodyIndex].Value];
             if (IndexInConstraint == 0)
                 IdentityA = entryIndex;
             else
@@ -82,7 +82,7 @@ public static class SimulationScrambling
 
     static void RemoveConstraint(Simulation simulation, ConstraintHandle constraintHandle, int[] constraintHandlesToIdentity, ConstraintHandle[] constraintHandles, List<int> removedConstraints)
     {
-        var constraintIdentity = constraintHandlesToIdentity[constraintHandle.Value];
+        int constraintIdentity = constraintHandlesToIdentity[constraintHandle.Value];
         constraintHandlesToIdentity[constraintHandle.Value] = -1;
         constraintHandles[constraintIdentity] = new ConstraintHandle(-1);
         simulation.Solver.Remove(constraintHandle);
@@ -98,7 +98,7 @@ public static class SimulationScrambling
             //The body in this constraint should both:
             //1) have a handle associated with it, and 
             //2) the constraint graph list for the body should include the constraint handle.
-            var bodyIndex = encodedBodyIndex & Bodies.BodyReferenceMask;
+            int bodyIndex = encodedBodyIndex & Bodies.BodyReferenceMask;
             Debug.Assert(Simulation.Bodies.ActiveSet.IndexToHandle[bodyIndex].Value >= 0);
             Debug.Assert(Simulation.Bodies.ActiveSet.BodyIsConstrainedBy(bodyIndex, ConstraintHandle));
         }
@@ -143,7 +143,7 @@ public static class SimulationScrambling
                 }
             }
         }
-        var constraintCount = 0;
+        int constraintCount = 0;
         foreach (ConstraintBatch batch in activeSet.Batches)
         {
             foreach (TypeBatch typeBatch in batch.TypeBatches)
@@ -158,7 +158,7 @@ public static class SimulationScrambling
     }
     static void FastRemoveAt<T>(List<T> list, int index)
     {
-        var lastIndex = list.Count - 1;
+        int lastIndex = list.Count - 1;
         if (lastIndex != index)
         {
             list[index] = list[lastIndex];
@@ -171,8 +171,8 @@ public static class SimulationScrambling
         int originalConstraintCount, List<int> removedConstraints, List<int> removedBodies, Random random)
     {
         //Add a body.
-        var toAddIndex = random.Next(removedBodies.Count);
-        var toAdd = removedBodies[toAddIndex];
+        int toAddIndex = random.Next(removedBodies.Count);
+        int toAdd = removedBodies[toAddIndex];
         FastRemoveAt(removedBodies, toAddIndex);
         BodyHandle bodyHandle = simulation.Bodies.Add(bodyDescriptions[toAdd]);
         bodyHandlesToIdentity[bodyHandle.Value] = toAdd;
@@ -187,7 +187,7 @@ public static class SimulationScrambling
         List<int> removedConstraints, List<int> removedBodies, Random random) where T : unmanaged, IConstraintDescription<T>
     {
         //Remove a body.
-        var removedBodyIndex = random.Next(simulation.Bodies.ActiveSet.Count);
+        int removedBodyIndex = random.Next(simulation.Bodies.ActiveSet.Count);
         //All constraints associated with the body have to be removed first.
         ref QuickList<BodyConstraintReference> constraintList = ref simulation.Bodies.ActiveSet.Constraints[removedBodyIndex];
         for (int i = constraintList.Count - 1; i >= 0; --i)
@@ -217,8 +217,8 @@ public static class SimulationScrambling
         {
             //There's no guarantee that the bodies involved with the removed constraint are actually in the simulation.
             //Rather than doing anything clever, just retry a few times.
-            var constraintIdentityIndex = random.Next(removedConstraints.Count);
-            var constraintIdentity = removedConstraints[constraintIdentityIndex];
+            int constraintIdentityIndex = random.Next(removedConstraints.Count);
+            int constraintIdentity = removedConstraints[constraintIdentityIndex];
             ref CachedConstraint<T> constraint = ref constraintDescriptions[constraintIdentity];
             BodyHandle handleA = bodyHandles[constraint.BodyA];
             BodyHandle handleB = bodyHandles[constraint.BodyB];
@@ -243,7 +243,7 @@ public static class SimulationScrambling
     {
         //Remove a constraint.
         ref ConstraintSet activeSet = ref simulation.Solver.ActiveSet;
-        var batchIndex = random.Next(activeSet.Batches.Count);
+        int batchIndex = random.Next(activeSet.Batches.Count);
         ref ConstraintBatch batch = ref activeSet.Batches[batchIndex];
         Debug.Assert(batchIndex < activeSet.Batches.Count - 1 || batch.TypeBatches.Count > 0,
             "While a lower index batch may end up empty due to a lack of active batch compression, " +
@@ -252,7 +252,7 @@ public static class SimulationScrambling
         {
             ref TypeBatch typeBatch = ref batch.TypeBatches[random.Next(batch.TypeBatches.Count)];
             Debug.Assert(typeBatch.ConstraintCount > 0, "If a type batch exists, it should have constraints in it.");
-            var indexInTypeBatch = random.Next(typeBatch.ConstraintCount);
+            int indexInTypeBatch = random.Next(typeBatch.ConstraintCount);
             ConstraintHandle constraintHandle = typeBatch.IndexToHandle[indexInTypeBatch];
 
             RemoveConstraint(simulation, constraintHandle, constraintHandlesToIdentity, constraintHandles, removedConstraints);
@@ -277,10 +277,10 @@ public static class SimulationScrambling
         Debug.Assert(constraintHandles.Length == originalConstraintCount);
 
         //We'll need a mapping from the current handles back to the identity.
-        var bodyHandlesToIdentity = new int[simulation.Bodies.HandleToLocation.Length];
+        int[] bodyHandlesToIdentity = new int[simulation.Bodies.HandleToLocation.Length];
         for (int i = 0; i < bodyHandlesToIdentity.Length; ++i)
             bodyHandlesToIdentity[i] = -1;
-        var constraintHandlesToIdentity = new int[simulation.Solver.HandleToConstraint.Length];
+        int[] constraintHandlesToIdentity = new int[simulation.Solver.HandleToConstraint.Length];
         for (int i = 0; i < constraintHandlesToIdentity.Length; ++i)
             constraintHandlesToIdentity[i] = -1;
 
@@ -309,13 +309,13 @@ public static class SimulationScrambling
 
         //Any time a body is removed, the handle in the associated body entry must be updated to -1.
         //All constraints refer to bodies by their out-of-engine identity so that everything stays robust in the face of adds and removes.
-        List<int> removedConstraints = new();
-        List<int> removedBodies = new();
+        List<int> removedConstraints = [];
+        List<int> removedBodies = [];
         Random random = new(5);
 
         Validate(simulation, removedConstraints, removedBodies, bodyHandles.Length, originalConstraintCount);
 
-        var constraintActionProbability = originalConstraintCount > 0 ? 1 - (double)simulation.Bodies.ActiveSet.Count / originalConstraintCount : 0;
+        double constraintActionProbability = originalConstraintCount > 0 ? 1 - (double)simulation.Bodies.ActiveSet.Count / originalConstraintCount : 0;
 
         Stopwatch timer = Stopwatch.StartNew();
         for (int iterationIndex = 0; iterationIndex < iterations; ++iterationIndex)
@@ -323,7 +323,7 @@ public static class SimulationScrambling
             if (random.NextDouble() < constraintActionProbability)
             {
                 //Constraint action.
-                var constraintRemovalProbability = (originalConstraintCount - removedConstraints.Count) / (double)originalConstraintCount;
+                double constraintRemovalProbability = (originalConstraintCount - removedConstraints.Count) / (double)originalConstraintCount;
                 if (random.NextDouble() < constraintRemovalProbability)
                 {
                     ChurnRemoveConstraint(simulation, bodyHandles.Length, constraintHandlesToIdentity, constraintHandles, constraintDescriptions, removedConstraints, removedBodies, random);
@@ -336,7 +336,7 @@ public static class SimulationScrambling
             else
             {
                 //Body action.
-                var bodyRemovalProbability = (bodyHandles.Length - removedBodies.Count) / (double)bodyHandles.Length;
+                double bodyRemovalProbability = (bodyHandles.Length - removedBodies.Count) / (double)bodyHandles.Length;
                 if (random.NextDouble() < bodyRemovalProbability)
                 {
                     ChurnRemoveBody(simulation, bodyHandles, bodyHandlesToIdentity, constraintHandles, constraintHandlesToIdentity, constraintDescriptions, removedConstraints, removedBodies, random);
@@ -365,7 +365,7 @@ public static class SimulationScrambling
             Debug.Assert(description.Equals(constraintDescriptions[i].Description), "Moving constraints around should not affect their descriptions.");
         }
 
-        var newConstraintCount = simulation.Solver.CountConstraints();
+        int newConstraintCount = simulation.Solver.CountConstraints();
         Debug.Assert(newConstraintCount == originalConstraintCount, "Best have the same number of constraints if we actually added them all back!");
         Debug.Assert(bodyHandles.Length == simulation.Bodies.ActiveSet.Count, "And bodies, too!");
 

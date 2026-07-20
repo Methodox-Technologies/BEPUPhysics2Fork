@@ -27,26 +27,26 @@ public class ChainFountainDemo : DemoBase
         CollidableProperty<RopeFilter> filters = new();
         Simulation = Simulation.Create(BufferPool, new RopeNarrowPhaseCallbacks(filters, new PairMaterialProperties(0.1f, float.MaxValue, new SpringSettings(240, 0)), 3), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(1, 12));
 
-        var beadSpacing = 0.3f;
+        float beadSpacing = 0.3f;
         Capsule beadShape = new(0.05f, beadSpacing);
         BodyDescription beadDescription = BodyDescription.CreateDynamic(new Vector3(), beadShape.ComputeInertia(1), Simulation.Shapes.Add(beadShape), 0.01f);
 
         const int beadCount = 4096;
         BodyHandle[] handles = new BodyHandle[beadCount];
-        var radius = 2.5f;
-        var anglePerIteration = 2 * MathF.Asin(beadSpacing / (2 * radius));
-        var heightPerIteration = beadShape.Radius * 2 / (MathF.PI * 2 / anglePerIteration);
+        float radius = 2.5f;
+        float anglePerIteration = 2 * MathF.Asin(beadSpacing / (2 * radius));
+        float heightPerIteration = beadShape.Radius * 2 / (MathF.PI * 2 / anglePerIteration);
         for (int i = 0; i < beadCount; ++i)
         {
-            var angle = MathF.PI + i * anglePerIteration;
-            var nextAngle = MathF.PI + (i + 1) * anglePerIteration;
+            float angle = MathF.PI + i * anglePerIteration;
+            float nextAngle = MathF.PI + (i + 1) * anglePerIteration;
 
             Vector3 currentPosition = new(2.8f + MathF.Sin(angle) * radius, 0.5f + heightPerIteration * i, -15 + MathF.Cos(angle) * radius);
             Vector3 nextPosition = new(2.8f + MathF.Sin(nextAngle) * radius, 0.5f + heightPerIteration * (i + 1), -15 + MathF.Cos(nextAngle) * radius);
             //The constraints were built along the local Y axis, so get the shortest rotation from Y to the current orientation.
             Vector3 offset = currentPosition - nextPosition;
             Vector3 cross = Vector3.Cross(Vector3.Normalize(offset), new Vector3(0, 1, 0));
-            var crossLength = cross.Length();
+            float crossLength = cross.Length();
             Quaternion orientation = crossLength > 1e-8f ? QuaternionEx.CreateFromAxisAngle(cross / crossLength, (float)Math.Asin(crossLength)) : Quaternion.Identity;
 
             //Include a little nudge. This is going to create constraint error, but that's fine. It distributes the rope over the platform to avoid tangles.

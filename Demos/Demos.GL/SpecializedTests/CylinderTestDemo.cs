@@ -18,20 +18,20 @@ public class CylinderTestDemo : DemoBase
     private static void BruteForceSearch(Vector3 lineOrigin, Vector3 lineDirection, float halfLength, in Cylinder cylinder, out float closestT, out float closestDistanceSquared, out float errorMargin)
     {
         const int sampleCount = 1 << 20;
-        var inverseSampleCount = 1.0 / (sampleCount - 1);
+        double inverseSampleCount = 1.0 / (sampleCount - 1);
         errorMargin = (float)inverseSampleCount;
-        var radiusSquared = cylinder.Radius * cylinder.Radius;
+        float radiusSquared = cylinder.Radius * cylinder.Radius;
         closestDistanceSquared = float.MaxValue;
         closestT = float.MaxValue;
         for (int i = 0; i < sampleCount; ++i)
         {
-            var t = (float)(halfLength * (i * inverseSampleCount * 2 - 1));
+            float t = (float)(halfLength * (i * inverseSampleCount * 2 - 1));
             Vector3 point = lineOrigin + lineDirection * t;
-            var horizontalLengthSquared = point.X * point.X + point.Z * point.Z;
+            float horizontalLengthSquared = point.X * point.X + point.Z * point.Z;
             Vector3 clamped;
             if (horizontalLengthSquared > radiusSquared)
             {
-                var scale = cylinder.Radius / MathF.Sqrt(horizontalLengthSquared);
+                float scale = cylinder.Radius / MathF.Sqrt(horizontalLengthSquared);
                 clamped.X = scale * point.X;
                 clamped.Z = scale * point.Z;
             }
@@ -41,7 +41,7 @@ public class CylinderTestDemo : DemoBase
                 clamped.Z = point.Z;
             }
             clamped.Y = MathF.Max(-cylinder.HalfLength, MathF.Min(cylinder.HalfLength, point.Y));
-            var distanceSquared = Vector3.DistanceSquared(clamped, point);
+            float distanceSquared = Vector3.DistanceSquared(clamped, point);
             if (distanceSquared < closestDistanceSquared)
             {
                 closestDistanceSquared = distanceSquared;
@@ -68,7 +68,7 @@ public class CylinderTestDemo : DemoBase
 
         //long iterationsSum = 0;
         //long iterationsSquaredSum = 0;
-        var capsuleTests = 1000;
+        int capsuleTests = 1000;
 
         int warmupCount = 32;
         int innerIterations = 128;
@@ -77,15 +77,15 @@ public class CylinderTestDemo : DemoBase
         {
             Vector3 randomPointNearCylinder;
             Capsule capsule = new(0.2f + .8f * random.NextSingle(), 0.2f + 0.8f * random.NextSingle());
-            var minimumDistance = 1f * (cylinder.Radius + cylinder.HalfLength);
-            var minimumDistanceSquared = minimumDistance * minimumDistance;
+            float minimumDistance = 1f * (cylinder.Radius + cylinder.HalfLength);
+            float minimumDistanceSquared = minimumDistance * minimumDistance;
             while (true)
             {
                 randomPointNearCylinder = new Vector3((cylinder.Radius + capsule.HalfLength) * 2, (cylinder.HalfLength + capsule.HalfLength) * 2, (cylinder.Radius + capsule.HalfLength) * 2) *
                     (new Vector3(2) * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()) - Vector3.One);
                 Vector3 pointOnCylinderAxis = new(0, MathF.Max(-cylinder.HalfLength, MathF.Min(cylinder.HalfLength, randomPointNearCylinder.Y)), 0);
                 Vector3 offset = randomPointNearCylinder - pointOnCylinderAxis;
-                var lengthSquared = offset.LengthSquared();
+                float lengthSquared = offset.LengthSquared();
                 if (lengthSquared > minimumDistanceSquared)
                     break;
             }
@@ -108,24 +108,24 @@ public class CylinderTestDemo : DemoBase
             //CapsuleCylinderTester.GetClosestPointBetweenLineSegmentAndCylinder(capsuleOrigin, capsuleY, new Vector<float>(capsule.HalfLength), cylinderWide, out var t, out var offsetFromCylindertoLineSegment);
             Vector<float> t = default;
             Vector3Wide offsetFromCylinderToLineSegment = default;
-            var innerStart = Stopwatch.GetTimestamp();
+            long innerStart = Stopwatch.GetTimestamp();
             for (int j = 0; j < innerIterations; ++j)
             {
                 CapsuleCylinderTester.GetClosestPointBetweenLineSegmentAndCylinder(capsuleOrigin, capsuleY, new Vector<float>(capsule.HalfLength), cylinderWide, Vector<int>.Zero, out t, out offsetFromCylinderToLineSegment);
             }
-            var innerStop = Stopwatch.GetTimestamp();
+            long innerStop = Stopwatch.GetTimestamp();
             if (i > warmupCount)
             {
                 testTicks += innerStop - innerStart;
             }
             Vector3Wide.LengthSquared(offsetFromCylinderToLineSegment, out Vector<float> distanceSquaredWide);
-            var distanceSquared = distanceSquaredWide[0];
+            float distanceSquared = distanceSquaredWide[0];
 
             //iterationsSum += iterationsRequired[0];
             //iterationsSquaredSum += iterationsRequired[0] * iterationsRequired[0];
 
-            BruteForceSearch(randomPointNearCylinder, direction, capsule.HalfLength, cylinder, out var bruteT, out var bruteDistanceSquared, out var errorMargin);
-            var errorRelativeToBrute = MathF.Max(MathF.Abs(bruteT - t[0]), errorMargin) - errorMargin;
+            BruteForceSearch(randomPointNearCylinder, direction, capsule.HalfLength, cylinder, out float bruteT, out float bruteDistanceSquared, out float errorMargin);
+            float errorRelativeToBrute = MathF.Max(MathF.Abs(bruteT - t[0]), errorMargin) - errorMargin;
             sumOfSquaredBruteError += errorRelativeToBrute * errorRelativeToBrute;
             totalBruteError += errorRelativeToBrute;
 
@@ -134,7 +134,7 @@ public class CylinderTestDemo : DemoBase
                 Console.WriteLine($"Search and brute force disagree on intersecting distance; search found {distanceSquared}, brute found {bruteDistanceSquared}");
             }
 
-            var bruteDistanceError = MathF.Abs(MathF.Sqrt(distanceSquared) - MathF.Sqrt(bruteDistanceSquared));
+            float bruteDistanceError = MathF.Abs(MathF.Sqrt(distanceSquared) - MathF.Sqrt(bruteDistanceSquared));
             sumOfSquaredBruteDistanceError += bruteDistanceError * bruteDistanceError;
             totalBruteDistanceError += bruteDistanceError;
 
@@ -151,14 +151,14 @@ public class CylinderTestDemo : DemoBase
         //var intervalStandardDeviation = Math.Sqrt(Math.Max(0, averageIntervalSquaredSpan - averageIntervalSpan * averageIntervalSpan));
         //Console.WriteLine($"Average interval span: {averageIntervalSpan}, stddev {intervalStandardDeviation}");
 
-        var averageBruteError = totalBruteError / capsuleTests;
-        var averageBruteSquaredError = sumOfSquaredBruteError / capsuleTests;
-        var bruteStandardDeviation = Math.Sqrt(Math.Max(0, averageBruteSquaredError - averageBruteError * averageBruteError));
+        double averageBruteError = totalBruteError / capsuleTests;
+        double averageBruteSquaredError = sumOfSquaredBruteError / capsuleTests;
+        double bruteStandardDeviation = Math.Sqrt(Math.Max(0, averageBruteSquaredError - averageBruteError * averageBruteError));
         Console.WriteLine($"Average brute T error: {averageBruteError}, stddev {bruteStandardDeviation}");
 
-        var averageBruteDistanceError = totalBruteDistanceError / capsuleTests;
-        var averageBruteDistanceSquaredError = sumOfSquaredBruteDistanceError / capsuleTests;
-        var bruteDistanceStandardDeviation = Math.Sqrt(Math.Max(0, averageBruteSquaredError - averageBruteError * averageBruteError));
+        double averageBruteDistanceError = totalBruteDistanceError / capsuleTests;
+        double averageBruteDistanceSquaredError = sumOfSquaredBruteDistanceError / capsuleTests;
+        double bruteDistanceStandardDeviation = Math.Sqrt(Math.Max(0, averageBruteSquaredError - averageBruteError * averageBruteError));
         Console.WriteLine($"Average brute distance error: {averageBruteDistanceError}, stddev {bruteDistanceStandardDeviation}");
 
         //var averageIterations = (double)iterationsSum / capsuleTests;
@@ -254,11 +254,11 @@ public class CylinderTestDemo : DemoBase
         Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeHeight,
             (int x, int y) =>
             {
-                var octave0 = (MathF.Sin((x + 5f) * 0.05f) + MathF.Sin((y + 11) * 0.05f)) * 3f;
-                var octave1 = (MathF.Sin((x + 17) * 0.15f) + MathF.Sin((y + 19) * 0.15f)) * 2f;
-                var octave2 = (MathF.Sin((x + 37) * 0.35f) + MathF.Sin((y + 93) * 0.35f)) * 1f;
-                var octave3 = (MathF.Sin((x + 53) * 0.65f) + MathF.Sin((y + 47) * 0.65f)) * 0.5f;
-                var octave4 = (MathF.Sin((x + 67) * 1.50f) + MathF.Sin((y + 13) * 1.5f)) * 0.25f;
+                float octave0 = (MathF.Sin((x + 5f) * 0.05f) + MathF.Sin((y + 11) * 0.05f)) * 3f;
+                float octave1 = (MathF.Sin((x + 17) * 0.15f) + MathF.Sin((y + 19) * 0.15f)) * 2f;
+                float octave2 = (MathF.Sin((x + 37) * 0.35f) + MathF.Sin((y + 93) * 0.35f)) * 1f;
+                float octave3 = (MathF.Sin((x + 53) * 0.65f) + MathF.Sin((y + 47) * 0.65f)) * 0.5f;
+                float octave4 = (MathF.Sin((x + 67) * 1.50f) + MathF.Sin((y + 13) * 1.5f)) * 0.25f;
                 return new Vector3(x, octave0 + octave1 + octave2 + octave3 + octave4, y);
             }, new Vector3(4, 1, 4), BufferPool);
         Simulation.Statics.Add(new StaticDescription(new Vector3(-100, -15, 100), QuaternionEx.CreateFromAxisAngle(new Vector3(0, 1, 0), MathF.PI / 2), Simulation.Shapes.Add(planeMesh)));

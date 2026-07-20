@@ -82,7 +82,7 @@ public class PlanetDemo : DemoBase
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var bottomY = renderer.Surface.Resolution.Y;
+        int bottomY = renderer.Surface.Resolution.Y;
         renderer.TextBatcher.Write(text.Clear().Append("The library does not prescribe any particular kind of gravity."), new Vector2(16, bottomY - 48), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("The IPoseIntegratorCallbacks provided to the simulation is responsible for telling the simulation how to integrate."), new Vector2(16, bottomY - 32), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("In this demo, all bodies are pulled towards the center of the planet."), new Vector2(16, bottomY - 16), 16, Vector3.One, font);

@@ -24,8 +24,8 @@ public static class BatchedCollisionTests
         {
             if (manifold.Count > 0)
             {
-                manifold.GetContact(0, out Vector3 offset, out Vector3 normal, out var depth, out var featureId);
-                var extra = 1e-16 * (depth + offset.X + normal.X);
+                manifold.GetContact(0, out Vector3 offset, out Vector3 normal, out float depth, out int featureId);
+                double extra = 1e-16 * (depth + offset.X + normal.X);
                 *Count += 1 + (int)extra;
             }
             else
@@ -68,10 +68,10 @@ public static class BatchedCollisionTests
         TestCollisionCallbacks callbacks = new() { Count = &count };
         TestPair(ref a, ref b, ref posesA, ref posesB, ref callbacks, pool, shapes, registry, 256);
         count = 0;
-        var start = Stopwatch.GetTimestamp();
+        long start = Stopwatch.GetTimestamp();
         TestPair(ref a, ref b, ref posesA, ref posesB, ref callbacks, pool, shapes, registry, iterationCount);
-        var end = Stopwatch.GetTimestamp();
-        var time = (end - start) / (double)Stopwatch.Frequency;
+        long end = Stopwatch.GetTimestamp();
+        double time = (end - start) / (double)Stopwatch.Frequency;
         Console.WriteLine($"Completed {count} {typeof(TA).Name}-{typeof(TB).Name} pairs, time (ms): {1e3 * time}, time per pair (ns): {1e9 * time / *callbacks.Count}");
         //Console.WriteLine($"{typeof(TA).Name}-{typeof(TB).Name}, {1e9 * time / *callbacks.Count}");
         //Console.WriteLine($"{typeof(TA).Name}-{typeof(TB).Name} {1e9 * time / *callbacks.Count}");
@@ -110,11 +110,11 @@ public static class BatchedCollisionTests
         bWide.Broadcast(b);
         TDistanceTester tester = default(TDistanceTester);
         TestPair<TA, TAWide, TB, TBWide, TDistanceTester>(ref aWide, ref bWide, ref tester, ref posesA, ref posesB, 64);
-        var start = Stopwatch.GetTimestamp();
+        long start = Stopwatch.GetTimestamp();
         TestPair<TA, TAWide, TB, TBWide, TDistanceTester>(ref aWide, ref bWide, ref tester, ref posesA, ref posesB, iterationCount);
-        var end = Stopwatch.GetTimestamp();
-        var time = (end - start) / (double)Stopwatch.Frequency;
-        var instanceCount = Vector<float>.Count * iterationCount;
+        long end = Stopwatch.GetTimestamp();
+        double time = (end - start) / (double)Stopwatch.Frequency;
+        int instanceCount = Vector<float>.Count * iterationCount;
         Console.WriteLine($"Completed {instanceCount} {typeof(TA).Name}-{typeof(TB).Name} distance test instances using {typeof(TDistanceTester).Name}, time (ms): {1e3 * time}, time per instance (ns): {1e9 * time / instanceCount}");
     }
 
@@ -134,7 +134,7 @@ public static class BatchedCollisionTests
             };
         }
         while ((orientationLengthSquared = pose.Orientation.LengthSquared()) < 1e-5f);
-        var inverseLength = 1f / MathF.Sqrt(orientationLengthSquared);
+        float inverseLength = 1f / MathF.Sqrt(orientationLengthSquared);
         pose.Orientation.X *= inverseLength;
         pose.Orientation.Y *= inverseLength;
         pose.Orientation.Z *= inverseLength;

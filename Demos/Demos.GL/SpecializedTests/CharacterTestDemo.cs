@@ -102,7 +102,7 @@ public class CharacterTestDemo : DemoBase
             if ((frameIndex + i) % 128 == 0)
                 character.TryJump = true;
             Vector3 tangent = Vector3.Cross(new BodyReference(character.BodyHandle, Simulation.Bodies).Pose.Position, Vector3.UnitY);
-            var tangentLengthSquared = tangent.LengthSquared();
+            float tangentLengthSquared = tangent.LengthSquared();
             if (tangentLengthSquared > 1e-12f)
                 tangent = tangent / MathF.Sqrt(tangentLengthSquared);
             else

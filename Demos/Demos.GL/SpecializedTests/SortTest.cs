@@ -59,9 +59,9 @@ public static class SortTest
             indexMap.CopyTo(0, indexMap4, 0, elementCount);
             Stopwatch timer = Stopwatch.StartNew();
 
-            var keysScratch = new int[elementCount];
-            var valuesScratch = new int[elementCount];
-            var bucketCounts = new int[1024];
+            int[] keysScratch = new int[elementCount];
+            int[] valuesScratch = new int[elementCount];
+            int[] bucketCounts = new int[1024];
             for (int t = 0; t < 16; ++t)
             {
                 Comparer comparer = new();
@@ -85,7 +85,7 @@ public static class SortTest
                 VerifySort(ref keys3);
                 Console.WriteLine($"{t} LSBRadixSort time (ms): {timer.Elapsed.TotalSeconds * 1e3}");
 
-                var originalIndices = new int[256];
+                int[] originalIndices = new int[256];
                 timer.Restart();
                 //MSBRadixSort.SortU32(ref keys4[0], ref indexMap4[0], ref bucketCounts[0], ref originalIndices[0], elementCount, 24);
                 MSBRadixSort.SortU32(ref keys4[0], ref indexMap4[0], elementCount, SpanHelper.GetContainingPowerOf2(elementExclusiveUpperBound));

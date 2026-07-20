@@ -69,13 +69,13 @@ public class FountainStressTestDemo : DemoBase
         //A bunch of kinematic balls do acrobatics as an extra stressor.
         Sphere kinematicShape = new(8);
         TypedIndex kinematicShapeIndex = Simulation.Shapes.Add(kinematicShape);
-        var kinematicCount = 64;
-        var anglePerKinematic = MathHelper.TwoPi / kinematicCount;
-        var startingRadius = 256;
+        int kinematicCount = 64;
+        float anglePerKinematic = MathHelper.TwoPi / kinematicCount;
+        int startingRadius = 256;
         kinematicHandles = new BodyHandle[kinematicCount];
         for (int i = 0; i < kinematicCount; ++i)
         {
-            var angle = anglePerKinematic * i;
+            float angle = anglePerKinematic * i;
             BodyDescription description = BodyDescription.CreateKinematic(new Vector3(
                         startingRadius * (float)Math.Cos(angle),
                         0,
@@ -122,7 +122,7 @@ public class FountainStressTestDemo : DemoBase
     {
         using (CompoundBuilder compoundBuilder = new(BufferPool, Simulation.Shapes, 6))
         {
-            var childCount = random.Next(2, 6);
+            int childCount = random.Next(2, 6);
             for (int i = 0; i < childCount; ++i)
             {
                 TypedIndex shapeIndex;
@@ -168,7 +168,7 @@ public class FountainStressTestDemo : DemoBase
     void CreateRandomMesh(out Mesh mesh, out BodyInertia inertia)
     {
         //We'll use a convex hull algorithm to generate the triangles for the mesh, rather than just spewing random triangle soups.
-        var pointCount = random.Next(5, 16);
+        int pointCount = random.Next(5, 16);
         BufferPool.Take(pointCount, out Buffer<Vector3> points);
         //Create an initial tetrahedron to guarantee our random shape isn't degenerate.
         points[0] = new Vector3(1);
@@ -273,35 +273,35 @@ public class FountainStressTestDemo : DemoBase
 
     public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
-        var timestepDuration = 1f / 60f;
+        float timestepDuration = 1f / 60f;
         time += timestepDuration;
 
         //Occasionally, the animation stops completely. The resulting velocities will be zero, so the kinematics will have a chance to rest (testing kinematic rest states).
-        var dip = 0.1;
-        var progressionMultiplier = 0.5 - dip + (1 + dip) * 0.5 * Math.Cos(time * 0.25);
+        double dip = 0.1;
+        double progressionMultiplier = 0.5 - dip + (1 + dip) * 0.5 * Math.Cos(time * 0.25);
         if (progressionMultiplier < 0)
             progressionMultiplier = 0;
         t += timestepDuration * progressionMultiplier;
 
-        var baseAngle = (float)(t * 0.015);
-        var anglePerKinematic = MathHelper.TwoPi / kinematicHandles.Length;
-        var maxDisplacement = 50 * timestepDuration;
-        var inverseDt = 1f / timestepDuration;
+        float baseAngle = (float)(t * 0.015);
+        float anglePerKinematic = MathHelper.TwoPi / kinematicHandles.Length;
+        float maxDisplacement = 50 * timestepDuration;
+        float inverseDt = 1f / timestepDuration;
         for (int i = 0; i < kinematicHandles.Length; ++i)
         {
             ref BodyMemoryLocation bodyLocation = ref Simulation.Bodies.HandleToLocation[kinematicHandles[i].Value];
 
             ref BodySet set = ref Simulation.Bodies.Sets[bodyLocation.SetIndex];
-            var angle = anglePerKinematic * i;
-            var positionAngle = baseAngle + angle;
-            var radius = 128 + 32 * (float)Math.Cos(3 * (angle + t * (1f / 3f))) + 32 * (float)Math.Cos(t * (1f / 3f));
+            float angle = anglePerKinematic * i;
+            float positionAngle = baseAngle + angle;
+            float radius = 128 + 32 * (float)Math.Cos(3 * (angle + t * (1f / 3f))) + 32 * (float)Math.Cos(t * (1f / 3f));
             Vector3 targetLocation = new(
                 radius * (float)Math.Cos(positionAngle),
                 16 + 16 * (float)Math.Cos(4 * (angle + t * 0.5)),
                 radius * (float)Math.Sin(positionAngle));
 
             Vector3 correction = targetLocation - set.DynamicsState[bodyLocation.Index].Motion.Pose.Position;
-            var distance = correction.Length();
+            float distance = correction.Length();
             if (distance > 1e-4)
             {
                 if (bodyLocation.SetIndex > 0)
@@ -326,20 +326,20 @@ public class FountainStressTestDemo : DemoBase
         }
 
         //Remove some statics from the simulation.
-        var missingStaticsAsymptote = 512;
-        var staticRemovalsPerFrame = 8;
+        int missingStaticsAsymptote = 512;
+        int staticRemovalsPerFrame = 8;
         for (int i = 0; i < staticRemovalsPerFrame; ++i)
         {
-            var indexToRemove = random.Next(Simulation.Statics.Count);
+            int indexToRemove = random.Next(Simulation.Statics.Count);
             Simulation.Statics.GetDescription(Simulation.Statics.IndexToHandle[indexToRemove], out StaticDescription staticDescription);
             Simulation.Statics.RemoveAt(indexToRemove);
             removedStatics.Enqueue(staticDescription, BufferPool);
         }
 
-        var staticApplyDescriptionsPerFrame = 8;
+        int staticApplyDescriptionsPerFrame = 8;
         for (int i = 0; i < staticApplyDescriptionsPerFrame; ++i)
         {
-            var indexToReapply = random.Next(Simulation.Statics.Count);
+            int indexToReapply = random.Next(Simulation.Statics.Count);
             StaticHandle handleToReapply = Simulation.Statics.IndexToHandle[indexToReapply];
             Simulation.Statics.GetDescription(handleToReapply, out StaticDescription staticDescription);
             //Statics don't have as much in the way of transitions. They can't be shapeless, and going from one shape to another doesn't anything that a pose change doesn't. For now, we'll just test the application of descriptions with different poses.
@@ -351,7 +351,7 @@ public class FountainStressTestDemo : DemoBase
         }
 
         //Add some of the missing static bodies back into the simulation.
-        var staticAddCount = removedStatics.Count * (staticRemovalsPerFrame / (float)missingStaticsAsymptote);
+        float staticAddCount = removedStatics.Count * (staticRemovalsPerFrame / (float)missingStaticsAsymptote);
         for (int i = 0; i < staticAddCount; ++i)
         {
             Debug.Assert(removedStatics.Count > 0);
@@ -368,7 +368,7 @@ public class FountainStressTestDemo : DemoBase
             dynamicHandles.Enqueue(Simulation.Bodies.Add(bodyDescription), BufferPool);
         }
         int targetAsymptote = 65536;
-        var removalCount = (int)(dynamicHandles.Count * (newShapeCount / (float)targetAsymptote));
+        int removalCount = (int)(dynamicHandles.Count * (newShapeCount / (float)targetAsymptote));
         for (int i = 0; i < removalCount; ++i)
         {
             if (dynamicHandles.TryDequeue(out BodyHandle handle))
@@ -386,7 +386,7 @@ public class FountainStressTestDemo : DemoBase
         }
 
         //Change some dynamic objects without adding/removing them to make sure all the state transition stuff works reasonably well.
-        var dynamicApplyDescriptionsPerFrame = 8;
+        int dynamicApplyDescriptionsPerFrame = 8;
         for (int i = 0; i < dynamicApplyDescriptionsPerFrame; ++i)
         {
             BodyHandle handle = dynamicHandles[random.Next(dynamicHandles.Count)];

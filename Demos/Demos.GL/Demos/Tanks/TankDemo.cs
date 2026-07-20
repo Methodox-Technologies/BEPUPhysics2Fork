@@ -158,22 +158,22 @@ public class TankDemo : DemoBase
 
     float GetHeightForPosition(float x, float y, int planeWidth, float inverseTerrainScale, in Vector2 terrainPosition)
     {
-        var normalizedX = (x - terrainPosition.X) * inverseTerrainScale;
-        var normalizedY = (y - terrainPosition.Y) * inverseTerrainScale;
-        var octave0 = (MathF.Sin((normalizedX + 5f) * 0.05f) + MathF.Sin((normalizedY + 11) * 0.05f)) * 3.8f;
-        var octave1 = (MathF.Sin((normalizedX + 17) * 0.15f) + MathF.Sin((normalizedY + 47) * 0.15f)) * 1.5f;
-        var octave2 = (MathF.Sin((normalizedX + 37) * 0.35f) + MathF.Sin((normalizedY + 93) * 0.35f)) * 0.5f;
-        var octave3 = (MathF.Sin((normalizedX + 53) * 0.65f) + MathF.Sin((normalizedY + 131) * 0.65f)) * 0.3f;
-        var octave4 = (MathF.Sin((normalizedX + 67) * 1.50f) + MathF.Sin((normalizedY + 13) * 1.5f)) * 0.1525f;
-        var distanceToEdge = planeWidth / 2 - Math.Max(Math.Abs(normalizedX - planeWidth / 2), Math.Abs(normalizedY - planeWidth / 2));
+        float normalizedX = (x - terrainPosition.X) * inverseTerrainScale;
+        float normalizedY = (y - terrainPosition.Y) * inverseTerrainScale;
+        float octave0 = (MathF.Sin((normalizedX + 5f) * 0.05f) + MathF.Sin((normalizedY + 11) * 0.05f)) * 3.8f;
+        float octave1 = (MathF.Sin((normalizedX + 17) * 0.15f) + MathF.Sin((normalizedY + 47) * 0.15f)) * 1.5f;
+        float octave2 = (MathF.Sin((normalizedX + 37) * 0.35f) + MathF.Sin((normalizedY + 93) * 0.35f)) * 0.5f;
+        float octave3 = (MathF.Sin((normalizedX + 53) * 0.65f) + MathF.Sin((normalizedY + 131) * 0.65f)) * 0.3f;
+        float octave4 = (MathF.Sin((normalizedX + 67) * 1.50f) + MathF.Sin((normalizedY + 13) * 1.5f)) * 0.1525f;
+        float distanceToEdge = planeWidth / 2 - Math.Max(Math.Abs(normalizedX - planeWidth / 2), Math.Abs(normalizedY - planeWidth / 2));
         //Flatten an area in the middle.
-        var offsetX = planeWidth * 0.5f - normalizedX;
-        var offsetY = planeWidth * 0.5f - normalizedY;
-        var distanceToCenterSquared = offsetX * offsetX + offsetY * offsetY;
+        float offsetX = planeWidth * 0.5f - normalizedX;
+        float offsetY = planeWidth * 0.5f - normalizedY;
+        float distanceToCenterSquared = offsetX * offsetX + offsetY * offsetY;
         const float centerCircleSize = 30f;
         const float fadeoutBoundary = 50f;
-        var outsideWeight = MathF.Min(1f, MathF.Max(0, distanceToCenterSquared - centerCircleSize * centerCircleSize) / (fadeoutBoundary * fadeoutBoundary - centerCircleSize * centerCircleSize));
-        var edgeRamp = 25f / (5 * distanceToEdge + 1);
+        float outsideWeight = MathF.Min(1f, MathF.Max(0, distanceToCenterSquared - centerCircleSize * centerCircleSize) / (fadeoutBoundary * fadeoutBoundary - centerCircleSize * centerCircleSize));
+        float edgeRamp = 25f / (5 * distanceToEdge + 1);
         return outsideWeight * (octave0 + octave1 + octave2 + octave3 + octave4 + edgeRamp);
     }
 
@@ -189,10 +189,10 @@ public class TankDemo : DemoBase
         {
             float leftTargetSpeedFraction = 0;
             float rightTargetSpeedFraction = 0;
-            var left = input.IsDown(Left);
-            var right = input.IsDown(Right);
-            var forward = input.IsDown(Forward);
-            var backward = input.IsDown(Backward);
+            bool left = input.IsDown(Left);
+            bool right = input.IsDown(Right);
+            bool forward = input.IsDown(Forward);
+            bool backward = input.IsDown(Backward);
             if (forward)
             {
                 if ((left && right) || (!left && !right))
@@ -245,8 +245,8 @@ public class TankDemo : DemoBase
                 }
             }
 
-            var zoom = input.IsDown(Zoom);
-            var brake = input.IsDown(Brake) || input.IsDown(BrakeAlternate);
+            bool zoom = input.IsDown(Zoom);
+            bool brake = input.IsDown(Brake) || input.IsDown(BrakeAlternate);
             playerController.UpdateMovementAndAim(Simulation, leftTargetSpeedFraction, rightTargetSpeedFraction, zoom, brake, brake, camera.Forward);
 
             if (input.WasPushed(Fire) && frameIndex > lastPlayerShotFrameIndex + 60)
@@ -346,7 +346,7 @@ public class TankDemo : DemoBase
             ++explosion.Age;
         }
 
-        var textHeight = 16;
+        int textHeight = 16;
         Vector2 position = new(32, renderer.Surface.Resolution.Y - 144);
         RenderControl(ref position, textHeight, nameof(Fire), ControlStrings.GetName(Fire), text, renderer.TextBatcher, font);
         RenderControl(ref position, textHeight, nameof(Forward), ControlStrings.GetName(Forward), text, renderer.TextBatcher, font);

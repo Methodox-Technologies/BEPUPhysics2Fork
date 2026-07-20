@@ -24,7 +24,7 @@ struct DemoSwapper
         {
             for (int i = 0; i < harness.loop.Input.TypedCharacters.Count; ++i)
             {
-                var character = harness.loop.Input.TypedCharacters[i];
+                char character = harness.loop.Input.TypedCharacters[i];
                 if (character == '\b')
                 {
                     //Backspace!
@@ -37,7 +37,7 @@ struct DemoSwapper
                 {
                     if (TargetDemoIndex < harness.demoSet.Count)
                     {
-                        var digit = character - '0';
+                        int digit = character - '0';
                         if (digit >= 0 && digit <= 9)
                         {
                             TargetDemoIndex = Math.Max(0, TargetDemoIndex) * 10 + digit;
@@ -67,7 +67,7 @@ struct DemoSwapper
                 text.Append("_");
             textBatcher.Write(text, position, textHeight, textColor, font);
 
-            var lineSpacing = textHeight * 1.1f;
+            float lineSpacing = textHeight * 1.1f;
             position.Y += textHeight * 0.5f;
             textHeight *= 0.8f;
             for (int i = 0; i < demoSet.Count; ++i)

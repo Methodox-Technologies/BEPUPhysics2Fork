@@ -26,7 +26,7 @@ public static class CacheBlaster
         int intsPerJob = vectorsPerJob * Vector<int>.Count;
         Parallel.For(0, intCount / intsPerJob, jobIndex =>
         {
-            var baseIndex = jobIndex * intsPerJob;
+            int baseIndex = jobIndex * intsPerJob;
             ref Vector<int> read = ref Unsafe.As<int, Vector<int>>(ref readblob[0]);
             ref Vector<int> write = ref Unsafe.As<int, Vector<int>>(ref writeblob[baseIndex]);
 

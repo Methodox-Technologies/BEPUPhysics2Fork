@@ -28,8 +28,8 @@ public class ConstrainedKinematicIntegrationTest : DemoBase
 
         for (int i = 0; i < 32; ++i)
         {
-            var x = 0;
-            var z = i * 3;
+            int x = 0;
+            int z = i * 3;
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, z), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, z), inertiaB, collidableB, activity));
             Simulation.Bodies[a].Velocity.Linear = new Vector3(1, 0, 0);
@@ -39,8 +39,8 @@ public class ConstrainedKinematicIntegrationTest : DemoBase
 
         for (int i = 0; i < 32; ++i)
         {
-            var x = 0;
-            var z = i * 3;
+            int x = 0;
+            int z = i * 3;
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 8, z), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 8, z + 2), inertiaB, collidableB, activity));
             Simulation.Bodies[a].Velocity.Linear = new Vector3(1, 0, 0);

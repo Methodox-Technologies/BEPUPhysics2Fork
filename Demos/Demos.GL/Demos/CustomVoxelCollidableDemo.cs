@@ -113,7 +113,7 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
         {
             ref Vector3 voxelIndex = ref VoxelIndices[leafIndex];
             //Note that you could make use of the voxel grid's regular structure to save some work dealing with orientations.
-            if (VoxelShape.RayTest(voxelIndex + new Vector3(0.5f) * VoxelSize, ray->Origin, ray->Direction, out var t, out Vector3 normal) && t <= *maximumT)
+            if (VoxelShape.RayTest(voxelIndex + new Vector3(0.5f) * VoxelSize, ray->Origin, ray->Direction, out float t, out Vector3 normal) && t <= *maximumT)
             {
                 //Bring the ray normal back into world space.
                 Matrix3x3.Transform(normal, Orientation, out normal);
@@ -169,7 +169,7 @@ struct Voxels : IHomogeneousCompoundShape<Box, BoxWide>
         Matrix3x3.Transpose(leafTester.Orientation, out Matrix3x3 inverseOrientation);
         for (int i = 0; i < rays.RayCount; ++i)
         {
-            rays.GetRay(i, out RayData* ray, out var maximumT);
+            rays.GetRay(i, out RayData* ray, out float* maximumT);
             leafTester.OriginalRay = *ray;
             Matrix3x3.Transform(ray->Origin - pose.Position, inverseOrientation, out Vector3 localOrigin);
             Matrix3x3.Transform(ray->Direction, inverseOrientation, out Vector3 localDirection);
@@ -404,8 +404,8 @@ public class CustomVoxelCollidableDemo : DemoBase
         //Supporting voxels-mesh and voxels-voxels would again require a bit more effort, though a bit less than the collision task equivalents would.
 
 
-        var widthInVoxels = 40;
-        var heightInVoxels = 30;
+        int widthInVoxels = 40;
+        int heightInVoxels = 30;
         QuickList<Vector3> voxelIndices = new(widthInVoxels * heightInVoxels * widthInVoxels, BufferPool);
         for (int i = 0; i < widthInVoxels; ++i)
         {
@@ -414,11 +414,11 @@ public class CustomVoxelCollidableDemo : DemoBase
                 for (int k = 0; k < widthInVoxels; ++k)
                 {
                     //Create some sine wave based noise for a slightly interesting environment.
-                    var octave0 = MathF.Cos((i + 78) * 0.8f) + MathF.Cos((j + 37) * 0.8f) + MathF.Cos((k + 131) * 0.8f);
-                    var octave1 = MathF.Cos((i + 59) * 0.4f) + MathF.Cos((j + 100) * 0.4f) + MathF.Cos((k + 131) * 0.4f);
-                    var octave2 = MathF.Cos((i + 43) * 0.1f) + MathF.Cos((j + 200) * 0.1f) + MathF.Cos((k + 281) * 0.1f);
-                    var octave3 = MathF.Cos((i + 647) * 0.025f) + MathF.Cos((j + 1553) * 0.025f) + MathF.Cos((k + 53) * 0.025f);
-                    var density = octave0 + octave1 + octave2 + octave3;
+                    float octave0 = MathF.Cos((i + 78) * 0.8f) + MathF.Cos((j + 37) * 0.8f) + MathF.Cos((k + 131) * 0.8f);
+                    float octave1 = MathF.Cos((i + 59) * 0.4f) + MathF.Cos((j + 100) * 0.4f) + MathF.Cos((k + 131) * 0.4f);
+                    float octave2 = MathF.Cos((i + 43) * 0.1f) + MathF.Cos((j + 200) * 0.1f) + MathF.Cos((k + 281) * 0.1f);
+                    float octave3 = MathF.Cos((i + 647) * 0.025f) + MathF.Cos((j + 1553) * 0.025f) + MathF.Cos((k + 53) * 0.025f);
+                    float density = octave0 + octave1 + octave2 + octave3;
                     if (density > 0)
                         voxelIndices.AllocateUnsafely() = new Vector3(i, j, k);
                 }
@@ -453,7 +453,7 @@ public class CustomVoxelCollidableDemo : DemoBase
             renderer.Shapes.AddShape(shapeDataPointer, Box.Id, Simulation.Shapes, childPose, new Vector3(0.8f, 0.2f, 0.2f));
         }
 
-        var bottomY = renderer.Surface.Resolution.Y;
+        int bottomY = renderer.Surface.Resolution.Y;
         renderer.TextBatcher.Write(text.Clear().Append("Custom collidable types can be created and registered with the library."), new Vector2(16, bottomY - 80), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("This demo implements a simple voxel grid collidable."), new Vector2(16, bottomY - 64), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("For a real game with larger scale voxel worlds, you'd want to improve the voxel representation,"), new Vector2(16, bottomY - 32), 16, Vector3.One, font);

@@ -128,7 +128,7 @@ public unsafe class CharacterControllers : IDisposable
 
     private void ResizeBodyHandleCapacity(int bodyHandleCapacity)
     {
-        var oldCapacity = bodyHandleToCharacterIndex.Length;
+        int oldCapacity = bodyHandleToCharacterIndex.Length;
         pool.ResizeToAtLeast(ref bodyHandleToCharacterIndex, bodyHandleCapacity, bodyHandleToCharacterIndex.Length);
         if (bodyHandleToCharacterIndex.Length > oldCapacity)
         {
@@ -182,7 +182,7 @@ public unsafe class CharacterControllers : IDisposable
             "Cannot allocate more than one character for the same body handle.");
         if (bodyHandle.Value >= bodyHandleToCharacterIndex.Length)
             ResizeBodyHandleCapacity(Math.Max(bodyHandle.Value + 1, bodyHandleToCharacterIndex.Length * 2));
-        var characterIndex = characters.Count;
+        int characterIndex = characters.Count;
         ref CharacterController character = ref characters.Allocate(pool);
         character = default;
         character.BodyHandle = bodyHandle;
@@ -258,7 +258,7 @@ public unsafe class CharacterControllers : IDisposable
         if (characterCollidable.Mobility == CollidableMobility.Dynamic && characterCollidable.BodyHandle.Value < bodyHandleToCharacterIndex.Length)
         {
             BodyHandle characterBodyHandle = characterCollidable.BodyHandle;
-            var characterIndex = bodyHandleToCharacterIndex[characterBodyHandle.Value];
+            int characterIndex = bodyHandleToCharacterIndex[characterBodyHandle.Value];
             if (characterIndex >= 0)
             {
                 //This is actually a character.
@@ -285,18 +285,18 @@ public unsafe class CharacterControllers : IDisposable
                 if (manifold.Convex)
                 {
                     ref ConvexContactManifold convexManifold = ref Unsafe.As<TManifold, ConvexContactManifold>(ref manifold);
-                    var normalUpDot = Vector3.Dot(convexManifold.Normal, up);
+                    float normalUpDot = Vector3.Dot(convexManifold.Normal, up);
                     //The narrow phase generates contacts with normals pointing from B to A by convention.
                     //If the character is collidable B, then we need to negate the comparison.
                     if ((pair.B.Packed == characterCollidable.Packed ? -normalUpDot : normalUpDot) > character.CosMaximumSlope)
                     {
                         //This manifold has a slope that is potentially supportive.
                         //Can the maximum depth contact be used as a support?
-                        var maximumDepth = convexManifold.Contact0.Depth;
-                        var maximumDepthIndex = 0;
+                        float maximumDepth = convexManifold.Contact0.Depth;
+                        int maximumDepthIndex = 0;
                         for (int i = 1; i < convexManifold.Count; ++i)
                         {
-                            ref var candidateDepth = ref Unsafe.Add(ref convexManifold.Contact0, i).Depth;
+                            ref float candidateDepth = ref Unsafe.Add(ref convexManifold.Contact0, i).Depth;
                             if (candidateDepth > maximumDepth)
                             {
                                 maximumDepth = candidateDepth;
@@ -336,15 +336,15 @@ public unsafe class CharacterControllers : IDisposable
                     //If the character is collidable B, then we need to negate the comparison.
                     //This manifold has a slope that is potentially supportive.
                     //Can the maximum depth contact be used as a support?
-                    var maximumDepth = float.MinValue;
-                    var maximumDepthIndex = -1;
+                    float maximumDepth = float.MinValue;
+                    int maximumDepthIndex = -1;
                     for (int i = 0; i < nonconvexManifold.Count; ++i)
                     {
                         ref Contact candidate = ref Unsafe.Add(ref nonconvexManifold.Contact0, i);
                         if (candidate.Depth > maximumDepth)
                         {
                             //All the nonconvex candidates can have different normals, so we have to perform the (calibrated) normal test on every single one.
-                            var upDot = Vector3.Dot(candidate.Normal, up);
+                            float upDot = Vector3.Dot(candidate.Normal, up);
                             if ((pair.B.Packed == characterCollidable.Packed ? -upDot : upDot) > character.CosMaximumSlope)
                             {
                                 maximumDepth = candidate.Depth;
@@ -400,8 +400,8 @@ public unsafe class CharacterControllers : IDisposable
         if (manifold.Count == 0)
             return false;
         //It's possible for neither, one, or both collidables to be a character. Check each one, treating the other as a potential support.
-        var aIsCharacter = TryReportContacts(pair.A, pair.B, pair, ref manifold, workerIndex);
-        var bIsCharacter = TryReportContacts(pair.B, pair.A, pair, ref manifold, workerIndex);
+        bool aIsCharacter = TryReportContacts(pair.A, pair.B, pair, ref manifold, workerIndex);
+        bool bIsCharacter = TryReportContacts(pair.B, pair.A, pair, ref manifold, workerIndex);
         if (aIsCharacter || bIsCharacter)
         {
             //The character's motion over the surface should be controlled entirely by the horizontal motion constraint.
@@ -417,7 +417,7 @@ public unsafe class CharacterControllers : IDisposable
 
     void ExpandBoundingBoxes(int start, int count)
     {
-        var end = start + count;
+        int end = start + count;
         for (int i = start; i < end; ++i)
         {
             ref CharacterController character = ref characters[i];
@@ -440,7 +440,7 @@ public unsafe class CharacterControllers : IDisposable
     {
         while (true)
         {
-            var jobIndex = Interlocked.Increment(ref boundingBoxExpansionJobIndex);
+            int jobIndex = Interlocked.Increment(ref boundingBoxExpansionJobIndex);
             if (jobIndex < boundingBoxExpansionJobs.Length)
             {
                 ref (int Start, int Count) job = ref boundingBoxExpansionJobs[jobIndex];
@@ -459,7 +459,7 @@ public unsafe class CharacterControllers : IDisposable
     void PrepareForContacts(float dt, IThreadDispatcher threadDispatcher = null)
     {
         Debug.Assert(!contactCollectionWorkerCaches.Allocated, "Worker caches were already allocated; did you forget to call AnalyzeContacts after collision detection to flush the previous frame's results?");
-        var threadCount = threadDispatcher == null ? 1 : threadDispatcher.ThreadCount;
+        int threadCount = threadDispatcher == null ? 1 : threadDispatcher.ThreadCount;
         pool.Take(threadCount, out contactCollectionWorkerCaches);
         for (int i = 0; i < contactCollectionWorkerCaches.Length; ++i)
         {
@@ -474,15 +474,15 @@ public unsafe class CharacterControllers : IDisposable
         }
         else
         {
-            var jobCount = Math.Min(characters.Count, threadCount);
-            var charactersPerJob = characters.Count / jobCount;
-            var baseCharacterCount = charactersPerJob * jobCount;
-            var remainder = characters.Count - baseCharacterCount;
+            int jobCount = Math.Min(characters.Count, threadCount);
+            int charactersPerJob = characters.Count / jobCount;
+            int baseCharacterCount = charactersPerJob * jobCount;
+            int remainder = characters.Count - baseCharacterCount;
             pool.Take(jobCount, out boundingBoxExpansionJobs);
-            var previousEnd = 0;
+            int previousEnd = 0;
             for (int jobIndex = 0; jobIndex < jobCount; ++jobIndex)
             {
-                var charactersForJob = jobIndex < remainder ? charactersPerJob + 1 : charactersPerJob;
+                int charactersForJob = jobIndex < remainder ? charactersPerJob + 1 : charactersPerJob;
                 ref (int Start, int Count) job = ref boundingBoxExpansionJobs[jobIndex];
                 job.Start = previousEnd;
                 job.Count = charactersForJob;
@@ -586,7 +586,7 @@ public unsafe class CharacterControllers : IDisposable
                 //2) The character was previously supported by a body, and is now supported by a different body.
                 //3) The character was previously supported by a static, and is now supported by a body.
                 //4) The character was previously supported by a body, and is now supported by a static.
-                var shouldRemove = character.Supported && (character.TryJump || supportCandidate.Depth == float.MinValue || character.Support.Packed != supportCandidate.Support.Packed);
+                bool shouldRemove = character.Supported && (character.TryJump || supportCandidate.Depth == float.MinValue || character.Support.Packed != supportCandidate.Support.Packed);
                 if (shouldRemove)
                 {
                     //Mark the constraint for removal.
@@ -598,7 +598,7 @@ public unsafe class CharacterControllers : IDisposable
                 {
                     QuaternionEx.Transform(character.LocalUp, Simulation.Bodies.ActiveSet.DynamicsState[bodyLocation.Index].Motion.Pose.Orientation, out Vector3 characterUp);
                     //Note that we assume that character orientations are constant. This isn't necessarily the case in all uses, but it's a decent approximation.
-                    var characterUpVelocity = Vector3.Dot(Simulation.Bodies.ActiveSet.DynamicsState[bodyLocation.Index].Motion.Velocity.Linear, characterUp);
+                    float characterUpVelocity = Vector3.Dot(Simulation.Bodies.ActiveSet.DynamicsState[bodyLocation.Index].Motion.Velocity.Linear, characterUp);
                     //We don't want the character to be able to 'superboost' by simply adding jump speed on top of horizontal motion.
                     //Instead, jumping targets a velocity change necessary to reach character.JumpVelocity along the up axis.
                     if (character.Support.Mobility != CollidableMobility.Static)
@@ -608,7 +608,7 @@ public unsafe class CharacterControllers : IDisposable
                         ref BodyVelocity supportVelocity = ref Simulation.Bodies.ActiveSet.DynamicsState[supportingBodyLocation.Index].Motion.Velocity;
                         Vector3 wxr = Vector3.Cross(supportVelocity.Angular, supportCandidate.OffsetFromSupport);
                         Vector3 supportContactVelocity = supportVelocity.Linear + wxr;
-                        var supportUpVelocity = Vector3.Dot(supportContactVelocity, characterUp);
+                        float supportUpVelocity = Vector3.Dot(supportContactVelocity, characterUp);
 
                         //If the support is dynamic, apply an opposing impulse. Note that velocity changes cannot safely be applied during multithreaded execution;
                         //characters could share support bodies, and a character might be a support of another character.
@@ -647,12 +647,12 @@ public unsafe class CharacterControllers : IDisposable
                     surfaceBasis.Y = supportCandidate.Normal;
                     //Note negation: we're using a right handed basis where -Z is forward, +Z is backward.
                     QuaternionEx.Transform(character.LocalUp, Simulation.Bodies.ActiveSet.DynamicsState[bodyLocation.Index].Motion.Pose.Orientation, out Vector3 up);
-                    var rayDistance = Vector3.Dot(character.ViewDirection, surfaceBasis.Y);
-                    var rayVelocity = Vector3.Dot(up, surfaceBasis.Y);
+                    float rayDistance = Vector3.Dot(character.ViewDirection, surfaceBasis.Y);
+                    float rayVelocity = Vector3.Dot(up, surfaceBasis.Y);
                     Debug.Assert(rayVelocity > 0,
                         "The calibrated support normal and the character's up direction should have a positive dot product if the maximum slope is working properly. Is the maximum slope >= pi/2?");
                     surfaceBasis.Z = up * (rayDistance / rayVelocity) - character.ViewDirection;
-                    var zLengthSquared = surfaceBasis.Z.LengthSquared();
+                    float zLengthSquared = surfaceBasis.Z.LengthSquared();
                     if (zLengthSquared > 1e-12f)
                     {
                         surfaceBasis.Z /= MathF.Sqrt(zLengthSquared);
@@ -776,9 +776,9 @@ public unsafe class CharacterControllers : IDisposable
                 {
                     analyzeContactsWorkerCaches[i] = new AnalyzeContactsWorkerCache(characters.Count, pool);
                 }
-                var baseCount = characters.Count / analysisJobCount;
-                var remainder = characters.Count - baseCount * analysisJobCount;
-                var previousEnd = 0;
+                int baseCount = characters.Count / analysisJobCount;
+                int remainder = characters.Count - baseCount * analysisJobCount;
+                int previousEnd = 0;
                 for (int i = 0; i < analysisJobCount; ++i)
                 {
                     ref AnalyzeContactsJob job = ref jobs[i];
@@ -876,11 +876,11 @@ public unsafe class CharacterControllers : IDisposable
                 break;
             }
         }
-        var targetHandleCapacity = BufferPool.GetCapacityForCount<int>(Math.Max(lastOccupiedIndex + 1, bodyHandleCapacity));
+        int targetHandleCapacity = BufferPool.GetCapacityForCount<int>(Math.Max(lastOccupiedIndex + 1, bodyHandleCapacity));
         if (targetHandleCapacity != bodyHandleToCharacterIndex.Length)
             ResizeBodyHandleCapacity(targetHandleCapacity);
 
-        var targetCharacterCapacity = BufferPool.GetCapacityForCount<int>(Math.Max(characters.Count, characterCapacity));
+        int targetCharacterCapacity = BufferPool.GetCapacityForCount<int>(Math.Max(characters.Count, characterCapacity));
         if (targetCharacterCapacity != characters.Span.Length)
             characters.Resize(targetCharacterCapacity, pool);
     }

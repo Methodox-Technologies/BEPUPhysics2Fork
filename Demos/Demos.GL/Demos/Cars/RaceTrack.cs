@@ -13,9 +13,9 @@ namespace Demos.Demos.Cars
             Vector2 localPoint = point - Center;
             Vector2 quadrantCenter = new(localPoint.X < 0 ? -QuadrantRadius : QuadrantRadius, localPoint.Y < 0 ? -QuadrantRadius : QuadrantRadius);
             Vector2 quadrantCenterToPoint = new Vector2(localPoint.X, localPoint.Y) - quadrantCenter;
-            var distanceToQuadrantCenter = quadrantCenterToPoint.Length();
-            var on01Or10 = localPoint.X * localPoint.Y < 0;
-            var signedLaneOffset = on01Or10 ? -laneOffset : laneOffset;
+            float distanceToQuadrantCenter = quadrantCenterToPoint.Length();
+            bool on01Or10 = localPoint.X * localPoint.Y < 0;
+            float signedLaneOffset = on01Or10 ? -laneOffset : laneOffset;
             Vector2 toCircleEdgeDirection = distanceToQuadrantCenter > 0 ? quadrantCenterToPoint * (1f / distanceToQuadrantCenter) : new Vector2(QuadrantRadius + signedLaneOffset, 0);
             Vector2 offsetFromQuadrantCircle = (QuadrantRadius + signedLaneOffset) * toCircleEdgeDirection;
             closestPoint = quadrantCenter + offsetFromQuadrantCircle;

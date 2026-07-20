@@ -118,18 +118,18 @@ public class CarDemo : DemoBase
         Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeWidth,
             (int vX, int vY) =>
             {
-                var octave0 = (MathF.Sin((vX + 5f) * 0.05f) + MathF.Sin((vY + 11) * 0.05f)) * 1.8f;
-                var octave1 = (MathF.Sin((vX + 17) * 0.15f) + MathF.Sin((vY + 19) * 0.15f)) * 0.9f;
-                var octave2 = (MathF.Sin((vX + 37) * 0.35f) + MathF.Sin((vY + 93) * 0.35f)) * 0.4f;
-                var octave3 = (MathF.Sin((vX + 53) * 0.65f) + MathF.Sin((vY + 47) * 0.65f)) * 0.2f;
-                var octave4 = (MathF.Sin((vX + 67) * 1.50f) + MathF.Sin((vY + 13) * 1.5f)) * 0.125f;
-                var distanceToEdge = planeWidth / 2 - Math.Max(Math.Abs(vX - planeWidth / 2), Math.Abs(vY - planeWidth / 2));
-                var edgeRamp = 25f / (distanceToEdge + 1);
-                var terrainHeight = octave0 + octave1 + octave2 + octave3 + octave4;
+                float octave0 = (MathF.Sin((vX + 5f) * 0.05f) + MathF.Sin((vY + 11) * 0.05f)) * 1.8f;
+                float octave1 = (MathF.Sin((vX + 17) * 0.15f) + MathF.Sin((vY + 19) * 0.15f)) * 0.9f;
+                float octave2 = (MathF.Sin((vX + 37) * 0.35f) + MathF.Sin((vY + 93) * 0.35f)) * 0.4f;
+                float octave3 = (MathF.Sin((vX + 53) * 0.65f) + MathF.Sin((vY + 47) * 0.65f)) * 0.2f;
+                float octave4 = (MathF.Sin((vX + 67) * 1.50f) + MathF.Sin((vY + 13) * 1.5f)) * 0.125f;
+                int distanceToEdge = planeWidth / 2 - Math.Max(Math.Abs(vX - planeWidth / 2), Math.Abs(vY - planeWidth / 2));
+                float edgeRamp = 25f / (distanceToEdge + 1);
+                float terrainHeight = octave0 + octave1 + octave2 + octave3 + octave4;
                 Vector2 vertexPosition = new Vector2(vX * scale, vY * scale) + terrainPosition;
-                var distanceToTrack = raceTrack.GetDistance(vertexPosition);
-                var trackWeight = MathF.Min(1f, 3f / (distanceToTrack * 0.1f + 1f));
-                var height = trackWeight * -10f + terrainHeight * (1 - trackWeight);
+                float distanceToTrack = raceTrack.GetDistance(vertexPosition);
+                float trackWeight = MathF.Min(1f, 3f / (distanceToTrack * 0.1f + 1f));
+                float height = trackWeight * -10f + terrainHeight * (1 - trackWeight);
                 return new Vector3(vertexPosition.X, height + edgeRamp, vertexPosition.Y);
 
             }, new Vector3(1, 1, 1), BufferPool, ThreadDispatcher);
@@ -154,8 +154,8 @@ public class CarDemo : DemoBase
                 {
                     steeringSum -= 1;
                 }
-                var targetSpeedFraction = input.IsDown(Forward) ? 1f : input.IsDown(Backward) ? -1f : 0;
-                var zoom = input.IsDown(Zoom);
+                float targetSpeedFraction = input.IsDown(Forward) ? 1f : input.IsDown(Backward) ? -1f : 0;
+                bool zoom = input.IsDown(Zoom);
                 //For control purposes, we'll match the fixed update rate of the simulation. Could decouple it- this dt isn't
                 //vulnerable to the same instabilities as the simulation itself with variable durations.
                 playerController.Update(Simulation, TimestepDuration, steeringSum, targetSpeedFraction, zoom, input.IsDown(Brake) || input.IsDown(BrakeAlternate));
@@ -168,7 +168,7 @@ public class CarDemo : DemoBase
             BodyReference body = Simulation.Bodies[ai.Controller.Car.Body];
             ref RigidPose pose = ref body.Pose;
             Matrix3x3.CreateFromQuaternion(pose.Orientation, out Matrix3x3 orientation);
-            var forwardVelocity = Vector3.Dot(orientation.Z, body.Velocity.Linear);
+            float forwardVelocity = Vector3.Dot(orientation.Z, body.Velocity.Linear);
             Vector2 predictedLocation = new Vector2(pose.Position.X, pose.Position.Z) + new Vector2(orientation.Z.X, orientation.Z.Z) * (5 + forwardVelocity * 2);
             raceTrack.GetClosestPoint(predictedLocation, ai.LaneOffset, out Vector2 closestPoint, out Vector2 flowDirection);
             float steeringAngle;
@@ -180,11 +180,11 @@ public class CarDemo : DemoBase
             else
             {
                 Vector2 toClosestPoint = closestPoint - new Vector2(pose.Position.X, pose.Position.Z);
-                var horizontalOffset = orientation.X.X * toClosestPoint.X + orientation.X.Z * toClosestPoint.Y;
-                var forwardOffset = orientation.Z.X * toClosestPoint.X + orientation.Z.Z * toClosestPoint.Y;
+                float horizontalOffset = orientation.X.X * toClosestPoint.X + orientation.X.Z * toClosestPoint.Y;
+                float forwardOffset = orientation.Z.X * toClosestPoint.X + orientation.Z.Z * toClosestPoint.Y;
                 steeringAngle = MathF.Atan2(horizontalOffset, forwardOffset);
             }
-            var speedFraction = 0.25f + MathF.Min(0.75f, MathF.Max(0, 0.75f * (MathF.Abs(steeringAngle) - 0.2f) / -0.4f));
+            float speedFraction = 0.25f + MathF.Min(0.75f, MathF.Max(0, 0.75f * (MathF.Abs(steeringAngle) - 0.2f) / -0.4f));
             if (orientation.Y.Y < 0.4f)
                 speedFraction = 0;
             ai.Controller.Update(Simulation, TimestepDuration, steeringAngle, speedFraction, steeringAngle < 0.05f, steeringAngle > MathF.PI * 0.2f && forwardVelocity > ai.Controller.ForwardSpeed * 0.6f);
@@ -209,7 +209,7 @@ public class CarDemo : DemoBase
             camera.Position = carBody.Pose.Position + carUp * 1.3f + camera.Backward * 8;
         }
 
-        var textHeight = 16;
+        int textHeight = 16;
         Vector2 position = new(32, renderer.Surface.Resolution.Y - 128);
         RenderControl(ref position, textHeight, nameof(Forward), ControlStrings.GetName(Forward), text, renderer.TextBatcher, font);
         RenderControl(ref position, textHeight, nameof(Backward), ControlStrings.GetName(Backward), text, renderer.TextBatcher, font);

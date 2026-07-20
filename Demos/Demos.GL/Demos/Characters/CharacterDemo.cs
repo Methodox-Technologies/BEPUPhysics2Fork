@@ -42,7 +42,7 @@ public class CharacterDemo : DemoBase
                 Quaternion orientation = QuaternionEx.CreateFromAxisAngle(Vector3.Normalize(new Vector3(0.0001f) + new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle())), 10 * random.NextSingle());
                 Box shape = new(0.1f + 0.3f * random.NextSingle(), 0.1f + 0.3f * random.NextSingle(), 0.1f + 0.3f * random.NextSingle());
                 TypedIndex shapeIndex = Simulation.Shapes.Add(shape);
-                var choice = (i + j) % 3;
+                int choice = (i + j) % 3;
                 switch (choice)
                 {
                     case 0:
@@ -126,12 +126,12 @@ public class CharacterDemo : DemoBase
         Func<double, RigidPose> poseCreator = time =>
         {
             RigidPose pose;
-            var horizontalScale = (float)(45 + 10 * Math.Sin(time * 0.015));
+            float horizontalScale = (float)(45 + 10 * Math.Sin(time * 0.015));
             //Float in a noisy ellipse around the newt.
             pose.Position = new Vector3(0.7f * horizontalScale * (float)Math.Sin(time * 0.1), 10 + 4 * (float)Math.Sin((time + Math.PI * 0.5f) * 0.25), horizontalScale * (float)Math.Cos(time * 0.1));
             //As the platform goes behind the newt, dip toward the ground. Use smoothstep for a less jerky ride.
-            var x = MathF.Max(0f, MathF.Min(1f, 1f - (pose.Position.Z + 20f) / -20f));
-            var smoothStepped = 3 * x * x - 2 * x * x * x;
+            float x = MathF.Max(0f, MathF.Min(1f, 1f - (pose.Position.Z + 20f) / -20f));
+            float smoothStepped = 3 * x * x - 2 * x * x * x;
             pose.Position.Y = smoothStepped * (pose.Position.Y - 0.025f) + 0.025f;
             pose.Orientation = Quaternion.Identity;
             return pose;
@@ -181,7 +181,7 @@ public class CharacterDemo : DemoBase
             RigidPose targetPose = PoseCreator(time + TimeOffset);
             velocity.Linear = (targetPose.Position - pose.Position) * InverseGoalSatisfactionTime;
             QuaternionEx.GetRelativeRotationWithoutOverlap(pose.Orientation, targetPose.Orientation, out Quaternion rotation);
-            QuaternionEx.GetAxisAngleFromQuaternion(rotation, out Vector3 axis, out var angle);
+            QuaternionEx.GetAxisAngleFromQuaternion(rotation, out Vector3 axis, out float angle);
             velocity.Angular = axis * (angle * InverseGoalSatisfactionTime);
         }
     }

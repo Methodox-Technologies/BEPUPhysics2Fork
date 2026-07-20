@@ -37,7 +37,7 @@ public unsafe class TaskQueueTestDemo : DemoBase
 
     static void DynamicallyEnqueuedTest1(long taskId, void* context, int workerIndex, IThreadDispatcher dispatcher)
     {
-        var sum = DoSomeWork(100, 0);
+        int sum = DoSomeWork(100, 0);
         Interlocked.Add(ref ((DynamicContext1*)context)->Context->Sum, sum);
     }
 
@@ -54,12 +54,12 @@ public unsafe class TaskQueueTestDemo : DemoBase
 
     static void DynamicallyEnqueuedTest2(long taskId, void* context, int workerIndex, IThreadDispatcher dispatcher)
     {
-        var sum = DoSomeWork(100, 0);
+        int sum = DoSomeWork(100, 0);
         Interlocked.Add(ref ((DynamicContext2*)context)->Context->Sum, sum);
     }
     static void Test<T>(long taskId, void* context, int workerIndex, IThreadDispatcher dispatcher) where T : unmanaged
     {
-        var sum = DoSomeWork(100, 0);
+        int sum = DoSomeWork(100, 0);
         Context* typedContext = (Context*)context;
         //if ((taskId & 7) == 0)
         {
@@ -75,7 +75,7 @@ public unsafe class TaskQueueTestDemo : DemoBase
     }
     static void STTest(long taskId, void* context, int workerIndex, IThreadDispatcher dispatcher)
     {
-        var sum = DoSomeWork(100, 0);
+        int sum = DoSomeWork(100, 0);
         Context* typedContext = (Context*)context;
         //if ((taskId & 7) == 0)
         {
@@ -189,9 +189,9 @@ public unsafe class TaskQueueTestDemo : DemoBase
         int accumulator = 0;
         for (int i = 0; i < testCount; ++i)
         {
-            var startTime = Stopwatch.GetTimestamp();
+            long startTime = Stopwatch.GetTimestamp();
             accumulator += function();
-            var endTime = Stopwatch.GetTimestamp();
+            long endTime = Stopwatch.GetTimestamp();
             reset?.Invoke();
             accumulatedTime += endTime - startTime;
             //overlapHandler.Set.Clear();

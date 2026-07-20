@@ -111,10 +111,10 @@ public class SolverContactEnumerationDemo : DemoBase
                 totalPenetrationImpulse += targetContact.PenetrationImpulse;
             }
             Vector2Wide.ReadFirst(TAccumulatedImpulses.GetTangentFriction(ref impulses), out Vector2 tangentFriction);
-            var twistFriction = TAccumulatedImpulses.GetTwistFriction(ref impulses)[0];
+            float twistFriction = TAccumulatedImpulses.GetTwistFriction(ref impulses)[0];
             //This isn't a 'correct' allocation of impulses, we just want a rough sense.
-            var frictionMagnitudeApproximation = MathF.Sqrt(tangentFriction.LengthSquared() + twistFriction * twistFriction);
-            var impulseScale = totalPenetrationImpulse > 0 ? frictionMagnitudeApproximation / totalPenetrationImpulse : 0;
+            float frictionMagnitudeApproximation = MathF.Sqrt(tangentFriction.LengthSquared() + twistFriction * twistFriction);
+            float impulseScale = totalPenetrationImpulse > 0 ? frictionMagnitudeApproximation / totalPenetrationImpulse : 0;
             for (int i = 0; i < TPrestep.ContactCount; ++i)
             {
                 ref ExtractedContact contact = ref constraintContacts.Contacts[i];
@@ -264,8 +264,8 @@ public class SolverContactEnumerationDemo : DemoBase
                 //The length will be oriented along the contact normal, while the radius will expand along the tangent directions.
                 BepuPhysics.Helpers.BuildOrthonormalBasis(contact.Normal, out basisPose.X, out basisPose.Z);
                 basisPose.Y = contact.Normal;
-                var baseLength = 0.2f;
-                var baseRadius = 0.1f;
+                float baseLength = 0.2f;
+                float baseRadius = 0.1f;
                 //We'll make purely speculative contacts (negative depth) a fixed minimum size and a different color.
                 Cylinder contactVisualShape = contact.Depth < 0 ?
                     new Cylinder(baseRadius, baseLength) :

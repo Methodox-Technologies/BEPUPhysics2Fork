@@ -145,11 +145,11 @@ public class SweepDemo : DemoBase
         }
         else
         {
-            var inverse = 1f / (steps - 1);
+            float inverse = 1f / (steps - 1);
             for (int i = steps - 1; i >= 0; --i)
             {
-                var stepProgression = i * inverse;
-                var stepT = stepProgression * t;
+                float stepProgression = i * inverse;
+                float stepT = stepProgression * t;
                 PoseIntegration.Integrate(pose, velocity, stepT, out RigidPose stepPose);
                 Vector3 stepColor = color * (0.2f + 0.8f * stepProgression);
                 DrawShape(ref shape, stepPose, stepColor, Simulation.Shapes, renderer);
@@ -176,19 +176,19 @@ public class SweepDemo : DemoBase
         SweepTask task = Simulation.NarrowPhase.SweepTaskRegistry.GetTask(TShapeA.TypeId, TShapeB.TypeId);
         if (task == null)
             return;
-        var intersected = task.Sweep(
+        bool intersected = task.Sweep(
             Unsafe.AsPointer(ref a), TShapeA.TypeId, poseA.Orientation, velocityA,
             Unsafe.AsPointer(ref b), TShapeB.TypeId, poseB.Position - poseA.Position, poseB.Orientation, velocityB,
             maximumT, 1e-2f, 1e-5f, 25, ref filter, Simulation.Shapes, Simulation.NarrowPhase.SweepTaskRegistry, BufferPool,
-            out var t0, out var t1, out Vector3 hitLocation, out Vector3 hitNormal);
+            out float t0, out float t1, out Vector3 hitLocation, out Vector3 hitNormal);
         hitLocation += poseA.Position;
 
         Vector3 hitTint = intersected ? new Vector3(0.5f, 1, 0.5f) : new Vector3(1f, 0.5f, 0.5f);
         Vector3 colorA = new Vector3(0.75f, 0.75f, 1) * hitTint;
         Vector3 colorB = new Vector3(0.75f, 1f, 1) * hitTint;
 
-        var stepCount = (intersected && t1 > 0) || !intersected ? 100 : 1;
-        var visualizedT = intersected ? t1 : maximumT;
+        int stepCount = (intersected && t1 > 0) || !intersected ? 100 : 1;
+        float visualizedT = intersected ? t1 : maximumT;
         DrawSweep(a, poseA, velocityA, stepCount, visualizedT, renderer, colorA);
         DrawSweep(b, poseB, velocityB, stepCount, visualizedT, renderer, colorB);
 
@@ -369,7 +369,7 @@ public class SweepDemo : DemoBase
         //Perform simulation-wide queries against the other collidables in the scene.
         Vector3 localOrigin = new(-25, 15, 0);
         Vector3 localDirection = new(7, -10, 0);
-        var sweepCount = 16;
+        int sweepCount = 16;
         for (int i = 0; i < sweepCount; ++i)
         {
             Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), i * MathHelper.TwoPi / sweepCount, out Matrix3x3 rotation);
@@ -391,7 +391,7 @@ public class SweepDemo : DemoBase
             }
         }
 
-        var bottomY = renderer.Surface.Resolution.Y;
+        int bottomY = renderer.Surface.Resolution.Y;
         renderer.TextBatcher.Write(text.Clear().Append("The library supports sweeps that include both linear and angular motion."), new Vector2(16, bottomY - 48), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("In the foreground, sweeps are tested against the simulation."), new Vector2(16, bottomY - 32), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("In the background, sweeps with linear and angular components between every pair of shape types are visualized."), new Vector2(16, bottomY - 16), 16, Vector3.One, font);

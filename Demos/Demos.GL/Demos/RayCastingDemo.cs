@@ -151,7 +151,7 @@ public class RayCastingDemo : DemoBase
         for (int i = 0; i < randomRayCount; ++i)
         {
             Vector3 direction = GetDirection(random);
-            var originScale = (float)Math.Sqrt(random.NextDouble());
+            float originScale = (float)Math.Sqrt(random.NextDouble());
             randomRays.AllocateUnsafely() = new TestRay
             {
                 Origin = originScale * GetDirection(random) * width * spacing * 0.25f,
@@ -165,8 +165,8 @@ public class RayCastingDemo : DemoBase
         int frustumRayHeight = 128;
         float aspectRatio = 1.6f;
         float verticalFOV = MathHelper.Pi * 0.16f;
-        var unitZScreenHeight = 2 * MathF.Tan(verticalFOV / 2);
-        var unitZScreenWidth = unitZScreenHeight * aspectRatio;
+        float unitZScreenHeight = 2 * MathF.Tan(verticalFOV / 2);
+        float unitZScreenWidth = unitZScreenHeight * aspectRatio;
         Vector2 unitZSpacing = new(unitZScreenWidth / frustumRayWidth, unitZScreenHeight / frustumRayHeight);
         Vector2 unitZBase = (unitZSpacing - new Vector2(unitZScreenWidth, unitZScreenHeight)) * 0.5f;
         ref QuickList<TestRay> frustumRays = ref raySources[1];
@@ -203,9 +203,9 @@ public class RayCastingDemo : DemoBase
                 };
             }
         }
-        var maxRayCount = Math.Max(randomRays.Count, Math.Max(frustumRays.Count, wallRays.Count));
+        int maxRayCount = Math.Max(randomRays.Count, Math.Max(frustumRays.Count, wallRays.Count));
         testRays = new QuickList<TestRay>(maxRayCount, BufferPool);
-        var timeSampleCount = 16;
+        int timeSampleCount = 16;
         algorithms = new IntersectionAlgorithm[2];
         algorithms[0] = new IntersectionAlgorithm("Unbatched", UnbatchedWorker, BufferPool, maxRayCount, timeSampleCount);
         algorithms[1] = new IntersectionAlgorithm("Batched", BatchedWorker, BufferPool, maxRayCount, timeSampleCount);
@@ -267,7 +267,7 @@ public class RayCastingDemo : DemoBase
 
         void ExecuteWorker(int workerIndex)
         {
-            var intersectionCount = worker(workerIndex, this);
+            int intersectionCount = worker(workerIndex, this);
             Interlocked.Add(ref IntersectionCount, intersectionCount);
         }
 
@@ -281,7 +281,7 @@ public class RayCastingDemo : DemoBase
             }
             JobIndex = -1;
             IntersectionCount = 0;
-            var start = Stopwatch.GetTimestamp();
+            long start = Stopwatch.GetTimestamp();
             if (dispatcher != null)
             {
                 dispatcher.DispatchWorkers(internalWorker);
@@ -290,7 +290,7 @@ public class RayCastingDemo : DemoBase
             {
                 internalWorker(0);
             }
-            var stop = Stopwatch.GetTimestamp();
+            long stop = Stopwatch.GetTimestamp();
             Timings.Add((stop - start) / (double)Stopwatch.Frequency);
         }
     }
@@ -443,9 +443,9 @@ public class RayCastingDemo : DemoBase
         }
         CopyAndRotate(ref raySources[raySourceIndex - 1]);
 
-        var raysPerJobBase = testRays.Count / jobs.Length;
-        var remainder = testRays.Count - raysPerJobBase * jobs.Length;
-        var previousJobEnd = 0;
+        int raysPerJobBase = testRays.Count / jobs.Length;
+        int remainder = testRays.Count - raysPerJobBase * jobs.Length;
+        int previousJobEnd = 0;
         for (int i = 0; i < jobs.Length; ++i)
         {
             int raysInJob = i < remainder ? raysPerJobBase + 1 : raysPerJobBase;
@@ -476,10 +476,10 @@ public class RayCastingDemo : DemoBase
 
     void DrawRays(ref Buffer<RayHit> results, Renderer renderer, Vector3 foregroundMissColor, Vector3 foregroundHitColor, Vector3 foregroundNormalColor, Vector3 backgroundColor)
     {
-        var packedForegroundMiss = DemoHelpers.PackColor(foregroundMissColor);
-        var packedForegroundHit = DemoHelpers.PackColor(foregroundHitColor);
-        var packedForegroundNormal = DemoHelpers.PackColor(foregroundNormalColor);
-        var packedBackground = DemoHelpers.PackColor(backgroundColor);
+        uint packedForegroundMiss = DemoHelpers.PackColor(foregroundMissColor);
+        uint packedForegroundHit = DemoHelpers.PackColor(foregroundHitColor);
+        uint packedForegroundNormal = DemoHelpers.PackColor(foregroundNormalColor);
+        uint packedBackground = DemoHelpers.PackColor(backgroundColor);
         for (int i = 0; i < testRays.Count; ++i)
         {
             ref RayHit result = ref results[i];
@@ -487,7 +487,7 @@ public class RayCastingDemo : DemoBase
             if (result.Hit)
             {
                 Vector3 end = ray.Origin + ray.Direction * result.T;
-                var diffuseLight = Vector3.Dot(result.Normal, new Vector3(0.57735f));
+                float diffuseLight = Vector3.Dot(result.Normal, new Vector3(0.57735f));
                 if (diffuseLight < 0)
                 {
                     diffuseLight = -0.5f * diffuseLight;
@@ -529,9 +529,9 @@ public class RayCastingDemo : DemoBase
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var batchedPackedColor = DemoHelpers.PackColor(new Vector3(0.75f, 0.75f, 0));
-        var batchedPackedNormalColor = DemoHelpers.PackColor(new Vector3(1f, 1f, 0));
-        var batchedPackedBackgroundColor = DemoHelpers.PackColor(new Vector3());
+        uint batchedPackedColor = DemoHelpers.PackColor(new Vector3(0.75f, 0.75f, 0));
+        uint batchedPackedNormalColor = DemoHelpers.PackColor(new Vector3(1f, 1f, 0));
+        uint batchedPackedBackgroundColor = DemoHelpers.PackColor(new Vector3());
 
         DrawRays(ref algorithms[0].Results, renderer, new Vector3(0.25f, 0, 0), new Vector3(0, 1, 0), new Vector3(1, 1, 0), new Vector3());
 
@@ -556,7 +556,7 @@ public class RayCastingDemo : DemoBase
         renderer.TextBatcher.Write(text.Clear().Append("Relative speed:"), new Vector2(350, renderer.Surface.Resolution.Y - 64), 16, new Vector3(1), font);
 
         TimelineStats baseStats = algorithms[0].Timings.ComputeStats();
-        var baseHeight = 48;
+        int baseHeight = 48;
         for (int i = 0; i < algorithms.Length; ++i)
         {
             TimelineStats stats = algorithms[i].Timings.ComputeStats();

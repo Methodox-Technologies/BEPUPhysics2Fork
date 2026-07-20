@@ -127,16 +127,16 @@ public class TreeFiddlingTestDemo : DemoBase
             }
         }
 
-        var quadWidth = width - 1;
-        var quadHeight = height - 1;
-        var triangleCount = quadWidth * quadHeight * 2;
+        int quadWidth = width - 1;
+        int quadHeight = height - 1;
+        int triangleCount = quadWidth * quadHeight * 2;
         BufferPool.Take<Triangle>(triangleCount, out Buffer<Triangle> triangles);
 
         for (int i = 0; i < quadWidth; ++i)
         {
             for (int j = 0; j < quadHeight; ++j)
             {
-                var triangleIndex = (j * quadWidth + i) * 2;
+                int triangleIndex = (j * quadWidth + i) * 2;
                 ref Triangle triangle0 = ref triangles[triangleIndex];
                 ref Vector3 v00 = ref vertices[width * j + i];
                 ref Vector3 v01 = ref vertices[width * j + i + 1];
@@ -208,7 +208,7 @@ public class TreeFiddlingTestDemo : DemoBase
             Random random = new(5);
             for (int p = 0; p < 16; ++p)
             {
-                var insertStart = Stopwatch.GetTimestamp();
+                long insertStart = Stopwatch.GetTimestamp();
                 const int insertionCount = 1 << 22;
                 Tree tree = new(BufferPool, insertionCount);
                 for (int k = 0; k < insertionCount; ++k)
@@ -221,7 +221,7 @@ public class TreeFiddlingTestDemo : DemoBase
                     //    tree.Validate();
                 }
                 //tree.Validate();
-                var insertEnd = Stopwatch.GetTimestamp();
+                long insertEnd = Stopwatch.GetTimestamp();
                 if (p > 0)
                 {
                     Console.WriteLine($"Total insertion time (ms): {(insertEnd - insertStart) * 1e3 / Stopwatch.Frequency}");
@@ -232,8 +232,8 @@ public class TreeFiddlingTestDemo : DemoBase
             }
 
             //Create a mesh.
-            var width = 1024;
-            var height = 1024;
+            int width = 1024;
+            int height = 1024;
             Vector3 scale = new(1, 1, 1);
             //DemoMeshHelper.CreateDeformedPlane(width, height, (x, y) => new Vector3(x - width * scale.X * 0.5f, 2f * (float)(Math.Sin(x * 0.5f) * Math.Sin(y * 0.5f)), y - height * scale.Y * 0.5f), scale, BufferPool, out var mesh);
             //DemoMeshHelper.CreateDeformedPlane(width, height, (x, y) => new Vector3(x - width * scale.X * 0.5f, 0, y - height * scale.Y * 0.5f), scale, BufferPool, out var mesh);
@@ -318,12 +318,12 @@ public class TreeFiddlingTestDemo : DemoBase
             {
                 handler.OverlapCount = 0;
                 threadedHandler.Reset();
-                var start = Stopwatch.GetTimestamp();
+                long start = Stopwatch.GetTimestamp();
                 //mesh.Tree.GetSelfOverlaps(ref handler);
                 //mesh.Tree.GetSelfOverlapsBatched(ref handler, BufferPool);
                 //mesh.Tree.GetSelfOverlaps2(ref handler);
                 mesh.Tree.GetSelfOverlaps2(ref threadedHandler, BufferPool, ThreadDispatcher);
-                var end = Stopwatch.GetTimestamp();
+                long end = Stopwatch.GetTimestamp();
                 (int overlapCount, int overlapSum) = threadedHandler.SumResults();
 
                 sum += end - start;
@@ -332,7 +332,7 @@ public class TreeFiddlingTestDemo : DemoBase
                 if ((testIndex + 1) % intervalSize == 0)
                 {
                     mesh.Tree.Validate();
-                    var costMetric = mesh.Tree.MeasureCostMetric();
+                    float costMetric = mesh.Tree.MeasureCostMetric();
                     Console.WriteLine($"cost for {testIndex}: {costMetric}");
                     Console.WriteLine($"{testIndex}: Time (interval average) (average) (ms): {(end - start) * 1e3 / Stopwatch.Frequency}, {intervalSum * 1e3 / (intervalSize * Stopwatch.Frequency)}, {sum * 1e3 / ((testIndex + 1) * Stopwatch.Frequency)}");
                     intervalSum = 0;
@@ -425,9 +425,9 @@ public class TreeFiddlingTestDemo : DemoBase
         const int testCount = 16;
         for (int i = 0; i < testCount; ++i)
         {
-            var startTime = Stopwatch.GetTimestamp();
+            long startTime = Stopwatch.GetTimestamp();
             function(ref overlapHandler);
-            var endTime = Stopwatch.GetTimestamp();
+            long endTime = Stopwatch.GetTimestamp();
             accumulatedTime += endTime - startTime;
             //overlapHandler.Set.Clear();
             CacheBlaster.Blast();
@@ -443,9 +443,9 @@ public class TreeFiddlingTestDemo : DemoBase
         const int testCount = 16;
         for (int i = 0; i < testCount; ++i)
         {
-            var startTime = Stopwatch.GetTimestamp();
+            long startTime = Stopwatch.GetTimestamp();
             function();
-            var endTime = Stopwatch.GetTimestamp();
+            long endTime = Stopwatch.GetTimestamp();
             accumulatedTime += endTime - startTime;
             //overlapHandler.Set.Clear();
             CacheBlaster.Blast();
@@ -453,7 +453,7 @@ public class TreeFiddlingTestDemo : DemoBase
         Console.WriteLine($"{name} time per execution (ms): {(accumulatedTime) * 1e3 / (testCount * Stopwatch.Frequency)}");
 
         Vector3 sum = tree.Nodes[0].A.Min * 5 + tree.Nodes[0].A.Max * 7 + tree.Nodes[0].B.Min * 13 + tree.Nodes[0].B.Max * 17;
-        var hash = Unsafe.As<float, int>(ref sum.X) * 31 + Unsafe.As<float, int>(ref sum.Y) * 37 + Unsafe.As<float, int>(ref sum.Z) * 41;
+        int hash = Unsafe.As<float, int>(ref sum.X) * 31 + Unsafe.As<float, int>(ref sum.Y) * 37 + Unsafe.As<float, int>(ref sum.Z) * 41;
         Console.WriteLine($"{name} bounds 0 hash: {hash}, A ({tree.Nodes[0].A.Min}, {tree.Nodes[0].B.Max}), B ({tree.Nodes[0].B.Min}, {tree.Nodes[0].B.Max})");
     }
 
@@ -464,9 +464,9 @@ public class TreeFiddlingTestDemo : DemoBase
         for (int i = 0; i < testCount; ++i)
         {
             setup?.Invoke();
-            var startTime = Stopwatch.GetTimestamp();
+            long startTime = Stopwatch.GetTimestamp();
             function();
-            var endTime = Stopwatch.GetTimestamp();
+            long endTime = Stopwatch.GetTimestamp();
             accumulatedTime += endTime - startTime;
             //overlapHandler.Set.Clear();
             CacheBlaster.Blast();
@@ -476,9 +476,9 @@ public class TreeFiddlingTestDemo : DemoBase
         ulong accumulator = 0;
         for (int i = 0; i < 1000; ++i)
         {
-            var index = (int)(((ulong)i * 941083987 + accumulator * 797003413) % (ulong)tree.NodeCount);
+            int index = (int)(((ulong)i * 941083987 + accumulator * 797003413) % (ulong)tree.NodeCount);
             Vector3 localSum = tree.Nodes[index].A.Min * 5 + tree.Nodes[index].A.Max * 7 + tree.Nodes[index].B.Min * 13 + tree.Nodes[index].B.Max * 17;
-            var hash = Unsafe.As<float, int>(ref localSum.X) * 31 + Unsafe.As<float, int>(ref localSum.Y) * 37 + Unsafe.As<float, int>(ref localSum.Z) * 41;
+            int hash = Unsafe.As<float, int>(ref localSum.X) * 31 + Unsafe.As<float, int>(ref localSum.Y) * 37 + Unsafe.As<float, int>(ref localSum.Z) * 41;
             accumulator = ((accumulator << 7) | (accumulator >> (64 - 7))) + (ulong)hash;
         }
         Console.WriteLine($"{name} bounds hash: {accumulator}, A ({tree.Nodes[0].A.Min}, {tree.Nodes[0].B.Max}), B ({tree.Nodes[0].B.Min}, {tree.Nodes[0].B.Max})");

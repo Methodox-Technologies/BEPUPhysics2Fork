@@ -142,7 +142,7 @@ public unsafe class ScalarIntegrationTestDemo : DemoBase
         const int width = 32;
         const int height = 32;
         const int length = 32;
-        var shapeCount = 0;
+        int shapeCount = 0;
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
@@ -151,7 +151,7 @@ public unsafe class ScalarIntegrationTestDemo : DemoBase
                 {
                     Vector3 location = new Vector3(6, 3, 6) * new Vector3(i, j, k) + new Vector3(-width * 1.5f, 5.5f, -length * 1.5f);
                     BodyDescription bodyDescription = BodyDescription.CreateKinematic(location, new(default, ContinuousDetection.Passive), -0.01f);
-                    var index = shapeCount++;
+                    int index = shapeCount++;
                     switch (index % 5)
                     {
                         case 0:

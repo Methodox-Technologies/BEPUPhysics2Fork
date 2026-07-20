@@ -171,12 +171,12 @@ public class CustomMeshSmoothingTestDemo : DemoBase
             (int vX, int vY) =>
             {
                 //vX and vY are vertex indices; multiply by scale after adding the centering offset to get a local-space position in world units.
-                var localX = (vX + terrainOffset.X) * xzScale;
-                var localZ = (vY + terrainOffset.Y) * xzScale;
-                var octave0 = (MathF.Sin((localX + 5f) * 0.133f) + MathF.Sin((localZ + 11) * 0.133f)) * 0.9f;
-                var octave1 = (MathF.Sin((localX + 17) * 0.367f) + MathF.Sin((localZ + 19) * 0.367f)) * 0.35f;
-                var octave2 = (MathF.Sin((localX + 37) * 0.767f) + MathF.Sin((localZ + 93) * 0.767f)) * 0.15f;
-                var terrainHeight = octave0 + octave1 + octave2;
+                float localX = (vX + terrainOffset.X) * xzScale;
+                float localZ = (vY + terrainOffset.Y) * xzScale;
+                float octave0 = (MathF.Sin((localX + 5f) * 0.133f) + MathF.Sin((localZ + 11) * 0.133f)) * 0.9f;
+                float octave1 = (MathF.Sin((localX + 17) * 0.367f) + MathF.Sin((localZ + 19) * 0.367f)) * 0.35f;
+                float octave2 = (MathF.Sin((localX + 37) * 0.767f) + MathF.Sin((localZ + 93) * 0.767f)) * 0.15f;
+                float terrainHeight = octave0 + octave1 + octave2;
                 return new Vector3(vX + terrainOffset.X, terrainHeight, vY + terrainOffset.Y);
             }, scale, BufferPool);
         var wrapped = new WrappedMesh(innerMesh);

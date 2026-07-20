@@ -144,10 +144,10 @@ public class CollisionQueryDemo : DemoBase
         for (int overlapIndex = 0; overlapIndex < broadPhaseEnumerator.References.Count; ++overlapIndex)
         {
             GetPoseAndShape(broadPhaseEnumerator.References[overlapIndex], out RigidPose pose, out TypedIndex shapeIndex);
-            Simulation.Shapes[shapeIndex.Type].GetShapeData(shapeIndex.Index, out var shapeData, out _);
+            Simulation.Shapes[shapeIndex.Type].GetShapeData(shapeIndex.Index, out void* shapeData, out _);
             //In this path, we assume that the incoming shape data is ephemeral. The collision batcher may last longer than the data pointer.
             //To avoid undefined access, we cache the query data into the collision batcher and use a pointer to the cache instead.
-            batcher.CacheShapeB(shapeIndex.Type, queryShapeType, queryShapeData, queryShapeSize, out var cachedQueryShapeData);
+            batcher.CacheShapeB(shapeIndex.Type, queryShapeType, queryShapeData, queryShapeSize, out void* cachedQueryShapeData);
             batcher.AddDirectly(
                 shapeIndex.Type, queryShapeType,
                 shapeData, cachedQueryShapeData,
@@ -167,8 +167,8 @@ public class CollisionQueryDemo : DemoBase
     /// <param name="batcher">Batcher to add the query's tests to.</param>
     public unsafe void AddQueryToBatch<TShape>(TShape shape, in RigidPose pose, int queryId, ref CollisionBatcher<BatcherCallbacks> batcher) where TShape : IConvexShape
     {
-        var queryShapeData = Unsafe.AsPointer(ref shape);
-        var queryShapeSize = Unsafe.SizeOf<TShape>();
+        void* queryShapeData = Unsafe.AsPointer(ref shape);
+        int queryShapeSize = Unsafe.SizeOf<TShape>();
         shape.ComputeBounds(pose.Orientation, out Vector3 boundingBoxMin, out Vector3 boundingBoxMax);
         boundingBoxMin += pose.Position;
         boundingBoxMax += pose.Position;
@@ -188,14 +188,14 @@ public class CollisionQueryDemo : DemoBase
     {
         ShapeBatch shapeBatch = shapes[queryShapeIndex.Type];
         shapeBatch.ComputeBounds(queryShapeIndex.Index, queryPose, out Vector3 queryBoundsMin, out Vector3 queryBoundsMax);
-        Simulation.Shapes[queryShapeIndex.Type].GetShapeData(queryShapeIndex.Index, out var queryShapeData, out _);
+        Simulation.Shapes[queryShapeIndex.Type].GetShapeData(queryShapeIndex.Index, out void* queryShapeData, out _);
         BroadPhaseOverlapEnumerator broadPhaseEnumerator = new() { Pool = BufferPool, References = new QuickList<CollidableReference>(16, BufferPool) };
         Simulation.BroadPhase.GetOverlaps(queryBoundsMin, queryBoundsMax, BufferPool, ref broadPhaseEnumerator);
         for (int overlapIndex = 0; overlapIndex < broadPhaseEnumerator.References.Count; ++overlapIndex)
         {
             GetPoseAndShape(broadPhaseEnumerator.References[overlapIndex], out RigidPose pose, out TypedIndex shapeIndex);
             //Since both involved shapes are from the simulation cache, we don't need to cache them ourselves.
-            Simulation.Shapes[shapeIndex.Type].GetShapeData(shapeIndex.Index, out var shapeData, out _);
+            Simulation.Shapes[shapeIndex.Type].GetShapeData(shapeIndex.Index, out void* shapeData, out _);
             batcher.AddDirectly(
                 shapeIndex.Type, queryShapeIndex.Type,
                 shapeData, queryShapeData,
@@ -258,7 +258,7 @@ public class CollisionQueryDemo : DemoBase
         BufferPool.Return(ref queryWasTouched);
         queries.Dispose(BufferPool);
 
-        var bottomY = renderer.Surface.Resolution.Y;
+        int bottomY = renderer.Surface.Resolution.Y;
         renderer.TextBatcher.Write(text.Clear().Append("The broad phase exposes queries to collect bodies within bounding volumes, and the CollisionBatcher can be used to perform contact generation."), new Vector2(16, bottomY - 80), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("The boxes in the floating grid represent shape queries against the simulation. Broad phase collected candidates are handed to a CollisionBatcher for testing."), new Vector2(16, bottomY - 64), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("If positive depth contacts are detected, the box turns green."), new Vector2(16, bottomY - 48), 16, Vector3.One, font);

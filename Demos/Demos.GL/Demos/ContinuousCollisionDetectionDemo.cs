@@ -140,7 +140,7 @@ public class ContinuousCollisionDetectionDemo : DemoBase
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
         rolloverInfo.Render(renderer, camera, input, text, font);
-        var bottomY = renderer.Surface.Resolution.Y;
+        int bottomY = renderer.Surface.Resolution.Y;
         renderer.TextBatcher.Write(text.Clear().Append("The library uses speculative contacts for collision detection. That means their penetration depth can be negative."), new Vector2(16, bottomY - 240), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Continuous collision detection can be handled through solving these negative depth constraints in a nice unified way."), new Vector2(16, bottomY - 224), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("You can observe default speculative margin behavior in the middle set of boxes that fell in the background, or the left spinners."), new Vector2(16, bottomY - 208), 16, Vector3.One, font);

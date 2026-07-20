@@ -31,22 +31,22 @@ static class ControlStrings
 
     static ControlStrings()
     {
-        keys = new Dictionary<Keys, string>();
-        var keyNames = Enum.GetNames(typeof(Keys));
+        keys = [];
+        string[] keyNames = Enum.GetNames(typeof(Keys));
         Keys[] keyValues = (Keys[])Enum.GetValues(typeof(Keys));
         for (int i = 0; i < keyNames.Length; ++i)
         {
             keys.TryAdd(keyValues[i], keyNames[i]);
         }
-        mouseButtons = new Dictionary<MouseButton, string>();
-        var mouseButtonNames = Enum.GetNames(typeof(MouseButton));
+        mouseButtons = [];
+        string[] mouseButtonNames = Enum.GetNames(typeof(MouseButton));
         MouseButton[] mouseButtonValues = (MouseButton[])Enum.GetValues(typeof(MouseButton));
         for (int i = 0; i < mouseButtonNames.Length; ++i)
         {
             mouseButtons.TryAdd(mouseButtonValues[i], mouseButtonNames[i]);
         }
-        mouseWheel = new Dictionary<MouseWheelAction, string>();
-        var wheelNames = Enum.GetNames(typeof(MouseWheelAction));
+        mouseWheel = [];
+        string[] wheelNames = Enum.GetNames(typeof(MouseWheelAction));
         MouseWheelAction[] wheelValues = (MouseWheelAction[])Enum.GetValues(typeof(MouseWheelAction));
         for (int i = 0; i < wheelNames.Length; ++i)
         {

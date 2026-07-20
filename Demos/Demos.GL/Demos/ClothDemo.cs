@@ -38,10 +38,10 @@ struct ClothCollisionFilter
         if (a.instanceId != b.instanceId)
             return true;
         //Disallow collisions between vertices which are near each other. We measure distance as max(abs(ax - bx), abs(ay - by), abs(az - bz)).
-        var differenceX = a.x - b.x;
+        int differenceX = a.x - b.x;
         if (differenceX < -minimumDistance || differenceX > minimumDistance)
             return true;
-        var differenceY = a.y - b.y;
+        int differenceY = a.y - b.y;
         if (differenceY < -minimumDistance || differenceY > minimumDistance)
             return true;
         return false;
@@ -124,7 +124,7 @@ public class ClothDemo : DemoBase
         int instanceId, CollidableProperty<ClothCollisionFilter> filters, KinematicDecider isKinematic)
     {
         BodyDescription description = BodyDescription.CreateDynamic(orientation, default, Simulation.Shapes.Add(new Sphere(bodyRadius)), 0.01f);
-        var inverseMass = 1f / massPerBody;
+        float inverseMass = 1f / massPerBody;
         BodyHandle[,] handles = new BodyHandle[height, width];
         for (int rowIndex = 0; rowIndex < height; ++rowIndex)
         {
@@ -174,7 +174,7 @@ public class ClothDemo : DemoBase
             {
                 //Note the use of a limit; the distance is allowed to go smaller.
                 //This helps stop the cloth from having unnatural rigidity.
-                var distance = Vector3.Distance(a.Pose.Position, b.Pose.Position);
+                float distance = Vector3.Distance(a.Pose.Position, b.Pose.Position);
                 Simulation.Solver.Add(aHandle, bHandle, new CenterDistanceLimit(distance * 0.15f, distance, springSettings));
             }
         }

@@ -19,14 +19,14 @@ public class ColosseumVideoDemo : DemoBase
 {
     void CreateRingWall(Vector3 position, Box ringBoxShape, BodyDescription bodyDescription, int height, float radius)
     {
-        var circumference = MathF.PI * 2 * radius;
-        var boxCountPerRing = (int)(0.9f * circumference / ringBoxShape.Length);
+        float circumference = MathF.PI * 2 * radius;
+        int boxCountPerRing = (int)(0.9f * circumference / ringBoxShape.Length);
         float increment = MathHelper.TwoPi / boxCountPerRing;
         for (int ringIndex = 0; ringIndex < height; ringIndex++)
         {
             for (int i = 0; i < boxCountPerRing; i++)
             {
-                var angle = ((ringIndex & 1) == 0 ? i + 0.5f : i) * increment;
+                float angle = ((ringIndex & 1) == 0 ? i + 0.5f : i) * increment;
                 bodyDescription.Pose = (position + new Vector3(-MathF.Cos(angle) * radius, (ringIndex + 0.5f) * ringBoxShape.Height, MathF.Sin(angle) * radius), QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, angle));
                 Simulation.Bodies.Add(bodyDescription);
             }
@@ -35,12 +35,12 @@ public class ColosseumVideoDemo : DemoBase
 
     void CreateRingPlatform(Vector3 position, Box ringBoxShape, BodyDescription bodyDescription, float radius)
     {
-        var innerCircumference = MathF.PI * 2 * (radius - ringBoxShape.HalfLength);
-        var boxCount = (int)(0.95f * innerCircumference / ringBoxShape.Height);
+        float innerCircumference = MathF.PI * 2 * (radius - ringBoxShape.HalfLength);
+        int boxCount = (int)(0.95f * innerCircumference / ringBoxShape.Height);
         float increment = MathHelper.TwoPi / boxCount;
         for (int i = 0; i < boxCount; i++)
         {
-            var angle = i * increment;
+            float angle = i * increment;
             bodyDescription.Pose = (position + new Vector3(-MathF.Cos(angle) * radius, ringBoxShape.HalfWidth, MathF.Sin(angle) * radius),
                 QuaternionEx.Concatenate(QuaternionEx.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f), QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, angle + MathF.PI * 0.5f)));
             Simulation.Bodies.Add(bodyDescription);
@@ -51,7 +51,7 @@ public class ColosseumVideoDemo : DemoBase
     {
         for (int platformIndex = 0; platformIndex < platformLevels; ++platformIndex)
         {
-            var wallOffset = ringBoxShape.HalfLength - ringBoxShape.HalfWidth;
+            float wallOffset = ringBoxShape.HalfLength - ringBoxShape.HalfWidth;
             CreateRingWall(position, ringBoxShape, bodyDescription, heightPerPlatformLevel, radius + wallOffset);
             CreateRingWall(position, ringBoxShape, bodyDescription, heightPerPlatformLevel, radius - wallOffset);
             CreateRingPlatform(position + new Vector3(0, heightPerPlatformLevel * ringBoxShape.Height, 0), ringBoxShape, bodyDescription, radius);
@@ -75,13 +75,13 @@ public class ColosseumVideoDemo : DemoBase
 
         Vector3 layerPosition = new();
         const int layerCount = 10;
-        var innerRadius = 5f;
-        var heightPerPlatform = 2;
-        var platformsPerLayer = 1;
-        var ringSpacing = 0.5f;
+        float innerRadius = 5f;
+        int heightPerPlatform = 2;
+        int platformsPerLayer = 1;
+        float ringSpacing = 0.5f;
         for (int layerIndex = 0; layerIndex < layerCount; ++layerIndex)
         {
-            var ringCount = layerCount - layerIndex;
+            int ringCount = layerCount - layerIndex;
             for (int ringIndex = 0; ringIndex < ringCount; ++ringIndex)
             {
                 CreateRing(layerPosition, ringBoxShape, boxDescription, innerRadius + ringIndex * (ringBoxShape.Length + ringSpacing) + layerIndex * (ringBoxShape.Length - ringBoxShape.Width), heightPerPlatform, platformsPerLayer);

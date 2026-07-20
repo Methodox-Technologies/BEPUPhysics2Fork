@@ -57,10 +57,10 @@ struct SimpleCarController
 
     public void Update(Simulation simulation, float dt, float targetSteeringAngle, float targetSpeedFraction, bool zoom, bool brake)
     {
-        var steeringAngleDifference = targetSteeringAngle - steeringAngle;
-        var maximumChange = SteeringSpeed * dt;
-        var steeringAngleChange = MathF.Min(maximumChange, MathF.Max(-maximumChange, steeringAngleDifference));
-        var previousSteeringAngle = steeringAngle;
+        float steeringAngleDifference = targetSteeringAngle - steeringAngle;
+        float maximumChange = SteeringSpeed * dt;
+        float steeringAngleChange = MathF.Min(maximumChange, MathF.Max(-maximumChange, steeringAngleDifference));
+        float previousSteeringAngle = steeringAngle;
         
         steeringAngle = MathF.Min(MaximumSteeringAngle, MathF.Max(-MaximumSteeringAngle, steeringAngle + steeringAngleChange));
         if (steeringAngle != previousSteeringAngle)
@@ -73,7 +73,7 @@ struct SimpleCarController
             if (AckermanSteering > 0 && steeringAngleAbs > 1e-6)
             {
                 float turnRadius = MathF.Abs(WheelBaseLength * MathF.Tan(MathF.PI * 0.5f - steeringAngleAbs));
-                var wheelBaseHalfWidth = WheelBaseWidth * 0.5f;
+                float wheelBaseHalfWidth = WheelBaseWidth * 0.5f;
                 if (steeringAngle > 0)
                 {
                     rightSteeringAngle = MathF.Atan(WheelBaseLength / (turnRadius - wheelBaseHalfWidth));

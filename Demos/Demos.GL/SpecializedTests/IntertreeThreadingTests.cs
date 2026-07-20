@@ -41,8 +41,8 @@ public static class IntertreeThreadingTests
         }
         Comparison<(int, int)> comparison = (a, b) =>
         {
-            var combinedA = ((ulong)a.Item1 << 32) | ((uint)a.Item2);
-            var combinedB = ((ulong)b.Item1 << 32) | ((uint)b.Item2);
+            ulong combinedA = ((ulong)a.Item1 << 32) | ((uint)a.Item2);
+            ulong combinedB = ((ulong)b.Item1 << 32) | ((uint)b.Item2);
             return combinedA.CompareTo(combinedB);
         };
         pairs.Sort(comparison);
@@ -55,10 +55,10 @@ public static class IntertreeThreadingTests
 
         BoundingBox aBounds = new(new Vector3(-40, 0, -40), new Vector3(40, 0, 40));
         Vector3 aOffset = new(3f, 3f, 3f);
-        var aCount = 1024;
+        int aCount = 1024;
         BoundingBox bBounds = new(new Vector3(-5, -2, -5), new Vector3(5, 2, 5));
         Vector3 bOffset = new(0.5f, 0.5f, 0.5f);
-        var bCount = 3;
+        int bCount = 3;
         for (int i = 0; i < aCount; ++i)
         {
             GetRandomLocation(random, ref aBounds, out Vector3 center);
@@ -73,13 +73,13 @@ public static class IntertreeThreadingTests
         }
         
         {
-            var indexToRemove = 1;
+            int indexToRemove = 1;
             GetBoundsForLeaf(treeB, indexToRemove, out BoundingBox removedBounds);
             treeB.RemoveAt(indexToRemove);
             treeA.Add(removedBounds, pool);
         }
 
-        OverlapHandler singleThreadedResults = new() { Pairs = new List<(int a, int b)>() };
+        OverlapHandler singleThreadedResults = new() { Pairs = [] };
         treeA.GetOverlaps(ref treeB, ref singleThreadedResults);
         SortPairs(singleThreadedResults.Pairs);
         for (int i = 0; i < 10; ++i)
@@ -94,12 +94,12 @@ public static class IntertreeThreadingTests
         OverlapHandler[] handlers = new OverlapHandler[threadDispatcher.ThreadCount];
         for (int i = 0; i < threadDispatcher.ThreadCount; ++i)
         {
-            handlers[i].Pairs = new List<(int a, int b)>();
+            handlers[i].Pairs = [];
         }
         context.PrepareJobs(ref treeA, ref treeB, handlers, threadDispatcher.ThreadCount);
         threadDispatcher.DispatchWorkers(context.PairTest, context.JobCount);
         context.CompleteTest();
-        List<(int a, int b)> multithreadedResults = new();
+        List<(int a, int b)> multithreadedResults = [];
         for (int i = 0; i < threadDispatcher.ThreadCount; ++i)
         {
             multithreadedResults.AddRange(handlers[i].Pairs);
@@ -134,7 +134,7 @@ public static class IntertreeThreadingTests
             larger = treeA;
         }
         BruteForceResultsEnumerator bruteResultsEnumerator = new();
-        bruteResultsEnumerator.Pairs = new List<(int a, int b)>();
+        bruteResultsEnumerator.Pairs = [];
         for (int i = 0; i < smaller.LeafCount; ++i)
         {
             GetBoundsForLeaf(smaller, i, out BoundingBox bounds);

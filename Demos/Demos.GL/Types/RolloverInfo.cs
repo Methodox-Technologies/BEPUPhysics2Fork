@@ -22,7 +22,7 @@ public class RolloverInfo
 
     public RolloverInfo()
     {
-        descriptions = new List<RolloverDescription>();
+        descriptions = [];
     }
 
     public void Add(Vector3 position, string description, float previewOffset = -1.2f, string previewText = "Info...")
@@ -41,7 +41,7 @@ public class RolloverInfo
             Vector3 textPosition = descriptions[i].Position;
             DemoHelpers.GetScreenLocation(textPosition, camera.ViewProjection, resolution, out screenLocations[i]);
             Int2 mouse = input.MousePosition;
-            var distance = Vector2.Distance(new Vector2(mouse.X, mouse.Y), screenLocations[i]);
+            float distance = Vector2.Distance(new Vector2(mouse.X, mouse.Y), screenLocations[i]);
             if (distance < closestDistance)
             {
                 closestDistance = distance;
@@ -56,14 +56,14 @@ public class RolloverInfo
             if (i != closestIndex)
             {
                 text.Clear().Append(descriptions[i].Preview);
-                var infoLength = GlyphBatch.MeasureLength(text, font, infoHeight);
+                float infoLength = GlyphBatch.MeasureLength(text, font, infoHeight);
                 renderer.TextBatcher.Write(text, screenLocations[i] + new Vector2(-infoLength * 0.5f, descriptions[i].PreviewOffset * descriptionHeight), infoHeight, new Vector3(1), font);
             }
         }
         if (closestIndex >= 0)
         {
             text.Clear().Append(descriptions[closestIndex].Description);
-            var descriptionLength = GlyphBatch.MeasureLength(text, font, descriptionHeight);
+            float descriptionLength = GlyphBatch.MeasureLength(text, font, descriptionHeight);
             renderer.TextBatcher.Write(text, screenLocations[closestIndex] - new Vector2(descriptionLength * 0.5f, 0), 16, new Vector3(1), font);
         }
 

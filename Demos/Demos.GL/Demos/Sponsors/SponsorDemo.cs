@@ -26,10 +26,10 @@ public struct Sponsor
 
 public class SponsorDemo : DemoBase
 {
-    List<string> sponsors0 = new();
-    List<Sponsor> sponsors1 = new();
-    List<Sponsor> sponsors2 = new();
-    List<Sponsor> sponsors3 = new();
+    List<string> sponsors0 = [];
+    List<Sponsor> sponsors1 = [];
+    List<Sponsor> sponsors2 = [];
+    List<Sponsor> sponsors3 = [];
 
     QuickList<SponsorNewt> newts;
     StaticHandle overlordNewtHandle;
@@ -169,15 +169,15 @@ public class SponsorDemo : DemoBase
 
     static void Get(int sponsorCount, int maximumBatchSize, double time, float timePerBatch, float fadeTime, out float alpha, out int start, out int end)
     {
-        var batchCount = (int)MathF.Ceiling((float)sponsorCount / maximumBatchSize);
+        int batchCount = (int)MathF.Ceiling((float)sponsorCount / maximumBatchSize);
         if (batchCount > 1)
         {
-            var batchIndex = (time / timePerBatch) % batchCount;
+            double batchIndex = (time / timePerBatch) % batchCount;
             //Fade time covers the time from full alpha to 0 and back to full alpha again. In other words, the full time for a given batch is:
             //[0, 0.5 * fadeTime) [0.5 * fadeTime, timePerBatch - 0.5 * fadeT6ime ) [timePerBatch - 0.5 * fadeTime, timePerBatch)
             Debug.Assert(fadeTime <= timePerBatch);
-            var batchProgress = (float)(timePerBatch * (batchIndex - MathF.Truncate((float)batchIndex)));
-            var inverseFadeTime = 1f / fadeTime;
+            float batchProgress = (float)(timePerBatch * (batchIndex - MathF.Truncate((float)batchIndex)));
+            float inverseFadeTime = 1f / fadeTime;
             alpha = MathF.Min(MathF.Min(1f, batchProgress * inverseFadeTime), inverseFadeTime * timePerBatch - batchProgress * inverseFadeTime);
             start = (int)batchIndex * maximumBatchSize;
             end = Math.Min(start + maximumBatchSize, sponsorCount);
@@ -193,15 +193,15 @@ public class SponsorDemo : DemoBase
     static float DrawSponsors(string groupTitle, List<Sponsor> sponsors, Vector2 position, Vector2 mousePosition, Renderer renderer, TextBuilder text, Font font,
         double time, int maximumBatchSize, float timePerBatch, float fadeTime, float fontSize, float padding, float lineSpacing)
     {
-        var initialY = position.Y;
+        float initialY = position.Y;
         renderer.TextBatcher.Write(text.Clear().Append(groupTitle), position, fontSize * 1.5f, new Vector4(1), font);
         position += new Vector2(fontSize * 0.5f, lineSpacing);
-        Get(sponsors.Count, maximumBatchSize, time, timePerBatch, fadeTime, out var alpha, out var start, out var end);
+        Get(sponsors.Count, maximumBatchSize, time, timePerBatch, fadeTime, out float alpha, out int start, out int end);
         for (int i = start; i < end; ++i)
         {
             Sponsor sponsor = sponsors[i];
             renderer.TextBatcher.Write(text.Clear().Append(sponsor.Name), position, fontSize, new Vector4(new Vector3(1), alpha), font);
-            var width = GlyphBatch.MeasureLength(sponsor.Name, font, fontSize);
+            float width = GlyphBatch.MeasureLength(sponsor.Name, font, fontSize);
             Vector2 boundingBoxMin = position - new Vector2(padding, padding + fontSize);
             Vector2 boundingBoxMax = position + new Vector2(width + padding, padding);
             if (Vector2.Min(boundingBoxMax, Vector2.Max(boundingBoxMin, mousePosition)) == mousePosition)
@@ -220,13 +220,13 @@ public class SponsorDemo : DemoBase
     float DrawSponsors(string groupTitle, List<string> sponsors, Vector2 position, Renderer renderer, TextBuilder text, Font font,
         double time, int maximumBatchSize, float timePerBatch, float fadeTime, float fontSize, float lineSpacing)
     {
-        var initialY = position.Y;
+        float initialY = position.Y;
         renderer.TextBatcher.Write(text.Clear().Append(groupTitle), position, fontSize * 1.5f, new Vector4(1), font);
         position += new Vector2(fontSize * 0.5f, lineSpacing);
-        Get(sponsors.Count, maximumBatchSize, time, timePerBatch, fadeTime, out var alpha, out var start, out var end);
+        Get(sponsors.Count, maximumBatchSize, time, timePerBatch, fadeTime, out float alpha, out int start, out int end);
         for (int i = start; i < end; ++i)
         {
-            var sponsor = sponsors[i];
+            string sponsor = sponsors[i];
             renderer.TextBatcher.Write(text.Clear().Append(sponsor), position, fontSize, new Vector4(new Vector3(1), alpha), font);
             position.Y += lineSpacing;
         }
@@ -264,8 +264,8 @@ public class SponsorDemo : DemoBase
             Vector3 worldTextPosition = Simulation.Statics[overlordNewtHandle].Pose.Position + new Vector3(0, 48, 0);
             DemoHelpers.GetScreenLocation(worldTextPosition, viewProjection, resolution, out Vector2 screenspacePosition);
             const float nameHeight = 14;
-            var name = sponsors3[0].Name;
-            var nameLength = GlyphBatch.MeasureLength(name, font, nameHeight);
+            string name = sponsors3[0].Name;
+            float nameLength = GlyphBatch.MeasureLength(name, font, nameHeight);
             screenspacePosition.X -= nameLength * 0.5f;
             renderer.TextBatcher.Write(text.Clear().Append(name), screenspacePosition, nameHeight, new Vector3(0.3f, 0f, 0f), font);
         }

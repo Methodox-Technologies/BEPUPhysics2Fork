@@ -76,24 +76,24 @@ public struct AITank
         QuaternionEx.Transform(offset, QuaternionEx.Concatenate(QuaternionEx.Conjugate(currentPose.Orientation), Controller.Tank.BodyLocalOrientation), out Vector3 localMovementOffset);
 
         Vector2 targetHorizontalMovementDirection = new(localMovementOffset.X, -localMovementOffset.Z);
-        var targetDirectionLength = targetHorizontalMovementDirection.Length();
+        float targetDirectionLength = targetHorizontalMovementDirection.Length();
         targetHorizontalMovementDirection = targetDirectionLength > 1e-10f ? targetHorizontalMovementDirection / targetDirectionLength : new Vector2(0, 1);
-        var turnWeight = targetHorizontalMovementDirection.Y > 0 ? targetHorizontalMovementDirection.X : targetHorizontalMovementDirection.X > 0 ? 1f : -1f;
+        float turnWeight = targetHorizontalMovementDirection.Y > 0 ? targetHorizontalMovementDirection.X : targetHorizontalMovementDirection.X > 0 ? 1f : -1f;
         //Set the leftTrack to 1 at turnWeight >= 0. At turnWeight -1, leftTrack should be -1.
-        var leftTrack = MathF.Min(1f, 2f * turnWeight + 1f);
+        float leftTrack = MathF.Min(1f, 2f * turnWeight + 1f);
         //rightTrack = 1 at turnWeight <= 0, rightTrack = -1 at turnWeight = 1.
-        var rightTrack = MathF.Min(1f, -2f * turnWeight + 1f);
+        float rightTrack = MathF.Min(1f, -2f * turnWeight + 1f);
 
         //If we're close to the target, slow down a bit.
-        var speedMultiplier = Math.Min(targetDirectionLength * 0.05f, 1f);
+        float speedMultiplier = Math.Min(targetDirectionLength * 0.05f, 1f);
         leftTrack *= speedMultiplier;
         rightTrack *= speedMultiplier;
         //If we're far away from the target but are pointing in the right direction, zoom.
-        var zoom = targetDirectionLength > 50 && targetHorizontalMovementDirection.Y > 0.8f;
+        bool zoom = targetDirectionLength > 50 && targetHorizontalMovementDirection.Y > 0.8f;
         //We're not going to compute an optimal firing solution- just aim directly at the middle of the other tank. Pretty poor choice, but that's fine.
         ref Vector3 barrelPosition = ref simulation.Bodies[Controller.Tank.Barrel].Pose.Position;
         Vector3 barrelToTarget = targetTankPosition - barrelPosition;
-        var barrelToTargetLength = barrelToTarget.Length();
+        float barrelToTargetLength = barrelToTarget.Length();
         barrelToTarget = barrelToTargetLength > 1e-10f ? barrelToTarget / barrelToTargetLength : new Vector3(0, 1, 0);
         Controller.UpdateMovementAndAim(simulation, leftTrack, rightTrack, zoom, false, false, barrelToTarget);
         if (frameIndex > LastShotFrame + 60)
@@ -102,7 +102,7 @@ public struct AITank
             if (barrelToTargetLength > 1e-10f && barrelToTargetLength < 100)
             {
                 Controller.Tank.ComputeBarrelDirection(simulation, out Vector3 barrelDirection);
-                var dot = Vector3.Dot(barrelDirection, barrelToTarget);
+                float dot = Vector3.Dot(barrelDirection, barrelToTarget);
                 if (dot > 0.98f)
                 {
                     Controller.Tank.Fire(simulation, bodyProperties);

@@ -81,7 +81,7 @@ public struct CharacterInput
         {
             movementDirection += new Vector2(1, 0);
         }
-        var movementDirectionLengthSquared = movementDirection.LengthSquared();
+        float movementDirectionLengthSquared = movementDirection.LengthSquared();
         if (movementDirectionLengthSquared > 0)
         {
             movementDirection /= MathF.Sqrt(movementDirectionLengthSquared);
@@ -90,7 +90,7 @@ public struct CharacterInput
         ref CharacterController character = ref characters.GetCharacterByBodyHandle(bodyHandle);
         character.TryJump = input.WasPushed(Jump) || input.WasPushed(JumpAlternate);
         BodyReference characterBody = new(bodyHandle, characters.Simulation.Bodies);
-        var effectiveSpeed = input.IsDown(Sprint) ? speed * 1.75f : speed;
+        float effectiveSpeed = input.IsDown(Sprint) ? speed * 1.75f : speed;
         Vector2 newTargetVelocity = movementDirection * effectiveSpeed;
         Vector3 viewDirection = camera.Forward;
         //Modifying the character's raw data does not automatically wake the character up, so we do so explicitly if necessary.
@@ -117,21 +117,21 @@ public struct CharacterInput
         {
             QuaternionEx.Transform(character.LocalUp, characterBody.Pose.Orientation, out Vector3 characterUp);
             Vector3 characterRight = Vector3.Cross(character.ViewDirection, characterUp);
-            var rightLengthSquared = characterRight.LengthSquared();
+            float rightLengthSquared = characterRight.LengthSquared();
             if (rightLengthSquared > 1e-10f)
             {
                 characterRight /= MathF.Sqrt(rightLengthSquared);
                 Vector3 characterForward = Vector3.Cross(characterUp, characterRight);
                 Vector3 worldMovementDirection = characterRight * movementDirection.X + characterForward * movementDirection.Y;
-                var currentVelocity = Vector3.Dot(characterBody.Velocity.Linear, worldMovementDirection);
+                float currentVelocity = Vector3.Dot(characterBody.Velocity.Linear, worldMovementDirection);
                 //We'll arbitrarily set air control to be a fraction of supported movement's speed/force.
                 const float airControlForceScale = .2f;
                 const float airControlSpeedScale = .2f;
-                var airAccelerationDt = characterBody.LocalInertia.InverseMass * character.MaximumHorizontalForce * airControlForceScale * simulationTimestepDuration;
-                var maximumAirSpeed = effectiveSpeed * airControlSpeedScale;
-                var targetVelocity = MathF.Min(currentVelocity + airAccelerationDt, maximumAirSpeed);
+                float airAccelerationDt = characterBody.LocalInertia.InverseMass * character.MaximumHorizontalForce * airControlForceScale * simulationTimestepDuration;
+                float maximumAirSpeed = effectiveSpeed * airControlSpeedScale;
+                float targetVelocity = MathF.Min(currentVelocity + airAccelerationDt, maximumAirSpeed);
                 //While we shouldn't allow the character to continue accelerating in the air indefinitely, trying to move in a given direction should never slow us down in that direction.
-                var velocityChangeAlongMovementDirection = MathF.Max(0, targetVelocity - currentVelocity);
+                float velocityChangeAlongMovementDirection = MathF.Max(0, targetVelocity - currentVelocity);
                 characterBody.Velocity.Linear += worldMovementDirection * velocityChangeAlongMovementDirection;
                 Debug.Assert(characterBody.Awake, "Velocity changes don't automatically update objects; the character should have already been woken up before applying air control.");
             }

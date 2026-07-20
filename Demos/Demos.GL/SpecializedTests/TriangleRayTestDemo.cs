@@ -24,7 +24,7 @@ public class TriangleRayTestDemo : DemoBase
             c = random.NextSingle();
             total = a + b + c;
         } while (total < 1e-7f);
-        var inverseTotal = 1f / total;
+        float inverseTotal = 1f / total;
         a *= inverseTotal;
         b *= inverseTotal;
         c *= inverseTotal;
@@ -37,7 +37,7 @@ public class TriangleRayTestDemo : DemoBase
     void GetPointOutsideTriangle(Random random, in Triangle triangle, in RigidPose pose, out Vector3 pointOutsideTriangle)
     {
         //This is a pretty biased random generator, but that's fine.
-        var edgeIndex = random.Next(3);
+        int edgeIndex = random.Next(3);
         Vector3 borderPoint;
         switch (edgeIndex)
         {
@@ -61,7 +61,7 @@ public class TriangleRayTestDemo : DemoBase
 
     void TestRay(in Triangle triangle, in RigidPose pose, Vector3 rayOrigin, Vector3 rayDirection, bool expectedImpact, Vector3 pointOnTrianglePlane)
     {
-        var hit = triangle.RayTest(pose, rayOrigin, rayDirection, out var t, out Vector3 normal);
+        bool hit = triangle.RayTest(pose, rayOrigin, rayDirection, out float t, out Vector3 normal);
 
         TriangleWide wide = default;
         wide.Broadcast(triangle);
@@ -77,7 +77,7 @@ public class TriangleRayTestDemo : DemoBase
         {
             Debug.Assert(Math.Abs(t - tWide[0]) < 1e-7f);
             Vector3Wide.ReadSlot(ref normalWide, 0, out Vector3 normalWideLane0);
-            var normalDot = Vector3.Dot(normalWideLane0, normal);
+            float normalDot = Vector3.Dot(normalWideLane0, normal);
             Debug.Assert(normalDot > 0.9999f && normalDot < 1.00001f);
             Vector3 hitLocationError = rayDirection * t + (rayOrigin - pointOnTrianglePlane);
             Debug.Assert(hitLocationError.Length() < 1e-2f * MathF.Max(pointOnTrianglePlane.Length(), rayDirection.Length()));
@@ -138,7 +138,7 @@ public class TriangleRayTestDemo : DemoBase
             pose.Position = BepuUtilities.QuaternionEx.Transform(localTriangleCenter, pose.Orientation);
 
             Vector3 normal = Vector3.Cross(triangle.C - triangle.A, triangle.B - triangle.A);
-            var normalLength = normal.Length();
+            float normalLength = normal.Length();
             if (normalLength < 1e-7f)
                 continue;
             normal /= normalLength;
@@ -152,7 +152,7 @@ public class TriangleRayTestDemo : DemoBase
                 rayDirection = pointOnTriangle - rayOrigin;
             } while (rayDirection.LengthSquared() < 1e-9f);
             rayDirection *= (0.5f + 10 * random.NextSingle()) / rayDirection.Length();
-            var shouldHit = Vector3.Dot(rayDirection, normal) < 0;
+            bool shouldHit = Vector3.Dot(rayDirection, normal) < 0;
             TestRay(triangle, pose, rayOrigin, rayDirection, shouldHit, pointOnTriangle);
 
             Vector3 pointOutsideTriangle;

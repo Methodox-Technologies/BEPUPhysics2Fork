@@ -54,12 +54,12 @@ public class TimingsRingBuffer : IDataSeries, IDisposable
     {
         TimelineStats stats;
         stats.Total = 0.0;
-        var sumOfSquares = 0.0;
+        double sumOfSquares = 0.0;
         stats.Min = double.MaxValue;
         stats.Max = double.MinValue;
         for (int i = 0; i < queue.Count; ++i)
         {
-            var time = queue[i];
+            double time = queue[i];
             stats.Total += time;
             sumOfSquares += time * time;
             if (time < stats.Min)

@@ -97,7 +97,7 @@ public class RagdollTubeVideoDemo : DemoBase
         renderer.TextBatcher.Write(text.Clear().Append(ragdollCount), new Vector2(xOffset, resolution.Y - 64), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append(ragdollBodyCount), new Vector2(xOffset, resolution.Y - 48), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append(ragdollConstraintCount), new Vector2(xOffset, resolution.Y - 32), 16, Vector3.One, font);
-        var collisionConstraintCount = Simulation.Solver.CountConstraints() - ragdollConstraintCount;
+        int collisionConstraintCount = Simulation.Solver.CountConstraints() - ragdollConstraintCount;
         renderer.TextBatcher.Write(text.Clear().Append(collisionConstraintCount), new Vector2(xOffset, resolution.Y - 16), 16, Vector3.One, font);
         base.Render(renderer, camera, input, text, font);
     }

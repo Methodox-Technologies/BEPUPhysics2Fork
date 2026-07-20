@@ -25,7 +25,7 @@ public class BedsheetDemo : DemoBase
         int instanceId, CollidableProperty<ClothCollisionFilter> filters, KinematicDecider isKinematic)
     {
         BodyDescription description = BodyDescription.CreateKinematic(orientation, Simulation.Shapes.Add(new Sphere(bodyRadius)), 0.01f);
-        var inverseMass = 1f / massPerBody;
+        float inverseMass = 1f / massPerBody;
         BodyHandle[,] handles = new BodyHandle[height, width];
         for (int rowIndex = 0; rowIndex < height; ++rowIndex)
         {
@@ -75,7 +75,7 @@ public class BedsheetDemo : DemoBase
             {
                 //Note the use of a limit; the distance is allowed to go smaller.
                 //This helps stop the cloth from having unnatural rigidity.
-                var distance = Vector3.Distance(a.Pose.Position, b.Pose.Position);
+                float distance = Vector3.Distance(a.Pose.Position, b.Pose.Position);
                 Simulation.Solver.Add(aHandle, bHandle, new CenterDistanceLimit(distance * 0.15f, distance, springSettings));
             }
         }

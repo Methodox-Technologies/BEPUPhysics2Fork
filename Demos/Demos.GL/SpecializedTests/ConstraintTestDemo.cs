@@ -15,7 +15,7 @@ public class ConstraintTestDemo : DemoBase
 {
     static float GetNextPosition(ref float x)
     {
-        var toReturn = x;
+        float toReturn = x;
         x += 3;
         return toReturn;
     }
@@ -35,22 +35,22 @@ public class ConstraintTestDemo : DemoBase
         BodyActivityDescription activity = new(0.01f);
         BodyInertia inertiaA = shapeA.ComputeInertia(1);
         BodyInertia inertiaB = shapeB.ComputeInertia(1);
-        var nextX = -10f;
+        float nextX = -10f;
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, 0), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
             Simulation.Solver.Add(a, b, new AngularHinge { LocalHingeAxisA = new Vector3(0, 1, 0), LocalHingeAxisB = new Vector3(0, 1, 0), SpringSettings = new SpringSettings(30, 1) });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, 0), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new Hinge
@@ -63,7 +63,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, 0), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
@@ -71,7 +71,7 @@ public class ConstraintTestDemo : DemoBase
             Simulation.Solver.Add(a, b, new SwingLimit { AxisLocalA = new Vector3(0, 1, 0), AxisLocalB = new Vector3(0, 1, 0), MaximumSwingAngle = MathHelper.PiOver2, SpringSettings = new SpringSettings(30, 1) });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, 0), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new SwivelHinge
@@ -85,7 +85,7 @@ public class ConstraintTestDemo : DemoBase
             Simulation.Solver.Add(a, b, new SwingLimit { AxisLocalA = new Vector3(0, 1, 0), AxisLocalB = new Vector3(0, 1, 0), MaximumSwingAngle = MathHelper.PiOver2, SpringSettings = new SpringSettings(30, 1) });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, 0), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
@@ -99,7 +99,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, 0), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
@@ -114,7 +114,7 @@ public class ConstraintTestDemo : DemoBase
             Simulation.Solver.Add(a, b, new AngularHinge { LocalHingeAxisA = new Vector3(0, 1, 0), LocalHingeAxisB = new Vector3(0, 1, 0), SpringSettings = new SpringSettings(30, 1) });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, 0), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
@@ -128,7 +128,7 @@ public class ConstraintTestDemo : DemoBase
             Simulation.Solver.Add(a, b, new AngularHinge { LocalHingeAxisA = new Vector3(0, 1, 0), LocalHingeAxisB = new Vector3(0, 1, 0), SpringSettings = new SpringSettings(30, 1) });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, 0), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
@@ -140,14 +140,14 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
             Simulation.Solver.Add(a, b, new AngularMotor { TargetVelocityLocalA = new Vector3(0, 1, 0), Settings = new MotorSettings(15, 0.0001f) });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyDescription aDescription = BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity);
             BodyDescription bDescription = BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity);
             //aDescription.Velocity.Angular = new Vector3(0, 0, 5);
@@ -156,7 +156,7 @@ public class ConstraintTestDemo : DemoBase
             Simulation.Solver.Add(a, b, new Weld { LocalOffset = new Vector3(0, 2, 0), LocalOrientation = Quaternion.Identity, SpringSettings = new SpringSettings(30, 1) });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             Sphere sphere = new(0.125f);
             //Treat each vertex as a point mass that cannot rotate.
             BodyInertia sphereInertia = new() { InverseMass = 1 };
@@ -183,7 +183,7 @@ public class ConstraintTestDemo : DemoBase
             Simulation.Solver.Add(aHandle, bHandle, cHandle, dHandle, new VolumeConstraint(a, b, c, d, new SpringSettings(30, 1)));
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyDescription aDescription = BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity);
             BodyDescription bDescription = BodyDescription.CreateDynamic(new Vector3(x, 6, 0), inertiaB, collidableB, activity);
             BodyHandle a = Simulation.Bodies.Add(aDescription);
@@ -191,7 +191,7 @@ public class ConstraintTestDemo : DemoBase
             Simulation.Solver.Add(a, b, new DistanceServo(new Vector3(0, 0.55f, 0), new Vector3(0, -0.55f, 0), 1.9f, new SpringSettings(30, 1), ServoSettings.Default));
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyDescription aDescription = BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity);
             BodyDescription bDescription = BodyDescription.CreateDynamic(new Vector3(x, 6, 0), inertiaB, collidableB, activity);
             BodyHandle a = Simulation.Bodies.Add(aDescription);
@@ -199,7 +199,7 @@ public class ConstraintTestDemo : DemoBase
             Simulation.Solver.Add(a, b, new DistanceLimit(new Vector3(0, 0.55f, 0), new Vector3(0, -0.55f, 0), 1f, 3, new SpringSettings(30, 1)));
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             Sphere sphere = new(0.125f);
             //Treat each vertex as a point mass that cannot rotate.
             BodyInertia sphereInertia = new() { InverseMass = 1 };
@@ -220,7 +220,7 @@ public class ConstraintTestDemo : DemoBase
             Simulation.Solver.Add(aHandle, bHandle, cHandle, new AreaConstraint(a, b, c, new SpringSettings(30, 1)));
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             Sphere sphere = new(0.125f);
             //Treat each vertex as a point mass that cannot rotate.
             BodyInertia sphereInertia = new() { InverseMass = 1 };
@@ -235,15 +235,15 @@ public class ConstraintTestDemo : DemoBase
             BodyHandle bHandle = Simulation.Bodies.Add(bDescription);
             BodyHandle cHandle = Simulation.Bodies.Add(cDescription);
             SpringSettings distanceSpringiness = new(3f, 1);
-            var distanceAB = Vector3.Distance(a, b);
-            var distanceBC = Vector3.Distance(b, c);
-            var distanceCA = Vector3.Distance(c, a);
+            float distanceAB = Vector3.Distance(a, b);
+            float distanceBC = Vector3.Distance(b, c);
+            float distanceCA = Vector3.Distance(c, a);
             Simulation.Solver.Add(aHandle, bHandle, new CenterDistanceLimit(distanceAB * 0.15f, distanceAB, distanceSpringiness));
             Simulation.Solver.Add(aHandle, cHandle, new CenterDistanceLimit(distanceBC * 0.15f, distanceBC, distanceSpringiness));
             Simulation.Solver.Add(bHandle, cHandle, new CenterDistanceLimit(distanceCA * 0.15f, distanceCA, distanceSpringiness));
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyDescription aDescription = BodyDescription.CreateDynamic(new Vector3(x, 3, 0), default, collidableA, activity);
             BodyDescription bDescription = BodyDescription.CreateDynamic(new Vector3(x, 6, 0), inertiaB, collidableB, activity);
             BodyHandle a = Simulation.Bodies.Add(aDescription);
@@ -258,7 +258,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyDescription aDescription = BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity);
             BodyDescription bDescription = BodyDescription.CreateDynamic(new Vector3(x, 6, 0), inertiaB, collidableB, activity);
             BodyHandle a = Simulation.Bodies.Add(aDescription);
@@ -274,7 +274,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyDescription aDescription = BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity);
             BodyDescription bDescription = BodyDescription.CreateDynamic(new Vector3(x, 6, 0), inertiaB, collidableB, activity);
             BodyHandle a = Simulation.Bodies.Add(aDescription);
@@ -297,7 +297,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyDescription aDescription = BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity);
             BodyDescription bDescription = BodyDescription.CreateDynamic(new Vector3(x, 6, 0), inertiaB, collidableB, activity);
             BodyHandle a = Simulation.Bodies.Add(aDescription);
@@ -321,7 +321,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateKinematic(new Vector3(x, 3, 0), collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
@@ -333,7 +333,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity));
             Simulation.Solver.Add(a, new OneBodyLinearServo
             {
@@ -344,7 +344,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
@@ -356,7 +356,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
@@ -368,7 +368,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyHandle a = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity));
             BodyHandle b = Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(x, 5, 0), inertiaB, collidableB, activity));
             Simulation.Solver.Add(a, b, new BallSocket { LocalOffsetA = new Vector3(0, 1, 0), LocalOffsetB = new Vector3(0, -1, 0), SpringSettings = new SpringSettings(30, 1) });
@@ -379,7 +379,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyDescription aDescription = BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity);
             BodyDescription bDescription = BodyDescription.CreateDynamic(new Vector3(x, 6, 0), inertiaB, collidableB, activity);
             BodyHandle a = Simulation.Bodies.Add(aDescription);
@@ -392,7 +392,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             BodyDescription aDescription = BodyDescription.CreateDynamic(new Vector3(x, 3, 0), inertiaA, collidableA, activity);
             BodyDescription bDescription = BodyDescription.CreateDynamic(new Vector3(x, 6, 0), inertiaB, collidableB, activity);
             BodyHandle a = Simulation.Bodies.Add(aDescription);
@@ -406,7 +406,7 @@ public class ConstraintTestDemo : DemoBase
             });
         }
         {
-            var x = GetNextPosition(ref nextX);
+            float x = GetNextPosition(ref nextX);
             CollidableDescription wheelShape = new(Simulation.Shapes.Add(new Cylinder(1, 0.1f)));
             Quaternion wheelOrientation = Quaternion.CreateFromAxisAngle(new Vector3(0, 0, 1), MathF.PI * 0.5f);
             BodyDescription aDescription = BodyDescription.CreateDynamic((new Vector3(x, 3, 0), wheelOrientation), inertiaA, wheelShape, activity);

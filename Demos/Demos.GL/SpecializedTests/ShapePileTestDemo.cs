@@ -87,7 +87,7 @@ public class ShapePileTestDemo : DemoBase
         const int width = 16;
         const int height = 16;
         const int length = 16;
-        var shapeCount = 0;
+        int shapeCount = 0;
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
@@ -96,7 +96,7 @@ public class ShapePileTestDemo : DemoBase
                 {
                     Vector3 location = new Vector3(6, 3, 6) * new Vector3(i, j, k) + new Vector3(-width * 3, 5.5f, -length * 3);
                     BodyDescription bodyDescription = BodyDescription.CreateKinematic(location, new(default, ContinuousDetection.Passive), 0.01f);
-                    var index = shapeCount++;
+                    int index = shapeCount++;
                     switch (index % 5)
                     {
                         case 0:

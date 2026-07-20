@@ -232,8 +232,8 @@ public class DemoDancers
             CollidableProperty<TCollisionFilter> dancerFilters = new();
             //Distance from the main dancer is used to select clothing level of detail. This isn't dynamic based on camera motion, but shows the general idea.
             //Since we don't have to worry about transitions, the level of detail is a continuous value here.
-            var distanceFromMainDancer = GetDistanceFromMainDancer(i, dancerGridWidth);
-            var levelOfDetail = MathF.Log2(MathF.Max(1, distanceFromMainDancer) - 0.8f);
+            float distanceFromMainDancer = GetDistanceFromMainDancer(i, dancerGridWidth);
+            float levelOfDetail = MathF.Log2(MathF.Max(1, distanceFromMainDancer) - 0.8f);
             //Note that we use a smaller allocation block size for dancer simulations.
             //This demo is creating a *lot* of buffer pools just because that's the simplest way to keep things thread safe.
             //If you wanted to reduce the amount of pool-induced memory overhead, you could consider sharing buffer pools between multiple simulations
@@ -351,7 +351,7 @@ public class DemoDancers
 
     static (int columnIndex, int rowIndex) GetRowAndColumnForDancer(int dancerIndex, int dancerGridWidth)
     {
-        var rowIndex = dancerIndex / dancerGridWidth;
+        int rowIndex = dancerIndex / dancerGridWidth;
         return (dancerIndex - rowIndex * dancerGridWidth, rowIndex);
     }
 
@@ -366,32 +366,32 @@ public class DemoDancers
     public static float GetDistanceFromMainDancer(int dancerIndex, int dancerGridWidth)
     {
         (int columnIndex, int rowIndex) = GetRowAndColumnForDancer(dancerIndex, dancerGridWidth);
-        var offsetX = columnIndex - (dancerGridWidth / 2 - 0.5f);
+        float offsetX = columnIndex - (dancerGridWidth / 2 - 0.5f);
         return MathF.Sqrt(offsetX * offsetX + rowIndex * rowIndex);
     }
 
     float Smoothstep(float v)
     {
-        var v2 = v * v;
+        float v2 = v * v;
         return 3 * v2 - 2 * v2 * v;
     }
 
     Vector3 CreateLegTarget(float t)
     {
-        var z = MathF.Cos(t * MathF.Tau);
-        var zOffset = (Smoothstep(z * 0.5f + 0.5f) * 2 - 1) * 0.7f;
-        var offset = 0.5f + 0.5f * MathF.Cos(MathF.PI + t * 4 * MathF.PI);
-        var xOffset = -0.2f + 0.4f * offset;
-        var yOffset = -0.7f + 0.2f * offset;
+        float z = MathF.Cos(t * MathF.Tau);
+        float zOffset = (Smoothstep(z * 0.5f + 0.5f) * 2 - 1) * 0.7f;
+        float offset = 0.5f + 0.5f * MathF.Cos(MathF.PI + t * 4 * MathF.PI);
+        float xOffset = -0.2f + 0.4f * offset;
+        float yOffset = -0.7f + 0.2f * offset;
         return new Vector3(-xOffset - LegOffsetX, yOffset, zOffset);
     }
     Vector3 CreateArmTarget(float t)
     {
-        var z = MathF.Cos(t * MathF.Tau);
-        var zOffset = (Smoothstep(z * 0.5f + 0.5f) * 2 - 1);
-        var offset = 0.5f + 0.5f * MathF.Cos(MathF.PI + t * 4 * MathF.PI);
-        var xOffset = -0.2f + 0.6f * offset;
-        var yOffset = 0.9f - 0.2f * offset;
+        float z = MathF.Cos(t * MathF.Tau);
+        float zOffset = (Smoothstep(z * 0.5f + 0.5f) * 2 - 1);
+        float offset = 0.5f + 0.5f * MathF.Cos(MathF.PI + t * 4 * MathF.PI);
+        float xOffset = -0.2f + 0.6f * offset;
+        float yOffset = 0.9f - 0.2f * offset;
         return new Vector3(-xOffset - ArmOffsetX, yOffset, zOffset);
     }
     unsafe void ExecuteDancer(int dancerIndex, int workerIndex)
@@ -401,7 +401,7 @@ public class DemoDancers
         Simulation dancerSimulation = Simulations[dancerIndex];
         Buffer<BodyHandle> sourceHandleBuffer = DancerBodyHandles.AsBuffer((DancerBodyHandles*)Unsafe.AsPointer(ref SourceBodyHandles));
         //Delay is greater for the dancers that are further away, plus a little randomized component to desynchronize them.
-        var historicalStateStartIndex = MotionHistory.Count - sourceHandleBuffer.Length * ((int)GetDistanceFromMainDancer(dancerIndex, DancerGridWidth) * 8 + 1 + (HashHelper.Rehash(dancerIndex) & 0xF));
+        int historicalStateStartIndex = MotionHistory.Count - sourceHandleBuffer.Length * ((int)GetDistanceFromMainDancer(dancerIndex, DancerGridWidth) * 8 + 1 + (HashHelper.Rehash(dancerIndex) & 0xF));
         if (historicalStateStartIndex < 0)
             historicalStateStartIndex = 0;
         Buffer<BodyHandle> targetHandleBuffer = DancerBodyHandles.AsBuffer((DancerBodyHandles*)Unsafe.AsPointer(ref dancerHandles));
@@ -424,9 +424,9 @@ public class DemoDancers
         Vector3 hipsTarget = new(0, 0, 3 * (float)Math.Sin(time / 4));
         hipsControl.UpdateTarget(mainSimulation, hipsTarget);
         const float stepDuration = 3.5f;
-        var scaledTime = time / stepDuration;
-        var t = (float)(scaledTime - Math.Floor(scaledTime));
-        var tOffset = (t + 0.5f) % 1;
+        double scaledTime = time / stepDuration;
+        float t = (float)(scaledTime - Math.Floor(scaledTime));
+        float tOffset = (t + 0.5f) % 1;
         Vector3 leftFootLocalTarget = CreateLegTarget(t);
         Vector3 rightFootLocalTarget = CreateLegTarget(tOffset);
         rightFootLocalTarget.X *= -1;
@@ -450,9 +450,9 @@ public class DemoDancers
         {
             MotionHistory.EnqueueUnsafely(mainSimulation.Bodies[sourceHandleBuffer[i]].MotionState);
         }
-        var startTime = Stopwatch.GetTimestamp();
+        long startTime = Stopwatch.GetTimestamp();
         looper.For(0, Handles.Length, ExecuteDancer);
-        var endTime = Stopwatch.GetTimestamp();
+        long endTime = Stopwatch.GetTimestamp();
         ExecutionTime = (endTime - startTime) / (double)Stopwatch.Frequency;
     }
 

@@ -294,7 +294,7 @@ public class ContactEvents : IDisposable
         {
             bodyListenerFlags.Remove(collidable.RawHandleValue);
         }
-        var index = listenerIndices[collidable];
+        int index = listenerIndices[collidable];
         --listenerCount;
         ref Listener removedSlot = ref listeners[index];
         if (removedSlot.PreviousCollisions.Span.Allocated)
@@ -361,7 +361,7 @@ public class ContactEvents : IDisposable
             ref Listener listener = ref listeners[listenerIndex];
             CollidableReference source = listener.Source;
             //If it's a body, and it's in the active set (index 0), then every pair associated with the listener should expect updates.
-            var sourceExpectsUpdates = source.Mobility != CollidableMobility.Static && bodyHandleToLocation[source.BodyHandle.Value].SetIndex == 0;
+            bool sourceExpectsUpdates = source.Mobility != CollidableMobility.Static && bodyHandleToLocation[source.BodyHandle.Value].SetIndex == 0;
             if (sourceExpectsUpdates)
             {
                 QuickList<PreviousCollision> previousCollisions = listeners[listenerIndex].PreviousCollisions;
@@ -405,7 +405,7 @@ public class ContactEvents : IDisposable
         //(This function is called for both orders of the pair, so we'll catch listeners for either.)
         if (IsListener(source))
         {
-            var listenerIndex = listenerIndices[source];
+            int listenerIndex = listenerIndices[source];
             //This collidable is registered. Is the opposing collidable present?
             ref Listener listener = ref listeners[listenerIndex];
 
@@ -424,8 +424,8 @@ public class ContactEvents : IDisposable
                     for (int contactIndex = 0; contactIndex < manifold.Count; ++contactIndex)
                     {
                         //We can check if each contact was already present in the previous frame by looking at contact feature ids. See the 'PreviousCollision' type for a little more info on FeatureIds.
-                        var featureId = manifold.GetFeatureId(contactIndex);
-                        var featureIdWasInPreviousCollision = false;
+                        int featureId = manifold.GetFeatureId(contactIndex);
+                        bool featureIdWasInPreviousCollision = false;
                         for (int previousContactIndex = 0; previousContactIndex < collision.ContactCount; ++previousContactIndex)
                         {
                             if (featureId == Unsafe.Add(ref collision.FeatureId0, previousContactIndex))
@@ -437,7 +437,7 @@ public class ContactEvents : IDisposable
                         }
                         if (!featureIdWasInPreviousCollision)
                         {
-                            manifold.GetContact(contactIndex, out Vector3 offset, out Vector3 normal, out var depth, out _);
+                            manifold.GetContact(contactIndex, out Vector3 offset, out Vector3 normal, out float depth, out _);
                             listener.Handler.OnContactAdded(source, pair, ref manifold, offset, normal, depth, featureId, contactIndex, workerIndex);
                         }
                         if (manifold.GetDepth(contactIndex) >= 0)
@@ -483,7 +483,7 @@ public class ContactEvents : IDisposable
                 //Dispatch events for all contacts in this new manifold.
                 for (int i = 0; i < manifold.Count; ++i)
                 {
-                    manifold.GetContact(i, out Vector3 offset, out Vector3 normal, out var depth, out var featureId);
+                    manifold.GetContact(i, out Vector3 offset, out Vector3 normal, out float depth, out int featureId);
                     listener.Handler.OnContactAdded(source, pair, ref manifold, offset, normal, depth, featureId, i, workerIndex);
                     if (depth >= 0)
                         isTouching = true;
@@ -683,7 +683,7 @@ public class ContactEventsDemo : DemoBase
             Vector3 contactOffset, Vector3 contactNormal, float depth, int featureId, int contactIndex, int workerIndex) where TManifold : unmanaged, IContactManifold<TManifold>
         {
             //Simply ignore any particles beyond the allocated space.
-            var index = Interlocked.Increment(ref Particles.Count) - 1;
+            int index = Interlocked.Increment(ref Particles.Count) - 1;
             if (index < Particles.Span.Length)
             {
                 ref ContactResponseParticle particle = ref Particles[index];
@@ -764,7 +764,7 @@ public class ContactEventsDemo : DemoBase
         for (int i = particles.Count - 1; i >= 0; --i)
         {
             ref ContactResponseParticle particle = ref particles[i];
-            var radius = particle.Age * (particle.Age * (0.135f - 2.7f * particle.Age) + 1.35f);
+            float radius = particle.Age * (particle.Age * (0.135f - 2.7f * particle.Age) + 1.35f);
             RigidPose pose = new(particle.Position);
             renderer.Shapes.AddShape(new Sphere(radius), Simulation.Shapes, pose, new Vector3(0, 1, 0));
         }

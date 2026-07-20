@@ -32,7 +32,7 @@ public class NewtTyrannyDemo : DemoBase
 
         Mesh newtMesh = DemoMeshHelper.LoadModel(content, BufferPool, @"Content\newt.obj", new Vector3(-10, 10, -10));
         TypedIndex newtShape = Simulation.Shapes.Add(newtMesh);
-        var newtCount = 10;
+        int newtCount = 10;
         newts = new QuickList<SponsorNewt>(newtCount, BufferPool);
         newtArenaMin = new Vector2(-250);
         newtArenaMax = new Vector2(250);

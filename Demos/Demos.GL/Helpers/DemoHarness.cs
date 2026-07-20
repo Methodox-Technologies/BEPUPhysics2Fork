@@ -208,7 +208,7 @@ public class DemoHarness : IDisposable
                 cameraOffset += camera.Up;
             if (controls.MoveDown.IsDown(input))
                 cameraOffset += camera.Down;
-            var length = cameraOffset.Length();
+            float length = cameraOffset.Length();
 
             if (length > 1e-7f)
             {
@@ -231,7 +231,7 @@ public class DemoHarness : IDisposable
                 cameraOffset = new Vector3();
             camera.Position += cameraOffset;
 
-            var grabRotationIsActive = controls.Grab.IsDown(input) && controls.GrabRotate.IsDown(input);
+            bool grabRotationIsActive = controls.Grab.IsDown(input) && controls.GrabRotate.IsDown(input);
 
             //Don't turn the camera while rotating a grabbed object.
             if (!grabRotationIsActive)
@@ -257,8 +257,8 @@ public class DemoHarness : IDisposable
                 if (grabberCachedMousePosition == null)
                     grabberCachedMousePosition = input.MousePosition;
                 Int2 delta = input.MouseDelta;
-                var yaw = delta.X * controls.MouseSensitivity;
-                var pitch = delta.Y * controls.MouseSensitivity;
+                float yaw = delta.X * controls.MouseSensitivity;
+                float pitch = delta.Y * controls.MouseSensitivity;
                 incrementalGrabRotation = QuaternionEx.Concatenate(QuaternionEx.CreateFromAxisAngle(camera.Right, pitch), QuaternionEx.CreateFromAxisAngle(camera.Up, yaw));
                 if (!input.MouseLocked)
                 {
@@ -294,7 +294,7 @@ public class DemoHarness : IDisposable
             }
             if (controls.ChangeTimingDisplayMode.WasTriggered(input))
             {
-                var newDisplayMode = (int)timingDisplayMode + 1;
+                int newDisplayMode = (int)timingDisplayMode + 1;
                 if (newDisplayMode > 2)
                     newDisplayMode = 0;
                 UpdateTimingGraphForMode((TimingDisplayMode)newDisplayMode);
@@ -335,7 +335,7 @@ public class DemoHarness : IDisposable
             Vector2 penPosition = new(loop.Window.Resolution.X - textHeight * 6 - 25, loop.Window.Resolution.Y - 25);
             penPosition.Y -= 19 * lineSpacing;
             uiText.Clear().Append("Controls: ");
-            var headerHeight = textHeight * 1.2f;
+            float headerHeight = textHeight * 1.2f;
             renderer.TextBatcher.Write(uiText, penPosition - new Vector2(0.5f * GlyphBatch.MeasureLength(uiText, font, headerHeight), 0), headerHeight, textColor, font);
             penPosition.Y += lineSpacing;
 

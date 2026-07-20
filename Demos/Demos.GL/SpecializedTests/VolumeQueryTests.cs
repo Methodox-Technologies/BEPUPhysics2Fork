@@ -150,7 +150,7 @@ public class VolumeQueryTests : DemoBase
 
         void ExecuteWorker(int workerIndex)
         {
-            var intersectionCount = worker(workerIndex, this);
+            int intersectionCount = worker(workerIndex, this);
             Interlocked.Add(ref IntersectionCount, intersectionCount);
         }
 
@@ -159,7 +159,7 @@ public class VolumeQueryTests : DemoBase
             CacheBlaster.Blast();
             JobIndex = -1;
             IntersectionCount = 0;
-            var start = Stopwatch.GetTimestamp();
+            long start = Stopwatch.GetTimestamp();
             if (dispatcher != null)
             {
                 dispatcher.DispatchWorkers(internalWorker);
@@ -168,7 +168,7 @@ public class VolumeQueryTests : DemoBase
             {
                 internalWorker(0);
             }
-            var stop = Stopwatch.GetTimestamp();
+            long stop = Stopwatch.GetTimestamp();
             Timings.Add((stop - start) / (double)Stopwatch.Frequency);
         }
     }
@@ -227,9 +227,9 @@ public class VolumeQueryTests : DemoBase
             shouldUseMultithreading = !shouldUseMultithreading;
         }
 
-        var raysPerJobBase = queryBoxes.Count / jobs.Length;
-        var remainder = queryBoxes.Count - raysPerJobBase * jobs.Length;
-        var previousJobEnd = 0;
+        int raysPerJobBase = queryBoxes.Count / jobs.Length;
+        int remainder = queryBoxes.Count - raysPerJobBase * jobs.Length;
+        int previousJobEnd = 0;
         for (int i = 0; i < jobs.Length; ++i)
         {
             int raysInJob = i < remainder ? raysPerJobBase + 1 : raysPerJobBase;
@@ -288,7 +288,7 @@ public class VolumeQueryTests : DemoBase
         renderer.TextBatcher.Write(text.Clear().Append("Relative speed:"), new Vector2(350, renderer.Surface.Resolution.Y - 64), 16, new Vector3(1), font);
 
         TimelineStats baseStats = algorithms[0].Timings.ComputeStats();
-        var baseHeight = 48;
+        int baseHeight = 48;
         for (int i = 0; i < algorithms.Length; ++i)
         {
             TimelineStats stats = algorithms[i].Timings.ComputeStats();

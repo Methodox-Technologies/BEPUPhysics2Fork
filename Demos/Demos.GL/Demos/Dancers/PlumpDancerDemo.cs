@@ -82,7 +82,7 @@ public class PlumpDancerDemo : DemoBase
                     for (int i = 0; i < testCapsules.Length; ++i)
                     {
                         TestCapsule testCapsule = testCapsules[i];
-                        var distance = Vector3.Distance(position, testCapsule.Start + MathF.Max(0, MathF.Min(testCapsule.Length, Vector3.Dot(position - testCapsule.Start, testCapsule.Direction))) * testCapsule.Direction) - testCapsule.Radius;
+                        float distance = Vector3.Distance(position, testCapsule.Start + MathF.Max(0, MathF.Min(testCapsule.Length, Vector3.Dot(position - testCapsule.Start, testCapsule.Direction))) * testCapsule.Direction) - testCapsule.Radius;
                         if (distance < minimumDistance)
                         {
                             minimumDistance = distance;
@@ -91,7 +91,7 @@ public class PlumpDancerDemo : DemoBase
                     }
                     nearestHandles[x, y, z] = handlesBuffer[minimumIndex];
 
-                    var maximumDistanceForCreatingNodes = MathF.Max(0.1f, 0.8f - 1.5f * Vector3.Distance(position, center));
+                    float maximumDistanceForCreatingNodes = MathF.Max(0.1f, 0.8f - 1.5f * Vector3.Distance(position, center));
                     if (minimumDistance < bodyRadius)
                     {
                         //Intersecting; don't create a body. -2 for this demo marks the body as intersecting, so we can disambiguate it from slots that are just empty due to being too far away.
@@ -130,7 +130,7 @@ public class PlumpDancerDemo : DemoBase
                     BodyHandle handle = handles[x, y, z];
                     if (handle.Value >= 0)
                     {
-                        var needsAnchor =
+                        bool needsAnchor =
                             (x != 0 && handles[x - 1, y, z].Value == -2) ||
                             (x != handles.GetLength(0) - 1 && handles[x + 1, y, z].Value == -2) ||
                             (y != 0 && handles[x, y - 1, z].Value == -2) ||
@@ -150,7 +150,7 @@ public class PlumpDancerDemo : DemoBase
                                 SpringSettings = new SpringSettings(6, 0.4f)
                             });
                         }
-                        var needsCollidable =
+                        bool needsCollidable =
                             (x == 0 || handles[x - 1, y, z].Value == -1) || (x == handles.GetLength(0) - 1 || handles[x + 1, y, z].Value == -1) ||
                             (y == 0 || handles[x, y - 1, z].Value == -1) || (y == handles.GetLength(1) - 1 || handles[x, y + 1, z].Value == -1) ||
                             (z == 0 || handles[x, y, z - 1].Value == -1) || (z == handles.GetLength(2) - 1 || handles[x, y, z + 1].Value == -1);
@@ -195,13 +195,13 @@ public class PlumpDancerDemo : DemoBase
         levelOfDetail = MathF.Max(0f, MathF.Min(0.8f, levelOfDetail));
         Vector3 suitSize = new(1, 1f, 1);
         Int3 fullDetailAxisBodyCounts = new() { X = 23, Y = 23, Z = 23 };
-        var scale = MathF.Pow(2, levelOfDetail);
+        float scale = MathF.Pow(2, levelOfDetail);
         Int3 axisBodyCounts = new() { X = (int)MathF.Ceiling(fullDetailAxisBodyCounts.X / scale), Y = (int)MathF.Ceiling(fullDetailAxisBodyCounts.Y / scale), Z = (int)MathF.Ceiling(fullDetailAxisBodyCounts.Z / scale) };
-        var bodyRadius = MathF.Min(suitSize.X / axisBodyCounts.X, MathF.Min(suitSize.Y / axisBodyCounts.Y, suitSize.Z / axisBodyCounts.Z));
+        float bodyRadius = MathF.Min(suitSize.X / axisBodyCounts.X, MathF.Min(suitSize.Y / axisBodyCounts.Y, suitSize.Z / axisBodyCounts.Z));
 
         BodyReference chest = simulation.Bodies[bodyHandles.Chest];
         ref Capsule chestShape = ref simulation.Shapes.GetShape<Capsule>(chest.Collidable.Shape.Index);
-        var topOfChestHeight = chest.Pose.Position.Y + chestShape.Radius;
+        float topOfChestHeight = chest.Pose.Position.Y + chestShape.Radius;
         Vector3 topOfChestPosition = new Vector3(0, topOfChestHeight, 0) + DemoDancers.GetOffsetForDancer(dancerIndex, dancerGridWidth);
         Vector3 suitMinimum = topOfChestPosition - suitSize * new Vector3(0.5f, 1f, 0.5f);
         Vector3 suitMaximum = suitMinimum + suitSize;

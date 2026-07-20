@@ -23,11 +23,11 @@ public class MeshSerializationTestDemo : DemoBase
 
         Simulation = Simulation.Create(BufferPool, new DemoNarrowPhaseCallbacks(new SpringSettings(30, 1)), new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(8, 1));
 
-        var startTime = Stopwatch.GetTimestamp();
+        long startTime = Stopwatch.GetTimestamp();
         Mesh originalMesh = DemoMeshHelper.CreateDeformedPlane(1025, 1025, (x, y) => new Vector3(x * 0.125f, MathF.Sin(x) + MathF.Sin(y), y * 0.125f), Vector3.One, BufferPool);
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, 0, 0), Simulation.Shapes.Add(originalMesh)));
-        var endTime = Stopwatch.GetTimestamp();
-        var freshConstructionTime = (endTime - startTime) / (double)Stopwatch.Frequency;
+        long endTime = Stopwatch.GetTimestamp();
+        double freshConstructionTime = (endTime - startTime) / (double)Stopwatch.Frequency;
         Console.WriteLine($"Fresh construction time (ms): {freshConstructionTime * 1e3}");
 
         BufferPool.Take<byte>(originalMesh.GetSerializedByteCount(), out Buffer<byte> serializedMeshBytes);
@@ -35,7 +35,7 @@ public class MeshSerializationTestDemo : DemoBase
         startTime = Stopwatch.GetTimestamp();
         Mesh loadedMesh = new(serializedMeshBytes, BufferPool);
         endTime = Stopwatch.GetTimestamp();
-        var loadTime = (endTime - startTime) / (double)Stopwatch.Frequency;
+        double loadTime = (endTime - startTime) / (double)Stopwatch.Frequency;
         Console.WriteLine($"Load time (ms): {(endTime - startTime) * 1e3 / Stopwatch.Frequency}");
         Console.WriteLine($"Relative speedup: {freshConstructionTime / loadTime}");
         Simulation.Statics.Add(new StaticDescription(new Vector3(128, 0, 0), Simulation.Shapes.Add(loadedMesh)));

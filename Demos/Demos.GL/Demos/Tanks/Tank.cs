@@ -119,10 +119,10 @@ public struct Tank
         //+X is 90 degres for swivel.
         //We'll compute the swivel angle first.
         QuaternionEx.TransformWithoutOverlap(aimDirection, toTurretBasis, out Vector3 aimDirectionInTurretBasis);
-        var targetSwivelAngle = MathF.Atan2(aimDirectionInTurretBasis.X, -aimDirectionInTurretBasis.Z);
+        float targetSwivelAngle = MathF.Atan2(aimDirectionInTurretBasis.X, -aimDirectionInTurretBasis.Z);
 
         //Barrel pitching is measured against the +Y axis and an axis created from the target swivel angle.
-        var targetPitchAngle = MathF.Asin(MathF.Max(-1f, MathF.Min(1f, -aimDirectionInTurretBasis.Y)));
+        float targetPitchAngle = MathF.Asin(MathF.Max(-1f, MathF.Min(1f, -aimDirectionInTurretBasis.Y)));
         return (targetSwivelAngle, targetPitchAngle);
     }
 
@@ -348,7 +348,7 @@ public struct Tank
 
         QuaternionEx.TransformUnitY(description.WheelOrientation, out Vector3 wheelAxis);
         QuaternionEx.TransformUnitZ(description.WheelOrientation, out Vector3 treadDirection);
-        var treadStart = description.TreadSpacing * (description.WheelCountPerTread - 1) * -0.5f;
+        float treadStart = description.TreadSpacing * (description.WheelCountPerTread - 1) * -0.5f;
         BodyHandle previousLeftWheelHandle = default, previousRightWheelHandle = default;
         for (int i = 0; i < description.WheelCountPerTread; ++i)
         {

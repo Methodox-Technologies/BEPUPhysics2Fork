@@ -178,7 +178,7 @@ public class RagdollDemo : DemoBase
         capsule.Radius = radius;
         //The capsule shape's length is along its local Y axis, so get the shortest rotation from Y to the current orientation.
         Vector3 cross = Vector3.Cross(offset / capsule.Length, new Vector3(0, 1, 0));
-        var crossLength = cross.Length();
+        float crossLength = cross.Length();
         orientation = crossLength > 1e-8f ? QuaternionEx.CreateFromAxisAngle(cross / crossLength, (float)Math.Asin(crossLength)) : Quaternion.Identity;
     }
 
@@ -290,9 +290,9 @@ public class RagdollDemo : DemoBase
         simulation.Solver.Add(handles.LowerArm, handles.Hand, BuildAngularMotor());
 
         //Disable collisions between connected ragdoll pieces.
-        var upperArmLocalIndex = limbBaseBitIndex;
-        var lowerArmLocalIndex = limbBaseBitIndex + 1;
-        var handLocalIndex = limbBaseBitIndex + 2;
+        int upperArmLocalIndex = limbBaseBitIndex;
+        int lowerArmLocalIndex = limbBaseBitIndex + 1;
+        int handLocalIndex = limbBaseBitIndex + 2;
         ref SubgroupCollisionFilter upperArmFilter = ref filters.Allocate(handles.UpperArm);
         ref SubgroupCollisionFilter lowerArmFilter = ref filters.Allocate(handles.LowerArm);
         ref SubgroupCollisionFilter handFilter = ref filters.Allocate(handles.Hand);
@@ -387,9 +387,9 @@ public class RagdollDemo : DemoBase
         simulation.Solver.Add(handles.LowerLeg, handles.Foot, BuildAngularMotor());
 
         //Disable collisions between connected ragdoll pieces.
-        var upperLegLocalIndex = limbBaseBitIndex;
-        var lowerLegLocalIndex = limbBaseBitIndex + 1;
-        var footLocalIndex = limbBaseBitIndex + 2;
+        int upperLegLocalIndex = limbBaseBitIndex;
+        int lowerLegLocalIndex = limbBaseBitIndex + 1;
+        int footLocalIndex = limbBaseBitIndex + 2;
         ref SubgroupCollisionFilter upperLegFilter = ref filters.Allocate(handles.UpperLeg);
         ref SubgroupCollisionFilter lowerLegFilter = ref filters.Allocate(handles.LowerLeg);
         ref SubgroupCollisionFilter footFilter = ref filters.Allocate(handles.Foot);
@@ -517,10 +517,10 @@ public class RagdollDemo : DemoBase
         });
         simulation.Solver.Add(handles.Chest, handles.Head, BuildAngularMotor());
 
-        var hipsLocalIndex = 0;
-        var abdomenLocalIndex = 1;
-        var chestLocalIndex = 2;
-        var headLocalIndex = 3;
+        int hipsLocalIndex = 0;
+        int abdomenLocalIndex = 1;
+        int chestLocalIndex = 2;
+        int headLocalIndex = 3;
         ref SubgroupCollisionFilter hipsFilter = ref collisionFilters.Allocate(handles.Hips);
         ref SubgroupCollisionFilter abdomenFilter = ref collisionFilters.Allocate(handles.Abdomen);
         ref SubgroupCollisionFilter chestFilter = ref collisionFilters.Allocate(handles.Chest);

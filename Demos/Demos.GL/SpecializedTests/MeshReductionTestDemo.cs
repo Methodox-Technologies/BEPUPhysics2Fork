@@ -49,14 +49,14 @@ public class MeshReductionTestDemo : DemoBase
         Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeWidth,
             (int vX, int vY) =>
             {
-                var octave0 = (MathF.Sin((vX + 5f) * 0.05f) + MathF.Sin((vY + 11) * 0.05f)) * 1.8f;
-                var octave1 = (MathF.Sin((vX + 17) * 0.15f) + MathF.Sin((vY + 19) * 0.15f)) * 0.9f;
-                var octave2 = (MathF.Sin((vX + 37) * 0.35f) + MathF.Sin((vY + 93) * 0.35f)) * 0.4f;
-                var octave3 = (MathF.Sin((vX + 53) * 0.65f) + MathF.Sin((vY + 47) * 0.65f)) * 0.2f;
-                var octave4 = (MathF.Sin((vX + 67) * 1.50f) + MathF.Sin((vY + 13) * 1.5f)) * 0.125f;
-                var distanceToEdge = planeWidth / 2 - Math.Max(Math.Abs(vX - planeWidth / 2), Math.Abs(vY - planeWidth / 2));
-                var edgeRamp = 25f / (distanceToEdge + 1);
-                var terrainHeight = octave0 + octave1 + octave2 + octave3 + octave4;
+                float octave0 = (MathF.Sin((vX + 5f) * 0.05f) + MathF.Sin((vY + 11) * 0.05f)) * 1.8f;
+                float octave1 = (MathF.Sin((vX + 17) * 0.15f) + MathF.Sin((vY + 19) * 0.15f)) * 0.9f;
+                float octave2 = (MathF.Sin((vX + 37) * 0.35f) + MathF.Sin((vY + 93) * 0.35f)) * 0.4f;
+                float octave3 = (MathF.Sin((vX + 53) * 0.65f) + MathF.Sin((vY + 47) * 0.65f)) * 0.2f;
+                float octave4 = (MathF.Sin((vX + 67) * 1.50f) + MathF.Sin((vY + 13) * 1.5f)) * 0.125f;
+                int distanceToEdge = planeWidth / 2 - Math.Max(Math.Abs(vX - planeWidth / 2), Math.Abs(vY - planeWidth / 2));
+                float edgeRamp = 25f / (distanceToEdge + 1);
+                float terrainHeight = octave0 + octave1 + octave2 + octave3 + octave4;
                 Vector2 vertexPosition = new Vector2(vX * scale, vY * scale) + terrainPosition;
                 return new Vector3(vertexPosition.X, terrainHeight + edgeRamp, vertexPosition.Y);
 
@@ -126,7 +126,7 @@ public class MeshReductionTestDemo : DemoBase
         const int width = 12;
         const int height = 1;
         const int length = 12;
-        var shapeCount = 0;
+        int shapeCount = 0;
         Random random = new(5);
         for (int i = 0; i < width; ++i)
         {
@@ -136,7 +136,7 @@ public class MeshReductionTestDemo : DemoBase
                 {
                     Vector3 location = new Vector3(70, 35, 70) * new Vector3(i, j, k) + new Vector3(-width * 70 / 2f, 5f, -length * 70 / 2f);
                     BodyDescription bodyDescription = BodyDescription.CreateDynamic(location, default, default, 0.01f);
-                    var index = shapeCount++;
+                    int index = shapeCount++;
                     switch (index % 5)
                     {
                         //case 0:

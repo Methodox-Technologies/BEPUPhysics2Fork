@@ -463,7 +463,7 @@ public class ConvexHullTestDemo : DemoBase
     Vector3[] CreateJSONSourcedConvexHull(string filePath)
     {
         //ChatGPT wrote this, of course.
-        List<Vector3> points = new();
+        List<Vector3> points = [];
         if (File.Exists(filePath))
         {
             string jsonContent = File.ReadAllText(filePath);
@@ -486,13 +486,13 @@ public class ConvexHullTestDemo : DemoBase
 
     void CreateHellCubeFace(int widthInPoints, float step, Span<Vector3> facePoints, Matrix3x3 transform, float localFaceOffset)
     {
-        var offset = step * (widthInPoints - 1) * 0.5f;
+        float offset = step * (widthInPoints - 1) * 0.5f;
         for (int i = 0; i < widthInPoints; ++i)
         {
-            var x = i * step - offset;
+            float x = i * step - offset;
             for (int j = 0; j < widthInPoints; ++j)
             {
-                var y = j * step - offset;
+                float y = j * step - offset;
                 Vector3 localOffset = new(x, y, localFaceOffset);
                 Matrix3x3.Transform(localOffset, transform, out Vector3 worldOffset);
                 facePoints[i * widthInPoints + j] = worldOffset;
@@ -501,11 +501,11 @@ public class ConvexHullTestDemo : DemoBase
     }
     Vector3[] CreateHellCube(int widthInPoints)
     {
-        var facePointCount = widthInPoints * widthInPoints;
+        int facePointCount = widthInPoints * widthInPoints;
         Vector3[] buffer = new Vector3[facePointCount * 6];
-        var size = 8f;
-        var halfSize = size / 2;
-        var step = size / (widthInPoints - 1);
+        float size = 8f;
+        float halfSize = size / 2;
+        float step = size / (widthInPoints - 1);
         Matrix3x3.CreateFromAxisAngle(Vector3.Normalize(new Vector3(1f, 1, 1f)), float.Pi / 2, out Matrix3x3 cubeTransform);
         Matrix3x3.CreateFromAxisAngle(new Vector3(0, 1, 0), float.Pi / 2, out Matrix3x3 zFace);
         zFace *= cubeTransform;
@@ -578,14 +578,14 @@ public class ConvexHullTestDemo : DemoBase
             for (int j = 0; j < test.Hull.FaceToVertexIndicesStart.Length; ++j)
             {
                 test.Hull.GetVertexIndicesForFace(j, out Buffer<HullVertexIndex> faceVertices);
-                BundleIndexing.GetBundleIndices(j, out var normalBundleIndex, out var normalIndexInBundle);
+                BundleIndexing.GetBundleIndices(j, out int normalBundleIndex, out int normalIndexInBundle);
                 Vector3Wide.ReadSlot(ref test.Hull.BoundingPlanes[normalBundleIndex].Normal, normalIndexInBundle, out Vector3 faceNormal);
-                var offset = test.Hull.BoundingPlanes[normalBundleIndex].Offset[normalIndexInBundle];
+                float offset = test.Hull.BoundingPlanes[normalBundleIndex].Offset[normalIndexInBundle];
                 //Console.WriteLine($"Face {j} errors:");
                 for (int k = 0; k < faceVertices.Length; ++k)
                 {
                     test.Hull.GetPoint(faceVertices[k], out Vector3 point);
-                    var error = Vector3.Dot(point, faceNormal) - offset;
+                    float error = Vector3.Dot(point, faceNormal) - offset;
                     //Console.WriteLine($"v{k}: {error}");
                     largestError = MathF.Max(MathF.Abs(error), largestError);
                 }
@@ -595,23 +595,23 @@ public class ConvexHullTestDemo : DemoBase
             Matrix3x3.CreateScale(new Vector3(5, 0.5f, 3), out Matrix3x3 scale);
             Matrix3x3 transform = Matrix3x3.CreateFromAxisAngle(Vector3.Normalize(new Vector3(3, 2, 1)), 1207) * scale;
             const int transformCount = 10000;
-            var transformStart = Stopwatch.GetTimestamp();
+            long transformStart = Stopwatch.GetTimestamp();
             for (int j = 0; j < transformCount; ++j)
             {
                 CreateTransformedCopy(test.Hull, transform, BufferPool, out ConvexHull transformedHullShape);
                 transformedHullShape.Dispose(BufferPool);
             }
-            var transformEnd = Stopwatch.GetTimestamp();
+            long transformEnd = Stopwatch.GetTimestamp();
             Console.WriteLine($"Transform hull computation time (us): {(transformEnd - transformStart) * 1e6 / (transformCount * Stopwatch.Frequency)}");
 
-            test.Hull.RayTest(RigidPose.Identity, new Vector3(0, 1, 0), -Vector3.UnitY, out var t, out Vector3 normal);
+            test.Hull.RayTest(RigidPose.Identity, new Vector3(0, 1, 0), -Vector3.UnitY, out float t, out Vector3 normal);
             const int rayIterationCount = 10000;
             RigidPose rayPose = RigidPose.Identity;
             Vector3 rayOrigin = new(0, 2, 0);
             Vector3 rayDirection = new(0, -1, 0);
 
             int hitCounter = 0;
-            var start = Stopwatch.GetTimestamp();
+            long start = Stopwatch.GetTimestamp();
             for (int j = 0; j < rayIterationCount; ++j)
             {
                 if (test.Hull.RayTest(rayPose, rayOrigin, rayDirection, out _, out _))
@@ -619,7 +619,7 @@ public class ConvexHullTestDemo : DemoBase
                     ++hitCounter;
                 }
             }
-            var end = Stopwatch.GetTimestamp();
+            long end = Stopwatch.GetTimestamp();
             Console.WriteLine($"Hit counter: {hitCounter}, computation time (us): {(end - start) * 1e6 / (rayIterationCount * Stopwatch.Frequency)}");
 
             const int iterationCount = 100;
@@ -654,7 +654,7 @@ public class ConvexHullTestDemo : DemoBase
             Simulation.Shapes.UpdateBounds(RigidPose.Identity, otherShapes[otherShapeIndex], out BoundingBox bounds);
             Vector3 otherShapeSpan = bounds.Max - bounds.Min;
             Vector3 staticOffset = (bounds.Max + bounds.Min) * -0.5f + new Vector3(0, -5f, 0);
-            var staticTop = bounds.Max.Y + staticOffset.Y;
+            float staticTop = bounds.Max.Y + staticOffset.Y;
             float x = 0;
             float effectiveZSpan = otherShapeSpan.Z;
             for (int hullIndex = 0; hullIndex < hullTests.Length; ++hullIndex)
@@ -664,9 +664,9 @@ public class ConvexHullTestDemo : DemoBase
                 Vector3 span = max - min;
                 effectiveZSpan = MathF.Max(span.Z, effectiveZSpan);
 
-                var spanX = MathF.Max(otherShapeSpan.X, span.X);
-                var shapeX = x + spanX * 0.5f;
-                var shapeY = staticTop + span.Y * 0.5f;
+                float spanX = MathF.Max(otherShapeSpan.X, span.X);
+                float shapeX = x + spanX * 0.5f;
+                float shapeY = staticTop + span.Y * 0.5f;
                 Simulation.Bodies.Add(BodyDescription.CreateDynamic(new Vector3(shapeX, shapeY, z), test.Hull.ComputeInertia(1), new(test.ShapeIndex, 20, 20), -0.01f));
                 Simulation.Statics.Add(new StaticDescription(new Vector3(shapeX, 0, z) + staticOffset, otherShapes[otherShapeIndex]));
                 x += spanX + spacing;

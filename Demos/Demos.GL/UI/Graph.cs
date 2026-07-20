@@ -113,14 +113,14 @@ public class Graph
     }
     public Series GetSeries(string name)
     {
-        var index = IndexOf(name);
+        int index = IndexOf(name);
         if (index >= 0)
             return graphSeries[index];
         throw new ArgumentException("No series with the given name exists within the graph.");
     }
     public Series GetSeries(IDataSeries data)
     {
-        var index = IndexOf(data);
+        int index = IndexOf(data);
         if (index >= 0)
             return graphSeries[index];
         throw new ArgumentException("No series with the given data exists within the graph.");
@@ -133,7 +133,7 @@ public class Graph
 
     public void RemoveSeries(string name)
     {
-        var index = IndexOf(name);
+        int index = IndexOf(name);
         if (index >= 0)
             graphSeries.RemoveAt(index);
         else
@@ -141,7 +141,7 @@ public class Graph
     }
     public void RemoveSeries(IDataSeries data)
     {
-        var index = IndexOf(data);
+        int index = IndexOf(data);
         if (index >= 0)
             graphSeries.RemoveAt(index);
         else
@@ -158,8 +158,8 @@ public class Graph
         //Collect information to define data window ranges.
         int minX = int.MaxValue;
         int maxX = int.MinValue;
-        var minY = double.MaxValue;
-        var maxY = double.MinValue;
+        double minY = double.MaxValue;
+        double maxY = double.MinValue;
         for (int i = 0; i < graphSeries.Count; ++i)
         {
             IDataSeries data = graphSeries[i].Data;
@@ -173,7 +173,7 @@ public class Graph
             }
             for (int j = data.Start; j < data.End; ++j)
             {
-                var value = data[j];
+                double value = data[j];
                 if (minY > value)
                 {
                     minY = value;
@@ -200,11 +200,11 @@ public class Graph
 
         //Calculate the data span that takes into account rounding. We want intervals to be evenly spaced, but also to match nicely rounded numbers. 
         //That means the span must be equal to some rounded number multiplied by the number of intervals.
-        var yDataSpan = maxY - minY;
-        var yIntervalCount = description.TargetVerticalTickCount + 1;
-        var rawIntervalLength = yDataSpan / yIntervalCount;
-        var scale = (int)Math.Log10(rawIntervalLength);
-        var withinScale = rawIntervalLength * Math.Pow(0.1, scale);
+        double yDataSpan = maxY - minY;
+        int yIntervalCount = description.TargetVerticalTickCount + 1;
+        double rawIntervalLength = yDataSpan / yIntervalCount;
+        int scale = (int)Math.Log10(rawIntervalLength);
+        double withinScale = rawIntervalLength * Math.Pow(0.1, scale);
         yDataSpan = yIntervalCount * Math.Pow(10, scale) * (withinScale < 0.2 ? 0.2 : withinScale < 0.5 ? 0.5 : 1); // 1, 2 or 5 within the power of 10
 
         //Draw the graph body axes.
@@ -216,9 +216,9 @@ public class Graph
 
         //Draw axis labels.
         characters.Clear().Append(description.HorizontalAxisLabel);
-        var baseAxisLabelDistance = description.IntervalTickLength + description.IntervalTextHeight * description.LineSpacingMultiplier;
-        var verticalAxisLabelDistance = baseAxisLabelDistance + 2 * description.VerticalTickTextPadding;
-        var horizontalAxisLabelDistance = baseAxisLabelDistance + 2 * description.HorizontalTickTextPadding + description.AxisLabelHeight * description.LineSpacingMultiplier;
+        float baseAxisLabelDistance = description.IntervalTickLength + description.IntervalTextHeight * description.LineSpacingMultiplier;
+        float verticalAxisLabelDistance = baseAxisLabelDistance + 2 * description.VerticalTickTextPadding;
+        float horizontalAxisLabelDistance = baseAxisLabelDistance + 2 * description.HorizontalTickTextPadding + description.AxisLabelHeight * description.LineSpacingMultiplier;
         text.Write(characters,
             lowerLeft +
             new Vector2((description.BodySpan.X - GlyphBatch.MeasureLength(characters, description.Font, description.AxisLabelHeight)) * 0.5f, horizontalAxisLabelDistance),
@@ -231,14 +231,14 @@ public class Graph
 
         //Position tickmarks, tick labels, and background lines along the axes.
         {
-            var xDataIntervalSize = (maxX - minX) / (description.TargetHorizontalTickCount + 1f);
-            var previousTickValue = int.MinValue;
+            float xDataIntervalSize = (maxX - minX) / (description.TargetHorizontalTickCount + 1f);
+            int previousTickValue = int.MinValue;
             float valueToPixels = description.BodySpan.X / (maxX - minX);
             for (int i = 0; i < description.TargetHorizontalTickCount + 2; ++i)
             {
                 //Round pen offset such that the data tick lands on an integer.
-                var valueAtTick = i * xDataIntervalSize;
-                var tickValue = (int)Math.Round(valueAtTick);
+                float valueAtTick = i * xDataIntervalSize;
+                int tickValue = (int)Math.Round(valueAtTick);
                 if (tickValue == previousTickValue)
                 {
                     //Don't bother creating redundant ticks.
@@ -259,13 +259,13 @@ public class Graph
             }
         }
         {
-            var yDataIntervalSize = yDataSpan / yIntervalCount;
-            var previousTickValue = double.MinValue;
+            double yDataIntervalSize = yDataSpan / yIntervalCount;
+            double previousTickValue = double.MinValue;
             //Note the inclusion of the scale. Rounding occurs post-scale; moving back to pixels requires undoing the scale.
-            var valueToPixels = description.BodySpan.Y / (yDataSpan * description.VerticalIntervalValueScale);
+            double valueToPixels = description.BodySpan.Y / (yDataSpan * description.VerticalIntervalValueScale);
             for (int i = 0; i < description.TargetVerticalTickCount + 2; ++i)
             {
-                var tickValue = Math.Round((yDataIntervalSize * i) * description.VerticalIntervalValueScale, description.VerticalIntervalLabelRounding);
+                double tickValue = Math.Round((yDataIntervalSize * i) * description.VerticalIntervalValueScale, description.VerticalIntervalLabelRounding);
                 if (tickValue == previousTickValue)
                 {
                     //Don't bother creating redundant ticks.
@@ -302,7 +302,7 @@ public class Graph
             {
                 Series series = graphSeries[i];
                 IDataSeries data = series.Data;
-                var count = data.End - data.Start;
+                int count = data.End - data.Start;
                 if (count > 0)
                 {
                     Vector2 previousScreenPosition = DataToScreenspace(data.Start, data[data.Start]);
@@ -327,7 +327,7 @@ public class Graph
         //Draw the legend entry last. Alpha blending will put it on top in case the legend is positioned on top of the body.
         {
             Vector2 penPosition = description.LegendMinimum;
-            var legendLineSpacing = description.LegendNameHeight * 1.5f;
+            float legendLineSpacing = description.LegendNameHeight * 1.5f;
             penPosition.Y += legendLineSpacing;
 
             for (int i = 0; i < graphSeries.Count; ++i)

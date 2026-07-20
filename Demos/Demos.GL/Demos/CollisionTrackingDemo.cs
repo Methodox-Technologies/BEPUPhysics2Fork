@@ -175,7 +175,7 @@ public class CollisionTrackingDemo : DemoBase
         {
             if (!Tracked.ContainsKey(target))
                 throw new ArgumentException("Object is not tracked.");
-            Tracked.GetTableIndices(ref target, out var tableIndex, out var elementIndex);
+            Tracked.GetTableIndices(ref target, out int tableIndex, out int elementIndex);
             Tracked.Values[elementIndex].Dispose(pool);
             Tracked.FastRemove(tableIndex, elementIndex);
         }
@@ -272,7 +272,7 @@ public class CollisionTrackingDemo : DemoBase
             for (int j = 0; j < cache.Count; ++j)
             {
                 ref WorkerPairContacts entry = ref cache[j];
-                Tracked.GetTableIndices(ref entry.Self, out _, out var elementIndex);
+                Tracked.GetTableIndices(ref entry.Self, out _, out int elementIndex);
                 Tracked.Values[elementIndex].Pairs.Add(entry.Other, entry.Collision, pool);
             }
             //The worker cache memory must be returned to the thread pool, not the main pool!
@@ -542,7 +542,7 @@ public class CollisionTrackingDemo : DemoBase
         for (int i = particles.Count - 1; i >= 0; --i)
         {
             ref ContactResponseParticle particle = ref particles[i];
-            var radius = particle.Age * (particle.Age * (0.135f - 2.7f * particle.Age) + 1.35f);
+            float radius = particle.Age * (particle.Age * (0.135f - 2.7f * particle.Age) + 1.35f);
             RigidPose pose = new(particle.Position);
             renderer.Shapes.AddShape(new Sphere(radius), Simulation.Shapes, pose, new Vector3(0, 1, 0));
         }

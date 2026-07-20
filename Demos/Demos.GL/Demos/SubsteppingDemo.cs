@@ -115,7 +115,7 @@ public class SubsteppingDemo : DemoBase
         //Any time the simulation configuration changes, it could change behavior.
         //For example, reducing substep/iteration count to very low values will cause severe instability.
         //Sleeping objects don't move, though, so wake them up so the result of the change can be seen!
-        var sleepingSetsMemory = stackalloc int[Simulation.Bodies.Sets.Length - 1];
+        int* sleepingSetsMemory = stackalloc int[Simulation.Bodies.Sets.Length - 1];
         QuickList<int> sleepingSets = new(new Buffer<int>(sleepingSetsMemory, Simulation.Bodies.Sets.Length - 1));
         for (int i = 1; i < Simulation.Bodies.Sets.Length; ++i)
         {
@@ -129,8 +129,8 @@ public class SubsteppingDemo : DemoBase
 
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        var substepCountChange = (int)MathF.Max(1f, Simulation.Solver.SubstepCount * 0.25f);
-        var iterationCountChange = (int)MathF.Max(1f, Simulation.Solver.VelocityIterationCount * 0.25f);
+        int substepCountChange = (int)MathF.Max(1f, Simulation.Solver.SubstepCount * 0.25f);
+        int iterationCountChange = (int)MathF.Max(1f, Simulation.Solver.VelocityIterationCount * 0.25f);
         if (input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
         {
             Simulation.Solver.SubstepCount = Math.Max(1, Simulation.Solver.SubstepCount - substepCountChange);

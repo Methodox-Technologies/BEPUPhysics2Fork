@@ -19,7 +19,7 @@ public struct SponsorNewt
     {
         Vector2 arenaSpan = arenaMax - arenaMin;
         Vector2 position = arenaMin + arenaSpan * new Vector2(random.NextSingle(), random.NextSingle());
-        var angle = MathF.PI * 2 * random.NextSingle();
+        float angle = MathF.PI * 2 * random.NextSingle();
         BodyHandle = simulation.Bodies.Add(BodyDescription.CreateKinematic((new Vector3(position.X, height, position.Y), QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, angle)), shape, -1));
         SponsorIndex = sponsorIndex;
     }
@@ -47,7 +47,7 @@ public struct SponsorNewt
             jumpEndTime = time + jumpDuration;
             forwardAtJumpStart = -new Vector2(backward.X, backward.Z);
             forwardAtJumpEnd = jumpEnd - jumpStart;
-            var newForwardLengthSquared = forwardAtJumpEnd.LengthSquared();
+            float newForwardLengthSquared = forwardAtJumpEnd.LengthSquared();
             forwardAtJumpEnd = newForwardLengthSquared < 1e-10f ? forwardAtJumpStart : forwardAtJumpEnd / MathF.Sqrt(newForwardLengthSquared);
             nextAllowedJump = jumpEndTime + (1 + random.NextDouble() * 2.5f);
         }
@@ -57,13 +57,13 @@ public struct SponsorNewt
         {
             //The newt's in the middle of a jump. Choose a target position/orientation by interpolation.
             const float maximumJumpHeight = 5;
-            var jumpProgress = (float)(time - jumpStartTime) / jumpDuration;
+            float jumpProgress = (float)(time - jumpStartTime) / jumpDuration;
             Vector2 targetPosition2D = (float)jumpProgress * (jumpEnd - jumpStart) + jumpStart;
-            var parabolaTerm = (2 * jumpProgress - 1);
-            var currentHeight = height + (1 - parabolaTerm * parabolaTerm) * maximumJumpHeight;
+            float parabolaTerm = (2 * jumpProgress - 1);
+            float currentHeight = height + (1 - parabolaTerm * parabolaTerm) * maximumJumpHeight;
             targetPosition = new Vector3(targetPosition2D.X, currentHeight, targetPosition2D.Y);
             targetForward = jumpProgress * (forwardAtJumpEnd - forwardAtJumpStart) + forwardAtJumpStart;
-            var targetForwardLengthSquared = targetForward.LengthSquared();
+            float targetForwardLengthSquared = targetForward.LengthSquared();
             if (targetForwardLengthSquared < 1e-10f)
             {
                 QuaternionEx.TransformUnitZ(body.Pose.Orientation, out Vector3 backward);
@@ -89,17 +89,17 @@ public struct SponsorNewt
         targetOrientationBasis.Z = -new Vector3(targetForward.X, 0, targetForward.Y);
         QuaternionEx.CreateFromRotationMatrix(targetOrientationBasis, out Quaternion targetOrientation);
         QuaternionEx.GetRelativeRotationWithoutOverlap(body.Pose.Orientation, targetOrientation, out Quaternion orientationError);
-        QuaternionEx.GetAxisAngleFromQuaternion(orientationError, out Vector3 errorAxis, out var errorAngle);
+        QuaternionEx.GetAxisAngleFromQuaternion(orientationError, out Vector3 errorAxis, out float errorAngle);
         body.Velocity.Angular = errorAxis * (errorAngle * inverseDt);
     }
 
     public readonly void Render(Simulation simulation, List<Sponsor> sponsors, Renderer renderer, in Matrix viewProjection, in Vector2 resolution, TextBuilder text, Font font)
     {
-        var name = sponsors[SponsorIndex].Name;
+        string name = sponsors[SponsorIndex].Name;
         BodyReference body = simulation.Bodies[BodyHandle];
         DemoHelpers.GetScreenLocation(body.Pose.Position + new Vector3(0, 8, 0), viewProjection, resolution, out Vector2 screenspacePosition);
         const float nameHeight = 14;
-        var nameLength = GlyphBatch.MeasureLength(name, font, nameHeight);
+        float nameLength = GlyphBatch.MeasureLength(name, font, nameHeight);
         screenspacePosition.X -= nameLength * 0.5f;
         renderer.TextBatcher.Write(text.Clear().Append(name), screenspacePosition, nameHeight, new Vector3(0.3f, 0f, 0f), font);
     }

@@ -49,15 +49,15 @@ public struct TankController
     /// <param name="aimDirection">Direction that the tank's barrel should point.</param>
     public void UpdateMovementAndAim(Simulation simulation, float leftTargetSpeedFraction, float rightTargetSpeedFraction, bool zoom, bool brakeLeft, bool brakeRight, Vector3 aimDirection)
     {
-        var leftTargetSpeed = brakeLeft ? 0 : leftTargetSpeedFraction * Speed;
-        var rightTargetSpeed = brakeRight ? 0 : rightTargetSpeedFraction * Speed;
+        float leftTargetSpeed = brakeLeft ? 0 : leftTargetSpeedFraction * Speed;
+        float rightTargetSpeed = brakeRight ? 0 : rightTargetSpeedFraction * Speed;
         if (zoom)
         {
             leftTargetSpeed *= ZoomMultiplier;
             rightTargetSpeed *= ZoomMultiplier;
         }
-        var leftForce = brakeLeft ? BrakeForce : leftTargetSpeedFraction == 0 ? IdleForce : Force;
-        var rightForce = brakeRight ? BrakeForce : rightTargetSpeedFraction == 0 ? IdleForce : Force;
+        float leftForce = brakeLeft ? BrakeForce : leftTargetSpeedFraction == 0 ? IdleForce : Force;
+        float rightForce = brakeRight ? BrakeForce : rightTargetSpeedFraction == 0 ? IdleForce : Force;
 
         (float targetSwivelAngle, float targetPitchAngle) = Tank.ComputeTurretAngles(simulation, aimDirection);
 

@@ -87,7 +87,7 @@ public class BroadPhaseStressTestDemo : DemoBase
                     //var location = (r - new Vector3(0.5f)) * spacing * new Vector3(width, height, length);
                     //var location = new Vector3(15, 15, 15);
                     //var hash = HashHelper.Rehash(HashHelper.Rehash(HashHelper.Rehash(i) + HashHelper.Rehash(j)) + HashHelper.Rehash(k));
-                    var hash = i + j + k;
+                    int hash = i + j + k;
                     if (hash % 64 == 0)
                     {
                         if (i == 7 && j == 1 && k == 0)
@@ -126,10 +126,10 @@ public class BroadPhaseStressTestDemo : DemoBase
 
     void PrintPathToRoot(StaticHandle handle)
     {
-        var index = Simulation.Statics[handle].Static.BroadPhaseIndex;
+        int index = Simulation.Statics[handle].Static.BroadPhaseIndex;
         Leaf leaf = Simulation.BroadPhase.StaticTree.Leaves[index];
         int depth = 0;
-        var nodeIndex = leaf.NodeIndex;
+        int nodeIndex = leaf.NodeIndex;
         Console.Write($"Starting from {leaf.NodeIndex}:{leaf.ChildIndex}, path: ");
         while (true)
         {
@@ -149,7 +149,7 @@ public class BroadPhaseStressTestDemo : DemoBase
 
     public override void Update(Window window, Camera camera, Input input, float dt)
     {
-        var rotationAngle = frameCount * 1e-3f;
+        float rotationAngle = frameCount * 1e-3f;
         Matrix3x3 rotation = Matrix3x3.CreateFromAxisAngle(Vector3.UnitY, rotationAngle);
         //for (int i = 0; i < Simulation.Bodies.ActiveSet.Count / 2; ++i)
         //{

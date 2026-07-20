@@ -23,7 +23,7 @@ public class DemoSet
         public Func<ContentArchive, Camera, RenderSurface, DemoBase> Builder;
     }
 
-    List<Option> options = new();
+    List<Option> options = [];
     void AddOption<T>() where T : DemoBase, new()
     {
         options.Add(new Option

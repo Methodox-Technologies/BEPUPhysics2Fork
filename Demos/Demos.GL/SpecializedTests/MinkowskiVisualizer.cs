@@ -16,8 +16,8 @@ public static class SimplexVisualizer
 {
     public static void Draw(Renderer renderer, Buffer<Vector3> simplex, Vector3 position, Vector3 lineColor, Vector3 backgroundColor)
     {
-        var packedLineColor = DemoHelpers.PackColor(lineColor);
-        var packedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
+        uint packedLineColor = DemoHelpers.PackColor(lineColor);
+        uint packedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
         if (simplex.Length == 1)
         {
             renderer.Lines.Allocate() = new LineInstance(simplex[0], simplex[0], packedLineColor, packedBackgroundColor);
@@ -73,12 +73,12 @@ public static class MinkowskiShapeVisualizer
         TShapeWideB bWide = default(TShapeWideB);
         if(aWide.InternalAllocationSize > 0)
         {
-            var memory = stackalloc byte[aWide.InternalAllocationSize];
+            byte* memory = stackalloc byte[aWide.InternalAllocationSize];
             aWide.Initialize(new Buffer<byte>(memory, aWide.InternalAllocationSize));
         }
         if (bWide.InternalAllocationSize > 0)
         {
-            var memory = stackalloc byte[bWide.InternalAllocationSize];
+            byte* memory = stackalloc byte[bWide.InternalAllocationSize];
             bWide.Initialize(new Buffer<byte>(memory, bWide.InternalAllocationSize));
         }
         aWide.Broadcast(a);
@@ -90,16 +90,16 @@ public static class MinkowskiShapeVisualizer
         Matrix3x3Wide.Broadcast(localOrientationB, out Matrix3x3Wide localOrientationBWide);
         TSupportFinderA supportFinderA = default(TSupportFinderA);
         TSupportFinderB supportFinderB = default(TSupportFinderB);
-        var inverseSampleCount = 1f / sampleCount;
+        float inverseSampleCount = 1f / sampleCount;
         pool.Take<LineInstance>(sampleCount + 3, out Buffer<LineInstance> lines);
-        var packedLineColor = DemoHelpers.PackColor(lineColor);
-        var packedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
+        uint packedLineColor = DemoHelpers.PackColor(lineColor);
+        uint packedBackgroundColor = DemoHelpers.PackColor(backgroundColor);
         for (int i = 0; i < sampleCount; ++i)
         {
-            var index = i + 0.5f;
-            var phi = MathF.Acos(1f - 2f * index * inverseSampleCount);
-            var theta = (MathF.PI * (1f + 2.2360679775f)) * index;
-            var sinPhi = MathF.Sin(phi);
+            float index = i + 0.5f;
+            float phi = MathF.Acos(1f - 2f * index * inverseSampleCount);
+            float theta = (MathF.PI * (1f + 2.2360679775f)) * index;
+            float sinPhi = MathF.Sin(phi);
             Vector3 sampleDirection = new(MathF.Cos(theta) * sinPhi, MathF.Sin(theta) * sinPhi, MathF.Cos(phi));
             Vector3Wide.Broadcast(sampleDirection, out Vector3Wide sampleDirectionWide);
             //Could easily use the fact that this is vectorized, but it's marginally easier not to!
@@ -107,7 +107,7 @@ public static class MinkowskiShapeVisualizer
             Vector3Wide.ReadSlot(ref supportWide, 0, out Vector3 support);
             lines[i] = new LineInstance(basePosition + support, basePosition + support - sampleDirection * lineLength, packedLineColor, packedBackgroundColor);
         }
-        var packedOriginColor = DemoHelpers.PackColor(originColor);
+        uint packedOriginColor = DemoHelpers.PackColor(originColor);
         lines[sampleCount] = new LineInstance(basePosition - new Vector3(originLength, 0, 0), basePosition + new Vector3(originLength, 0, 0), packedOriginColor, packedBackgroundColor);
         lines[sampleCount + 1] = new LineInstance(basePosition - new Vector3(0, originLength, 0), basePosition + new Vector3(0, originLength, 0), packedOriginColor, packedBackgroundColor);
         lines[sampleCount + 2] = new LineInstance(basePosition - new Vector3(0, 0, originLength), basePosition + new Vector3(0, 0, originLength), packedOriginColor, packedBackgroundColor);

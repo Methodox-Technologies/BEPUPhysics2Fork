@@ -216,7 +216,7 @@ public class CompoundDemo : DemoBase
 
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
-        var bottomY = renderer.Surface.Resolution.Y;
+        int bottomY = renderer.Surface.Resolution.Y;
         renderer.TextBatcher.Write(text.Clear().Append("There are two type of compounds built in: Compound and BigCompound."), new Vector2(16, bottomY - 80), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("Compounds lack an acceleration structure, so they're good for low overhead compounds with few children."), new Vector2(16, bottomY - 64), 16, Vector3.One, font);
         renderer.TextBatcher.Write(text.Clear().Append("BigCompounds contain an acceleration structure to keep more complex shapes fast."), new Vector2(16, bottomY - 48), 16, Vector3.One, font);

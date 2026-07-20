@@ -25,9 +25,9 @@ public static class BoxTriangleCollider
     private const float IntersectionEpsilon = 1e-4f;
     private static bool OverlapsAlongAxis(ref Vector3 axis, ref Vector3 halfExtents, ref Vector3 a, ref Vector3 b, ref Vector3 c)
     {
-        var da = Vector3.Dot(a, axis);
-        var db = Vector3.Dot(b, axis);
-        var dc = Vector3.Dot(c, axis);
+        float da = Vector3.Dot(a, axis);
+        float db = Vector3.Dot(b, axis);
+        float dc = Vector3.Dot(c, axis);
 
         float min, max;
         if (da < db && da < dc)
@@ -62,8 +62,8 @@ public static class BoxTriangleCollider
         else
             boxExtremePoint.Z = -halfExtents.Z;
 
-        var boxMax = Vector3.Dot(boxExtremePoint, axis);
-        var boxMin = -boxMax;
+        float boxMax = Vector3.Dot(boxExtremePoint, axis);
+        float boxMin = -boxMax;
 
         return !(max + IntersectionEpsilon < boxMin || min - IntersectionEpsilon > boxMax);
 
@@ -104,7 +104,7 @@ public static class BoxTriangleCollider
         Vector3 ab = b - a;
         Vector3 ac = c - a;
         Vector3 normal = Vector3.Cross(ab, ac);
-        var d = Vector3.Dot(normal, a);
+        float d = Vector3.Dot(normal, a);
         if (d < 0)
         {
             //Ensure that the normal points away from the origin (direction choice is arbitrary, just need to be consistent).
@@ -458,7 +458,7 @@ public static class DumbTetrahedralizer
         }
 
         //Create the tetrahedra.
-        var tetrahedraCount = cellVertexIndices.Length * 5;
+        int tetrahedraCount = cellVertexIndices.Length * 5;
         pool.Take(tetrahedraCount, out tetrahedraVertexIndices);
         int tetrahedronIndex = 0;
         for (int i = 0; i < cellVertexIndices.Length; ++i)
@@ -508,19 +508,19 @@ struct DeformableCollisionFilter
         //Disallow collisions between vertices which are near each other. We measure distance as max(abs(ax - bx), abs(ay - by), abs(az - bz)).
         const int minimumDistance = 3;
         const int mask = (1 << 10) - 1;
-        var ax = a.localIndices & mask;
-        var bx = b.localIndices & mask;
-        var differenceX = ax - bx;
+        int ax = a.localIndices & mask;
+        int bx = b.localIndices & mask;
+        int differenceX = ax - bx;
         if (differenceX < -minimumDistance || differenceX > minimumDistance)
             return true;
-        var ay = (a.localIndices >> 10) & mask;
-        var by = (b.localIndices >> 10) & mask;
-        var differenceY = ay - by;
+        int ay = (a.localIndices >> 10) & mask;
+        int by = (b.localIndices >> 10) & mask;
+        int differenceY = ay - by;
         if (differenceY < -minimumDistance || differenceY > minimumDistance)
             return true;
-        var az = (a.localIndices >> 20) & mask;
-        var bz = (b.localIndices >> 20) & mask;
-        var differenceZ = az - bz;
+        int az = (a.localIndices >> 20) & mask;
+        int bz = (b.localIndices >> 20) & mask;
+        int differenceZ = az - bz;
         if (differenceZ < -minimumDistance || differenceZ > minimumDistance)
             return true;
         return false;
@@ -674,12 +674,12 @@ public class NewtDemo : DemoBase
         pool.TakeAtLeast<int>(vertices.Length, out Buffer<int> vertexEdgeCounts);
         vertexEdgeCounts.Clear(0, vertices.Length);
         QuickSet<Edge, Edge> edges = new(vertices.Length * 3, pool);
-        var edgeCountForInternalVertex = CreateHexahedralUniqueEdgesList(ref cellVertexIndices, ref vertexEdgeCounts, pool, ref edges);
+        int edgeCountForInternalVertex = CreateHexahedralUniqueEdgesList(ref cellVertexIndices, ref vertexEdgeCounts, pool, ref edges);
         //var edgeCountForInternalVertex = CreateTetrahedralUniqueEdgesList(ref tetrahedraVertexIndices, ref vertexEdgeCounts, ref cellEdgePool, ref intPool, ref edges);
 
         pool.TakeAtLeast<BodyHandle>(vertices.Length, out Buffer<BodyHandle> vertexHandles);
         Sphere vertexShape = new(cellSize * 0.7f);
-        var massPerVertex = density * (cellSize * cellSize * cellSize);
+        float massPerVertex = density * (cellSize * cellSize * cellSize);
         BodyInertia vertexInertia = vertexShape.ComputeInertia(massPerVertex);
         TypedIndex vertexShapeIndex = simulation.Shapes.Add(vertexShape);
         for (int i = 0; i < vertices.Length; ++i)
