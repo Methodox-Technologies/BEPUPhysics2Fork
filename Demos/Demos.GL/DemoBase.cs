@@ -115,7 +115,7 @@ namespace Demos.GL
         }
 
 #if DEBUG
-        ~Demo()
+        ~DemoBase()
         {
             DemoRenderer.Helpers.CheckForUndisposed(disposed, this);
         }
