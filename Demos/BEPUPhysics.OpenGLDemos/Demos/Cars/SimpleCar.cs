@@ -17,24 +17,7 @@ struct SimpleCar
     private Vector3 suspensionDirection;
     private AngularHinge hingeDescription;
 
-    public void Steer(Simulation simulation, in WheelHandles wheel, float angle)
-    {
-        AngularHinge steeredHinge = hingeDescription;
-        Matrix3x3.CreateFromAxisAngle(suspensionDirection, -angle, out Matrix3x3 rotation);
-        Matrix3x3.Transform(hingeDescription.LocalHingeAxisA, rotation, out steeredHinge.LocalHingeAxisA);
-        simulation.Solver.ApplyDescription(wheel.Hinge, steeredHinge);
-    }
-
-    public void SetSpeed(Simulation simulation, in WheelHandles wheel, float speed, float maximumForce)
-    {
-        simulation.Solver.ApplyDescription(wheel.Motor, new AngularAxisMotor
-        {
-            LocalAxisA = new Vector3(0, -1, 0),
-            Settings = new MotorSettings(maximumForce, 1e-6f),
-            TargetVelocity = speed
-        });
-    }
-
+    #region Factories
     public static WheelHandles CreateWheel(Simulation simulation, CollidableProperty<CarBodyProperties> properties, in RigidPose bodyPose,
         TypedIndex wheelShape, BodyInertia wheelInertia, float wheelFriction, BodyHandle bodyHandle, ref SubgroupCollisionFilter bodyFilter, Vector3 bodyToWheelSuspension, Vector3 suspensionDirection, float suspensionLength,
         in AngularHinge hingeDescription, in SpringSettings suspensionSettings, Quaternion localWheelOrientation)
@@ -78,7 +61,6 @@ struct SimpleCar
 
         return handles;
     }
-
     public static SimpleCar Create(Simulation simulation, CollidableProperty<CarBodyProperties> properties, in RigidPose pose,
         TypedIndex bodyShape, BodyInertia bodyInertia, float bodyFriction, TypedIndex wheelShape, BodyInertia wheelInertia, float wheelFriction,
         Vector3 bodyToFrontLeftSuspension, Vector3 bodyToFrontRightSuspension, Vector3 bodyToBackLeftSuspension, Vector3 bodyToBackRightSuspension,
@@ -102,4 +84,25 @@ struct SimpleCar
         car.FrontRightWheel = CreateWheel(simulation, properties, pose, wheelShape, wheelInertia, wheelFriction, car.Body, ref bodyProperties.Filter, bodyToFrontRightSuspension, suspensionDirection, suspensionLength, car.hingeDescription, suspensionSettings, localWheelOrientation);
         return car;
     }
+    #endregion
+
+    #region Methods
+    public void Steer(Simulation simulation, in WheelHandles wheel, float angle)
+    {
+        AngularHinge steeredHinge = hingeDescription;
+        Matrix3x3.CreateFromAxisAngle(suspensionDirection, -angle, out Matrix3x3 rotation);
+        Matrix3x3.Transform(hingeDescription.LocalHingeAxisA, rotation, out steeredHinge.LocalHingeAxisA);
+        simulation.Solver.ApplyDescription(wheel.Hinge, steeredHinge);
+    }
+
+    public void SetSpeed(Simulation simulation, in WheelHandles wheel, float speed, float maximumForce)
+    {
+        simulation.Solver.ApplyDescription(wheel.Motor, new AngularAxisMotor
+        {
+            LocalAxisA = new Vector3(0, -1, 0),
+            Settings = new MotorSettings(maximumForce, 1e-6f),
+            TargetVelocity = speed
+        });
+    }
+    #endregion
 }
