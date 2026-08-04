@@ -18,17 +18,7 @@ namespace BEPUPhysics.OpenGLDemos.Demos.Cars;
 
 public class CarDemo : DemoBase
 {
-    SimpleCarController playerController;
-
-    struct AIController
-    {
-        public SimpleCarController Controller;
-        public float LaneOffset;
-    }
-
-    Buffer<AIController> aiControllers;
-    RaceTrack raceTrack;
-
+    #region Configs
     static Keys Forward = Keys.W;
     static Keys Backward = Keys.S;
     static Keys Right = Keys.D;
@@ -37,15 +27,37 @@ public class CarDemo : DemoBase
     static Keys Brake = Keys.Space;
     static Keys BrakeAlternate = Keys.Backspace; //I have a weird keyboard.
     static Keys ToggleCar = Keys.C;
+
+    const int _aiCount = 384;
+    const int planeWidth = 257;
+    const float terrainScale = 3;
+    #endregion
+
+    #region Subtypes
+    struct CarAIController
+    {
+        public SimpleCarController Controller;
+        public float LaneOffset;
+    }
+    #endregion
+
+    #region Components
+    private SimpleCarController playerController;
+    private Buffer<CarAIController> aiControllers;
+    private RaceTrack raceTrack;
+    private bool playerControlActive = true;
+    #endregion
+
+    #region Framework
     public override void Initialize(ContentArchive content, Camera camera)
     {
         camera.Position = new Vector3(0, 5, 10);
         camera.Yaw = 0;
         camera.Pitch = 0;
 
-        CollidableProperty<CarBodyProperties> properties = new();
+        CollidableProperty<CarBodyProperties> carBodyProperties = new(); // A reference-type lookup table indexed by collidable handles
 
-        Simulation = Simulation.Create(BufferPool, new CarCallbacks() { Properties = properties }, new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(6, 1));
+        Simulation = Simulation.Create(BufferPool, new CarCallbacks() { Properties = carBodyProperties }, new DemoPoseIntegratorCallbacks(new Vector3(0, -10, 0)), new SolveDescription(6, 1));
 
         CompoundBuilder builder = new(BufferPool, Simulation.Shapes, 2);
         builder.Add(new Box(1.85f, 0.7f, 4.73f), RigidPose.Identity, 10);
@@ -65,48 +77,29 @@ public class CarDemo : DemoBase
         const float wheelBaseWidth = x * 2;
         const float wheelBaseLength = frontZ - backZ;
 
-        playerController = new SimpleCarController(SimpleCar.Create(Simulation, properties, new Vector3(0, 10, 0), bodyShapeIndex, bodyInertia, 0.5f, wheelShapeIndex, wheelInertia, 2f,
+        playerController = new SimpleCarController(SimpleCar.Create(Simulation, carBodyProperties, new Vector3(0, 10, 0), bodyShapeIndex, bodyInertia, 0.5f, wheelShapeIndex, wheelInertia, 2f,
             new Vector3(-x, y, frontZ), new Vector3(x, y, frontZ), new Vector3(-x, y, backZ), new Vector3(x, y, backZ), new Vector3(0, -1, 0), 0.25f,
             new SpringSettings(5f, 0.7f), QuaternionEx.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f)),
             forwardSpeed: 75, forwardForce: 6, zoomMultiplier: 2, backwardSpeed: 30, backwardForce: 4, idleForce: 0.25f, brakeForce: 7, steeringSpeed: 1.5f, maximumSteeringAngle: MathF.PI * 0.23f,
             wheelBaseLength: wheelBaseLength, wheelBaseWidth: wheelBaseWidth, ackermanSteering: 1);
 
-        //Create a bunch of AI cars to race against.
-        const int aiCount = 384;
-        BufferPool.Take(aiCount, out aiControllers);
+        // Create a bunch of AI cars to race against.
+        BufferPool.Take(_aiCount, out aiControllers);
 
-
-        const int planeWidth = 257;
-        const float scale = 3;
-        Vector2 terrainPosition = new Vector2(1 - planeWidth, 1 - planeWidth) * scale * 0.5f;
-        raceTrack = new RaceTrack { QuadrantRadius = (planeWidth - 32) * scale * 0.25f, Center = default };
         Random random = new(5);
 
-        //Add some building-ish landmarks in the middle of each of the four racetrack quadrants.
-        for (int i = 0; i < 4; ++i)
-        {
-            Vector3 landmarkCenter = new((i & 1) * raceTrack.QuadrantRadius * 2 - raceTrack.QuadrantRadius, -20, (i & 2) * raceTrack.QuadrantRadius - raceTrack.QuadrantRadius);
-            Vector3 landmarkMin = landmarkCenter - new Vector3(raceTrack.QuadrantRadius * 0.5f, 0, raceTrack.QuadrantRadius * 0.5f);
-            Vector3 landmarkSpan = new(raceTrack.QuadrantRadius, 0, raceTrack.QuadrantRadius);
-            for (int j = 0; j < 25; ++j)
-            {
-                Box buildingShape = new(10 + random.NextSingle() * 10, 20 + random.NextSingle() * 20, 10 + random.NextSingle() * 10);
-                Simulation.Statics.Add(new StaticDescription(
-                    new Vector3(0, buildingShape.HalfHeight, 0) + landmarkMin + landmarkSpan * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()),
-                    QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, random.NextSingle() * MathF.PI),
-                    Simulation.Shapes.Add(buildingShape)));
-            }
-        }
+        // Race track
+        CreateRaceTrack(random);
 
-        Vector3 min = new(-planeWidth * scale * 0.45f, 10, -planeWidth * scale * 0.45f);
-        Vector3 span = new(planeWidth * scale * 0.9f, 15, planeWidth * scale * 0.9f);
+        Vector3 min = new(-planeWidth * terrainScale * 0.45f, 10, -planeWidth * terrainScale * 0.45f);
+        Vector3 span = new(planeWidth * terrainScale * 0.9f, 15, planeWidth * terrainScale * 0.9f);
 
-        for (int i = 0; i < aiCount; ++i)
+        for (int i = 0; i < _aiCount; ++i)
         {
-            //The AI cars are very similar, except... we handicap them a little to make the player feel good about themselves.
+            // The AI cars are very similar, except... we handicap them a little to make the player feel good about themselves.
             Vector3 position = min + span * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
             Quaternion orientation = QuaternionEx.CreateFromAxisAngle(new Vector3(0, 1, 0), random.NextSingle() * MathF.PI * 2);
-            aiControllers[i].Controller = new SimpleCarController(SimpleCar.Create(Simulation, properties, (position, orientation), bodyShapeIndex, bodyInertia, 0.5f, wheelShapeIndex, wheelInertia, 2f,
+            aiControllers[i].Controller = new SimpleCarController(SimpleCar.Create(Simulation, carBodyProperties, (position, orientation), bodyShapeIndex, bodyInertia, 0.5f, wheelShapeIndex, wheelInertia, 2f,
                 new Vector3(-x, y, frontZ), new Vector3(x, y, frontZ), new Vector3(-x, y, backZ), new Vector3(x, y, backZ), new Vector3(0, -1, 0), 0.25f,
                 new SpringSettings(5, 0.7f), QuaternionEx.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f)),
                 forwardSpeed: 50, forwardForce: 5, zoomMultiplier: 2, backwardSpeed: 10, backwardForce: 4, idleForce: 0.25f, brakeForce: 7, steeringSpeed: 1.5f, maximumSteeringAngle: MathF.PI * 0.23f,
@@ -115,6 +108,7 @@ public class CarDemo : DemoBase
             aiControllers[i].LaneOffset = random.NextSingle() * 20 - 10;
         }
 
+        Vector2 terrainPosition = new Vector2(1 - planeWidth, 1 - planeWidth) * terrainScale * 0.5f;
         Mesh planeMesh = DemoMeshHelper.CreateDeformedPlane(planeWidth, planeWidth,
             (int vX, int vY) =>
             {
@@ -126,7 +120,7 @@ public class CarDemo : DemoBase
                 int distanceToEdge = planeWidth / 2 - Math.Max(Math.Abs(vX - planeWidth / 2), Math.Abs(vY - planeWidth / 2));
                 float edgeRamp = 25f / (distanceToEdge + 1);
                 float terrainHeight = octave0 + octave1 + octave2 + octave3 + octave4;
-                Vector2 vertexPosition = new Vector2(vX * scale, vY * scale) + terrainPosition;
+                Vector2 vertexPosition = new Vector2(vX * terrainScale, vY * terrainScale) + terrainPosition;
                 float distanceToTrack = raceTrack.GetDistance(vertexPosition);
                 float trackWeight = MathF.Min(1f, 3f / (distanceToTrack * 0.1f + 1f));
                 float height = trackWeight * -10f + terrainHeight * (1 - trackWeight);
@@ -135,8 +129,6 @@ public class CarDemo : DemoBase
             }, new Vector3(1, 1, 1), BufferPool, ThreadDispatcher);
         Simulation.Statics.Add(new StaticDescription(new Vector3(0, -15, 0), QuaternionEx.CreateFromAxisAngle(new Vector3(0, 1, 0), MathF.PI / 2), Simulation.Shapes.Add(planeMesh)));
     }
-
-    bool playerControlActive = true;
     public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         if (input != null)
@@ -164,7 +156,7 @@ public class CarDemo : DemoBase
 
         for (int i = 0; i < aiControllers.Length; ++i)
         {
-            ref AIController ai = ref aiControllers[i];
+            ref CarAIController ai = ref aiControllers[i];
             BodyReference body = Simulation.Bodies[ai.Controller.Car.Body];
             ref RigidPose pose = ref body.Pose;
             Matrix3x3.CreateFromQuaternion(pose.Orientation, out Matrix3x3 orientation);
@@ -192,14 +184,6 @@ public class CarDemo : DemoBase
 
         base.Update(window, camera, input, dt);
     }
-
-    void RenderControl(ref Vector2 position, float textHeight, string controlName, string controlValue, TextBuilder text, TextBatcher textBatcher, Font font)
-    {
-        text.Clear().Append(controlName).Append(": ").Append(controlValue);
-        textBatcher.Write(text, position, textHeight, new Vector3(1), font);
-        position.Y += textHeight * 1.1f;
-    }
-
     public override void Render(Renderer renderer, Camera camera, Input input, TextBuilder text, Font font)
     {
         if (playerControlActive)
@@ -220,4 +204,37 @@ public class CarDemo : DemoBase
         RenderControl(ref position, textHeight, nameof(ToggleCar), ControlStringsCache.GetName(ToggleCar), text, renderer.TextBatcher, font);
         base.Render(renderer, camera, input, text, font);
     }
+    #endregion
+
+    #region Routines
+    private void CreateRaceTrack(Random random)
+    {
+        raceTrack = new RaceTrack { QuadrantRadius = (planeWidth - 32) * terrainScale * 0.25f, Center = default };
+
+        // Add some building-ish landmarks in the middle of each of the four racetrack quadrants.
+        for (int i = 0; i < 4; ++i)
+        {
+            Vector3 landmarkCenter = new((i & 1) * raceTrack.QuadrantRadius * 2 - raceTrack.QuadrantRadius, -20, (i & 2) * raceTrack.QuadrantRadius - raceTrack.QuadrantRadius);
+            Vector3 landmarkMin = landmarkCenter - new Vector3(raceTrack.QuadrantRadius * 0.5f, 0, raceTrack.QuadrantRadius * 0.5f);
+            Vector3 landmarkSpan = new(raceTrack.QuadrantRadius, 0, raceTrack.QuadrantRadius);
+            for (int j = 0; j < 25; ++j)
+            {
+                Box buildingShape = new(10 + random.NextSingle() * 10, 20 + random.NextSingle() * 20, 10 + random.NextSingle() * 10);
+                Simulation.Statics.Add(new StaticDescription(
+                    new Vector3(0, buildingShape.HalfHeight, 0) + landmarkMin + landmarkSpan * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()),
+                    QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, random.NextSingle() * MathF.PI),
+                    Simulation.Shapes.Add(buildingShape)));
+            }
+        }
+    }
+    #endregion
+
+    #region Render Routines
+    void RenderControl(ref Vector2 position, float textHeight, string controlName, string controlValue, TextBuilder text, TextBatcher textBatcher, Font font)
+    {
+        text.Clear().Append(controlName).Append(": ").Append(controlValue);
+        textBatcher.Write(text, position, textHeight, new Vector3(1), font);
+        position.Y += textHeight * 1.1f;
+    }
+    #endregion
 }
