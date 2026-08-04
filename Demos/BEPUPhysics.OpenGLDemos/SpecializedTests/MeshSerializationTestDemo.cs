@@ -9,7 +9,6 @@ using System.Diagnostics;
 using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
 using BEPUPhysics.OpenGLDemos.Helpers;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.SpecializedTests;

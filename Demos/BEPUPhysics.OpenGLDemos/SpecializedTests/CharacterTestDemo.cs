@@ -8,7 +8,6 @@ using DemoContentLoader;
 using DemoUtilities;
 using BepuUtilities.Collections;
 using BEPUPhysics.OpenGLDemos.Helpers;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Demos.Characters;
 using BEPUPhysics.OpenGLDemos.Types;
 

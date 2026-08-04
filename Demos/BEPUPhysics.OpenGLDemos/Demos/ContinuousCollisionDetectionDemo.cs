@@ -8,7 +8,6 @@ using BepuPhysics.Constraints;
 using DemoUtilities;
 using DemoRenderer.UI;
 using BEPUPhysics.OpenGLDemos.Types;
-using Demos;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;
 

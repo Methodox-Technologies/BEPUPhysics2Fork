@@ -11,7 +11,6 @@ using BEPUPhysics.OpenGLDemos.Types;
 using DemoUtilities;
 using System;
 using System.Numerics;
-using Demos;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;
 

@@ -12,7 +12,6 @@ using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Interaction;
 using DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.Demos.Cars;

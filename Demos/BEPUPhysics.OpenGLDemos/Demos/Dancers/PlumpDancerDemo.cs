@@ -10,7 +10,6 @@ using DemoUtilities;
 using System;
 using System.Diagnostics;
 using System.Numerics;
-using BEPUPhysics.OpenGLDemos.Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.Demos.Dancers;

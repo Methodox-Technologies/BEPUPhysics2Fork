@@ -35,7 +35,7 @@ struct DemoSwapper
                 }
                 else
                 {
-                    if (TargetDemoIndex < host.demoSet.Count)
+                    if (TargetDemoIndex < host.demosSet.Count)
                     {
                         int digit = character - '0';
                         if (digit >= 0 && digit <= 9)

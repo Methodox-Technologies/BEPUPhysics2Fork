@@ -9,7 +9,6 @@ using DemoContentLoader;
 using DemoUtilities;
 using DemoRenderer.UI;
 using BEPUPhysics.OpenGLDemos.Helpers;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.Demos.Characters;
