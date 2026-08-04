@@ -12,7 +12,7 @@ struct DemoSwapper
     public int TargetDemoIndex;
     bool TrackingInput;
 
-    public void CheckForDemoSwap(DemoHarness harness)
+    public void CheckForDemoSwap(DemoHost harness)
     {
         if (harness.controls.ChangeDemo.WasTriggered(harness.loop.Input))
         {
@@ -79,5 +79,4 @@ struct DemoSwapper
         }
 
     }
-
 }

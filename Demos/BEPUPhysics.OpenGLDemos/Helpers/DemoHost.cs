@@ -11,7 +11,15 @@ using BEPUPhysics.OpenGLDemos.UI;
 
 namespace BEPUPhysics.OpenGLDemos.Helpers;
 
-public class DemoHarness : IDisposable
+/// <summary>
+/// Coordinates the lifecycle, input handling, simulation updates, rendering, diagnostics, and demo switching for the interactive BEPU physics demo application.
+/// </summary>
+/// <remarks>
+/// The harness owns the currently active <see cref="DemoBase"/> instance and integrates it with the application's <see cref="GameLoop"/>. It processes camera and interaction controls, updates the simulation, records simulation timing samples, renders the active demo and its debugging overlays, and handles switching between demos.
+/// 
+/// Used to be called "DemoHarness".
+/// </remarks>
+public class DemoHost : IDisposable
 {
     internal GameLoop loop;
     ContentArchive content;
@@ -51,7 +59,7 @@ public class DemoHarness : IDisposable
 
     SimulationTimeSamples timeSamples;
 
-    public DemoHarness(GameLoop loop, ContentArchive content, BEPUDemoControlsBindings? controls = null)
+    public DemoHost(GameLoop loop, ContentArchive content, BEPUDemoControlsBindings? controls = null)
     {
         this.loop = loop;
         this.content = content;
@@ -385,11 +393,9 @@ public class DemoHarness : IDisposable
     }
 
 #if DEBUG
-    ~DemoHarness()
+    ~DemoHost()
     {
         DemoHelpers.CheckForUndisposed(disposed, this);
     }
 #endif
-
-
 }

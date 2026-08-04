@@ -24,7 +24,7 @@ class Program
             content = ContentArchive.Load(stream);
         }
         //HeadlessTest.Test<ShapePileTestDemo>(content, 4, 32, 512);
-        DemoHarness demo = new(loop, content);
+        DemoHost demo = new(loop, content);
         loop.Run(demo);
         loop.Dispose();
         window.Dispose();

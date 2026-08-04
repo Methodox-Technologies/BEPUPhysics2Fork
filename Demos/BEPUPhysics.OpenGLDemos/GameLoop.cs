@@ -14,21 +14,14 @@ public class GameLoop : IDisposable
     public Camera Camera { get; private set; }
     public RenderSurface Surface { get; private set; }
     public Renderer Renderer { get; private set; }
-    public DemoHarness DemoHarness { get; set; }
+    public DemoHost DemoHarness { get; set; }
     public BufferPool Pool { get; } = new BufferPool();
 
     public GameLoop(Window window)
     {
         Window = window;
         Input = new Input(window, Pool);
-        Surface = new RenderSurface(
-#if OPENGL
-            window.window,
-#else
-            window.Handle,
-#endif
-            window.Resolution, enableDeviceDebugLayer: false
-        );
+        Surface = new RenderSurface(window.window, window.Resolution, enableDeviceDebugLayer: false);
         Renderer = new Renderer(Surface);
         Camera = new Camera(window.Resolution.X / (float)window.Resolution.Y, (float)Math.PI / 3, 0.01f, 100000);            
     }
@@ -48,7 +41,7 @@ public class GameLoop : IDisposable
         Input.End();
     }
 
-    public void Run(DemoHarness harness)
+    public void Run(DemoHost harness)
     {
         DemoHarness = harness;
         Window.Run(Update, OnResize);
