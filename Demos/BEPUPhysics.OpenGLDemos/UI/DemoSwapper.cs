@@ -12,9 +12,9 @@ struct DemoSwapper
     public int TargetDemoIndex;
     bool TrackingInput;
 
-    public void CheckForDemoSwap(DemoHost harness)
+    public void CheckForDemoSwap(DemoHost host)
     {
-        if (harness.controls.ChangeDemo.WasTriggered(harness.loop.Input))
+        if (host.controls.ChangeDemo.WasTriggered(host.loop.Input))
         {
             TrackingInput = !TrackingInput;
             TargetDemoIndex = -1;
@@ -22,9 +22,9 @@ struct DemoSwapper
 
         if (TrackingInput)
         {
-            for (int i = 0; i < harness.loop.Input.TypedCharacters.Count; ++i)
+            for (int i = 0; i < host.loop.Input.TypedCharacters.Count; ++i)
             {
-                char character = harness.loop.Input.TypedCharacters[i];
+                char character = host.loop.Input.TypedCharacters[i];
                 if (character == '\b')
                 {
                     //Backspace!
@@ -35,7 +35,7 @@ struct DemoSwapper
                 }
                 else
                 {
-                    if (TargetDemoIndex < harness.demoSet.Count)
+                    if (TargetDemoIndex < host.demoSet.Count)
                     {
                         int digit = character - '0';
                         if (digit >= 0 && digit <= 9)
@@ -46,17 +46,17 @@ struct DemoSwapper
                 }
             }
 
-            if (harness.loop.Input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Enter))
+            // Done entering the index. Swap the demo if needed.
+            if (host.loop.Input.WasPushed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Enter))
             {
-                //Done entering the index. Swap the demo if needed.
                 TrackingInput = false;
-                harness.TryChangeToDemo(TargetDemoIndex);
+                host.TryChangeToDemo(TargetDemoIndex);
             }
         }
 
     }
 
-    public void Draw(TextBuilder text, TextBatcher textBatcher, DemoSet demoSet, Vector2 position, float textHeight, Vector3 textColor, Font font)
+    public void Draw(TextBuilder text, TextBatcher textBatcher, AvailableDemosSet demoSet, Vector2 position, float textHeight, Vector3 textColor, Font font)
     {
         if (TrackingInput)
         {

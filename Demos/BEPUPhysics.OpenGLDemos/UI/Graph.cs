@@ -324,7 +324,7 @@ public class Graph
             }
         }
 
-        //Draw the legend entry last. Alpha blending will put it on top in case the legend is positioned on top of the body.
+        // Draw the legend entry last. Alpha blending will put it on top in case the legend is positioned on top of the body.
         {
             Vector2 penPosition = description.LegendMinimum;
             float legendLineSpacing = description.LegendNameHeight * 1.5f;
@@ -344,5 +344,4 @@ public class Graph
             }
         }
     }
-
 }

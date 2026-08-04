@@ -22,10 +22,10 @@ namespace BEPUPhysics.OpenGLDemos.Helpers;
 public class DemoHost : IDisposable
 {
     internal GameLoop loop;
-    ContentArchive content;
-    Grabber grabber;
     internal BEPUDemoControlsBindings controls;
-    Font font;
+    private readonly ContentArchive content;
+    private Grabber grabber;
+    private readonly Font font;
 
     bool showControls;
     bool showConstraints = true;
@@ -44,7 +44,7 @@ public class DemoHost : IDisposable
     Graph timingGraph;
 
     DemoSwapper swapper;
-    internal DemoSet demoSet;
+    internal AvailableDemosSet demoSet;
     DemoBase demo;
     internal void TryChangeToDemo(int demoIndex)
     {
@@ -111,7 +111,7 @@ public class DemoHost : IDisposable
         timingGraph.AddSeries("Solver", new Vector3(1, 0, 0), 0.5f, timeSamples.Solver);
         timingGraph.AddSeries("Batch Compress", new Vector3(0, 0.5f, 0), 0.125f, timeSamples.BatchCompressor);
 
-        demoSet = new DemoSet();
+        demoSet = new AvailableDemosSet();
         demo = demoSet.Build(0, content, loop.Camera, loop.Surface);
 
         OnResize(loop.Window.Resolution);
