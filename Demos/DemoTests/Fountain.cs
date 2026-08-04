@@ -1,6 +1,4 @@
 using BEPUPhysics.OpenGLDemos.SpecializedTests;
-using Demos.Demos;
-using System;
 using Xunit;
 
 namespace DemoTests

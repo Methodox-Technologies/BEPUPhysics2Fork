@@ -6,8 +6,8 @@ using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using BepuPhysics.Constraints.Contact;
-using Demos;
 using Xunit;
+using BEPUPhysics.OpenGLDemos.Types;
 
 namespace DemoTests
 {
