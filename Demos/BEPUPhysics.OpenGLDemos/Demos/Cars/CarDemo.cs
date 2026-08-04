@@ -55,6 +55,10 @@ public class CarDemo : DemoBase
     private bool playerControlActive = true;
     #endregion
 
+    #region States
+    Random _random = new(5);
+    #endregion
+
     #region Framework
     public override void Initialize(ContentArchive content, Camera camera)
     {
@@ -77,60 +81,48 @@ public class CarDemo : DemoBase
         BodyInertia wheelInertia = wheelShape.ComputeInertia(0.25f);
         TypedIndex wheelShapeIndex = Simulation.Shapes.Add(wheelShape);
 
+        // Player controller
         playerController = new SimpleCarController(SimpleCar.Create(Simulation, carBodyProperties, new Vector3(0, 10, 0), bodyShapeIndex, bodyInertia, 0.5f, wheelShapeIndex, wheelInertia, 2f,
             new Vector3(-_x, _y, _frontZ), new Vector3(_x, _y, _frontZ), new Vector3(-_x, _y, _backZ), new Vector3(_x, _y, _backZ), new Vector3(0, -1, 0), 0.25f,
             new SpringSettings(5f, 0.7f), QuaternionEx.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f)),
             forwardSpeed: 75, forwardForce: 6, zoomMultiplier: 2, backwardSpeed: 30, backwardForce: 4, idleForce: 0.25f, brakeForce: 7, steeringSpeed: 1.5f, maximumSteeringAngle: MathF.PI * 0.23f,
             wheelBaseLength: _wheelBaseLength, wheelBaseWidth: _wheelBaseWidth, ackermanSteering: 1);
 
-        Random random = new(5);
-
         // Race track
-        CreateRaceTrack(random);
+        CreateRaceTrack(_random);
 
-        // Create a bunch of AI cars to race against.
-        BufferPool.Take(_aiCount, out _aiControllers);
-        // Create AI controllers
-        Vector3 min = new(-_planeWidth * _terrainScale * 0.45f, 10, -_planeWidth * _terrainScale * 0.45f);
-        Vector3 span = new(_planeWidth * _terrainScale * 0.9f, 15, _planeWidth * _terrainScale * 0.9f);
-        for (int i = 0; i < _aiCount; ++i)
-        {
-            // The AI cars are very similar, except... we handicap them a little to make the player feel good about themselves.
-            Vector3 position = min + span * new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
-            Quaternion orientation = QuaternionEx.CreateFromAxisAngle(new Vector3(0, 1, 0), random.NextSingle() * MathF.PI * 2);
-            SimpleCar car = SimpleCar.Create(Simulation, carBodyProperties, (position, orientation), bodyShapeIndex, bodyInertia, 0.5f, wheelShapeIndex, wheelInertia, 2f, new Vector3(-_x, _y, _frontZ), new Vector3(_x, _y, _frontZ), new Vector3(-_x, _y, _backZ), new Vector3(_x, _y, _backZ), new Vector3(0, -1, 0), 0.25f, new SpringSettings(5, 0.7f), QuaternionEx.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f));
-            _aiControllers[i].Controller = new SimpleCarController(car, forwardSpeed: 50, forwardForce: 5, zoomMultiplier: 2, backwardSpeed: 10, backwardForce: 4, idleForce: 0.25f, brakeForce: 7, steeringSpeed: 1.5f, maximumSteeringAngle: MathF.PI * 0.23f, wheelBaseLength: _wheelBaseLength, wheelBaseWidth: _wheelBaseWidth, ackermanSteering: 1);
-            _aiControllers[i].LaneOffset = random.NextSingle() * 20 - 10;
-        }
+        // AI
+        CreateAIControllers(carBodyProperties, bodyInertia, bodyShapeIndex, wheelInertia, wheelShapeIndex);
 
         // Terrain
         CreateCollisionTerrain();
     }
     public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
+        // Input control
         if (input != null)
         {
             if (input.WasPushed(ToggleCar))
                 playerControlActive = !playerControlActive;
             if (playerControlActive)
             {
+                // Steering
                 float steeringSum = 0;
                 if (input.IsDown(Left))
-                {
                     steeringSum += 1;
-                }
                 if (input.IsDown(Right))
-                {
                     steeringSum -= 1;
-                }
+
                 float targetSpeedFraction = input.IsDown(Forward) ? 1f : input.IsDown(Backward) ? -1f : 0;
                 bool zoom = input.IsDown(Zoom);
-                //For control purposes, we'll match the fixed update rate of the simulation. Could decouple it- this dt isn't
-                //vulnerable to the same instabilities as the simulation itself with variable durations.
+
+                // For control purposes, we'll match the fixed update rate of the simulation. Could decouple it- this dt isn't vulnerable to the same instabilities as the simulation itself with variable durations.
                 playerController.Update(Simulation, TimestepDuration, steeringSum, targetSpeedFraction, zoom, input.IsDown(Brake) || input.IsDown(BrakeAlternate));
             }
         }
 
+        // AI ticking
+        // Remark: a reactive path-following controller (look-ahead waypoint/flow-field steering controller)
         for (int i = 0; i < _aiControllers.Length; ++i)
         {
             ref CarAIController ai = ref _aiControllers[i];
@@ -139,11 +131,13 @@ public class CarDemo : DemoBase
             Matrix3x3.CreateFromQuaternion(pose.Orientation, out Matrix3x3 orientation);
             float forwardVelocity = Vector3.Dot(orientation.Z, body.Velocity.Linear);
             Vector2 predictedLocation = new Vector2(pose.Position.X, pose.Position.Z) + new Vector2(orientation.Z.X, orientation.Z.Z) * (5 + forwardVelocity * 2);
+
+            // Steering
             _raceTrack.GetClosestPoint(predictedLocation, ai.LaneOffset, out Vector2 closestPoint, out Vector2 flowDirection);
             float steeringAngle;
             if (flowDirection.X * orientation.Z.X + flowDirection.Y * orientation.Z.Z < 0)
             {
-                //Don't drive against traffic!
+                // Don't drive against traffic!
                 steeringAngle = ai.Controller.MaximumSteeringAngle;
             }
             else
@@ -156,6 +150,7 @@ public class CarDemo : DemoBase
             float speedFraction = 0.25f + MathF.Min(0.75f, MathF.Max(0, 0.75f * (MathF.Abs(steeringAngle) - 0.2f) / -0.4f));
             if (orientation.Y.Y < 0.4f)
                 speedFraction = 0;
+
             ai.Controller.Update(Simulation, TimestepDuration, steeringAngle, speedFraction, steeringAngle < 0.05f, steeringAngle > MathF.PI * 0.2f && forwardVelocity > ai.Controller.ForwardSpeed * 0.6f);
         }
 
@@ -203,6 +198,27 @@ public class CarDemo : DemoBase
                 Quaternion rotation = QuaternionEx.CreateFromAxisAngle(Vector3.UnitY, random.NextSingle() * MathF.PI);
                 Simulation.Statics.Add(new StaticDescription(position, rotation, Simulation.Shapes.Add(buildingShape)));
             }
+        }
+    }
+    private void CreateAIControllers(CollidableProperty<CarBodyProperties> carBodyProperties, BodyInertia bodyInertia, TypedIndex bodyShapeIndex, BodyInertia wheelInertia, TypedIndex wheelShapeIndex)
+    {
+        // Create a bunch of AI cars to race against.
+        BufferPool.Take(_aiCount, out _aiControllers);
+
+        // Get terrain bound
+        Vector3 min = new(-_planeWidth * _terrainScale * 0.45f, 10, -_planeWidth * _terrainScale * 0.45f);
+        Vector3 span = new(_planeWidth * _terrainScale * 0.9f, 15, _planeWidth * _terrainScale * 0.9f);
+
+        // Create AI controllers
+        for (int i = 0; i < _aiCount; ++i)
+        {
+            // The AI cars are very similar, except... we handicap them a little to make the player feel good about themselves.
+            Vector3 position = min + span * new Vector3(_random.NextSingle(), _random.NextSingle(), _random.NextSingle());
+            Quaternion orientation = QuaternionEx.CreateFromAxisAngle(new Vector3(0, 1, 0), _random.NextSingle() * MathF.PI * 2);
+            SimpleCar car = SimpleCar.Create(Simulation, carBodyProperties, (position, orientation), bodyShapeIndex, bodyInertia, 0.5f, wheelShapeIndex, wheelInertia, 2f, new Vector3(-_x, _y, _frontZ), new Vector3(_x, _y, _frontZ), new Vector3(-_x, _y, _backZ), new Vector3(_x, _y, _backZ), new Vector3(0, -1, 0), 0.25f, new SpringSettings(5, 0.7f), QuaternionEx.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI * 0.5f));
+
+            _aiControllers[i].Controller = new SimpleCarController(car, forwardSpeed: 50, forwardForce: 5, zoomMultiplier: 2, backwardSpeed: 10, backwardForce: 4, idleForce: 0.25f, brakeForce: 7, steeringSpeed: 1.5f, maximumSteeringAngle: MathF.PI * 0.23f, wheelBaseLength: _wheelBaseLength, wheelBaseWidth: _wheelBaseWidth, ackermanSteering: 1);
+            _aiControllers[i].LaneOffset = _random.NextSingle() * 20 - 10;
         }
     }
     private void CreateCollisionTerrain()
