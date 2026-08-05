@@ -1,5 +1,4 @@
 ﻿using BEPU.DemoUtilities;
-using BEPUPhysics.OpenGLDemos.Demos.Cars;
 using BEPUPhysics.OpenGLDemos.Interaction;
 using BEPUPhysics.OpenGLDemos.Types;
 using BEPUPhysics.OpenGLDemos.UI;
