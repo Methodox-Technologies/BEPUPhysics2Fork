@@ -5,7 +5,7 @@ using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using BEPUPhysics.OpenGLDemos.Types;
 
-namespace BEPUPhysics.OpenGLDemos.Demos.Cars
+namespace BEPUPhysics.CarDrivingDemo
 {
     struct CarBodyProperties
     {

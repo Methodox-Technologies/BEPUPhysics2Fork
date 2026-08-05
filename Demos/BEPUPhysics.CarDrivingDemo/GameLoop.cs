@@ -3,9 +3,8 @@ using BEPU.DemoUtilities;
 using System;
 using BepuUtilities;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos.Helpers;
 
-namespace BEPUPhysics.OpenGLDemos
+namespace BEPUPhysics.CarDrivingDemo
 {
     public class GameLoop : IDisposable
     {

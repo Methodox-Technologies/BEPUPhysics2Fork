@@ -13,7 +13,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 
-namespace BEPUPhysics.OpenGLDemos.Helpers
+namespace BEPUPhysics.CarDrivingDemo
 {
     /// <summary>
     /// Coordinates the lifecycle, input handling, simulation updates, rendering, diagnostics, and demo switching for the interactive BEPU physics demo application.

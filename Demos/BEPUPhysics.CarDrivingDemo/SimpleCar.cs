@@ -5,7 +5,7 @@ using BepuPhysics.Constraints;
 using BEPUPhysics.OpenGLDemos.Types;
 using BepuUtilities;
 
-namespace BEPUPhysics.OpenGLDemos.Demos.Cars
+namespace BEPUPhysics.CarDrivingDemo
 {
     struct SimpleCar
     {

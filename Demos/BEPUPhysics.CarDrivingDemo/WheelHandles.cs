@@ -1,6 +1,6 @@
 ﻿using BepuPhysics;
 
-namespace BEPUPhysics.OpenGLDemos.Demos.Cars
+namespace BEPUPhysics.CarDrivingDemo
 {
     struct WheelHandles
     {

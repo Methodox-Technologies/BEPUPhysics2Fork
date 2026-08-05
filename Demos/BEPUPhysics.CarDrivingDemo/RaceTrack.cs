@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace BEPUPhysics.OpenGLDemos.Demos.Cars
+namespace BEPUPhysics.CarDrivingDemo
 {
     /// <summary>
     /// Represents a planar four-quadrant race track composed of four connected circular arcs.

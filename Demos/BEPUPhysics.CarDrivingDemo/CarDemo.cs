@@ -14,7 +14,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using BEPUPhysics.OpenGLDemos.Types;
 using BEPU.Demos.Framework.Helpers;
 
-namespace BEPUPhysics.OpenGLDemos.Demos.Cars
+namespace BEPUPhysics.CarDrivingDemo
 {
     public class CarDemo : DemoBase
     {

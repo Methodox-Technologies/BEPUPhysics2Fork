@@ -1,10 +1,9 @@
 ﻿using BepuUtilities;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPU.DemoUtilities;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 
-namespace BEPUPhysics.OpenGLDemos
+namespace BEPUPhysics.CarDrivingDemo
 {
     class Program
     {
