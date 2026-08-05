@@ -4,6 +4,7 @@ using System.IO;
 using SharpDX;
 using System.Text;
 using SharpDX.D3DCompiler;
+using DemoContentBuilder.Shaders;
 
 namespace DemoContentBuilder
 {
@@ -23,7 +24,7 @@ namespace DemoContentBuilder
             {
                 return false;
             }
-            foreach (var name in Names)
+            foreach (string name in Names)
             {
                 if (Array.IndexOf(other.Names, name) == -1)
                     return false;
@@ -69,7 +70,7 @@ namespace DemoContentBuilder
                 if (MetadataParsing.Parse(path, text, Stages, MacroGroups, IncludeParsingErrors))
                 {
                     //We write ascii into the bytes regardless of the source text so that fxc is kept happy.
-                    var bytes = Encoding.ASCII.GetBytes(text);
+                    byte[] bytes = Encoding.ASCII.GetBytes(text);
                     return new MemoryStream(bytes);
                 }
             }
@@ -80,12 +81,12 @@ namespace DemoContentBuilder
         {
             if (type == IncludeType.Local)
             {
-                var localPath = Path.GetFullPath(LocalWorkingPath + Path.DirectorySeparatorChar + fileName);
-                var stream = ExtractMetadataAndStream(localPath);
+                string localPath = Path.GetFullPath(LocalWorkingPath + Path.DirectorySeparatorChar + fileName);
+                MemoryStream stream = ExtractMetadataAndStream(localPath);
                 if (stream == null)
                 {
                     //Console.WriteLine($"Failed opening local path: {localPath}. Trying project working path.");
-                    var projectPath = Path.GetFullPath(ProjectWorkingPath + Path.DirectorySeparatorChar + fileName);
+                    string projectPath = Path.GetFullPath(ProjectWorkingPath + Path.DirectorySeparatorChar + fileName);
                     stream = ExtractMetadataAndStream(projectPath);
                     if (stream == null)
                     {

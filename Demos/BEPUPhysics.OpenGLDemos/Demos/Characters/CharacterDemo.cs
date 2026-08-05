@@ -6,10 +6,10 @@ using System.Numerics;
 using System;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.Demos.Characters;
 

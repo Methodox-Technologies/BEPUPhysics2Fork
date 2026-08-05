@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.Shaders
 {
     /// <summary>
     /// Holds already-loaded files in memory to avoid hitting the disk repeatedly.
@@ -9,7 +9,7 @@ namespace DemoContentBuilder
     /// <remarks>Because memory really isn't an issue.</remarks>
     public class ShaderFileCache
     {
-        Dictionary<string, string> cache = new Dictionary<string, string>();
+        Dictionary<string, string> cache = new();
 
         public bool TryLoad(string path, out string shaderText)
         {
@@ -26,9 +26,9 @@ namespace DemoContentBuilder
             //This is an optimization, after all, not a correctness issue.
             if (File.Exists(path))
             {
-                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    using (StreamReader reader = new StreamReader(stream))
+                    using (StreamReader reader = new(stream))
                     {
                         shaderText = reader.ReadToEnd();
                     }

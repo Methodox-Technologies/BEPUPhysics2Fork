@@ -86,7 +86,7 @@ namespace DemoContentLoader
         {
             if (Defines == null || Defines.Length == 0)
                 return $"{Name}";
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.Append($"{Name}: ");
             for (int i = 0; i < Defines.Length - 1; ++i)
             {

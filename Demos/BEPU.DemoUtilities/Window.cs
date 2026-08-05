@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Threading;
 using Vector2 = System.Numerics.Vector2;
 
-namespace DemoUtilities
+namespace BEPU.DemoUtilities
 {
     public enum WindowMode
     {

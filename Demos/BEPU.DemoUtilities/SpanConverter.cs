@@ -1,7 +1,7 @@
 ﻿using BepuUtilities.Memory;
 using System;
 
-namespace DemoUtilities
+namespace BEPU.DemoUtilities
 {
     public static class SpanConverter
     {

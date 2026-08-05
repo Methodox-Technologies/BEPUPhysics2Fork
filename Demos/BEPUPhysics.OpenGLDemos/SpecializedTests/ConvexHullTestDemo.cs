@@ -15,8 +15,8 @@ using BepuUtilities.Memory;
 using System.Text.Json;
 using System.IO;
 using System.Diagnostics;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 

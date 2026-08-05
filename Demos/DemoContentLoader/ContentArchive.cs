@@ -19,11 +19,11 @@ namespace DemoContentLoader
 
     public class ContentArchive
     {
-        private Dictionary<string, IContent> pathsToContent = new Dictionary<string, IContent>();
+        private Dictionary<string, IContent> _pathsToContent = new();
 
         public T Load<T>(string path)
         {
-            if (!pathsToContent.TryGetValue(path, out var untypedContent))
+            if (!_pathsToContent.TryGetValue(path, out var untypedContent))
             {
                 throw new ArgumentException($"{path} not found in the content archive.");
             }
@@ -96,8 +96,8 @@ namespace DemoContentLoader
             //[contentLengthInBytes : int32]
             //[content : serializer specific]
 
-            var archive = new ContentArchive();
-            using (var reader = new BinaryReader(stream))
+            ContentArchive archive = new();
+            using (BinaryReader reader = new(stream))
             {
                 var entryCount = reader.ReadInt32();
                 for (int i = 0; i < entryCount; ++i)
@@ -107,8 +107,8 @@ namespace DemoContentLoader
                     reader.Read(pathBytes, 0, pathLengthInBytes);
                     var path = Encoding.Unicode.GetString(pathBytes, 0, pathBytes.Length);
 
-                    var contentType = (ContentType)reader.ReadInt32();
-                    archive.pathsToContent.Add(path, Load(contentType, reader));
+                    ContentType contentType = (ContentType)reader.ReadInt32();
+                    archive._pathsToContent.Add(path, Load(contentType, reader));
                 }
             }
             return archive;
@@ -121,7 +121,7 @@ namespace DemoContentLoader
         /// <param name="stream">Output stream to save to.</param>
         public static void Save(Dictionary<string, IContent> pathsToContent, Stream stream)
         {
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+            using (BinaryWriter writer = new(stream, Encoding.UTF8, true))
             {
                 writer.Write(pathsToContent.Count);
                 foreach (var pair in pathsToContent)

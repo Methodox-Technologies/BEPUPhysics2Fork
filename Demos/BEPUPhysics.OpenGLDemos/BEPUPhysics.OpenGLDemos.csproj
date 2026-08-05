@@ -35,6 +35,7 @@
   <ItemGroup>
     <ProjectReference Include="../DemoContentLoader/DemoContentLoader.csproj" />
     <ProjectReference Include="../DemoRenderer.GL/DemoRenderer.GL.csproj" />
+    <ProjectReference Include="..\BEPU.Demos.Framework\BEPU.Demos.Framework.csproj" />
   </ItemGroup>
 
   <ItemGroup>

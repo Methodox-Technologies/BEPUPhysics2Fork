@@ -8,14 +8,14 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Interaction;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Numerics;
 using BEPUPhysics.OpenGLDemos.Demos.Tanks;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace Demos.SpecializedTests.Media;
 
@@ -184,7 +184,7 @@ public class TankSwarmDemo : DemoBase
     long lastPlayerShotFrameIndex;
     int projectileCount;
 
-    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
+    public override void Update(BEPU.DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         if (input.WasPushed(ToggleTank))
             playerControlActive = !playerControlActive;

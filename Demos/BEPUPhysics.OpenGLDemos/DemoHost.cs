@@ -4,7 +4,7 @@ using DemoRenderer;
 using DemoRenderer.UI;
 using BEPUPhysics.OpenGLDemos.Interaction;
 using BEPUPhysics.OpenGLDemos.Types;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using System;
 using System.Numerics;
 using BEPUPhysics.OpenGLDemos.UI;

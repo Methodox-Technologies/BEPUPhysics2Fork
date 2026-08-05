@@ -1,6 +1,6 @@
 ﻿using BepuUtilities;
 using DemoRenderer;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using System;
@@ -11,8 +11,8 @@ using System.Diagnostics;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 
@@ -271,7 +271,7 @@ public class FountainStressTestDemo : DemoBase
         }
     }
 
-    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
+    public override void Update(BEPU.DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         float timestepDuration = 1f / 60f;
         time += timestepDuration;

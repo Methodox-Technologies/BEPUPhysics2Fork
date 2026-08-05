@@ -3,14 +3,14 @@ using DemoRenderer;
 using System;
 using System.Numerics;
 using BepuPhysics;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuUtilities.Collections;
 using BepuPhysics.Collidables;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Demos;
 using BEPUPhysics.OpenGLDemos.Demos.Characters;
 using BEPUPhysics.OpenGLDemos.Demos.Sponsors;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace Demos.Demos.Sponsors;
 

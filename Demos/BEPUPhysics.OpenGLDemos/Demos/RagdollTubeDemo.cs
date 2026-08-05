@@ -5,7 +5,7 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using System;
 using DemoContentLoader;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using DemoRenderer.UI;

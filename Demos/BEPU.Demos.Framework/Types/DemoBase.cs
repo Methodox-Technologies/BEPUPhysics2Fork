@@ -1,6 +1,6 @@
 ﻿using BepuUtilities.Memory;
 using DemoRenderer;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuPhysics;
 using System;
 using DemoRenderer.UI;

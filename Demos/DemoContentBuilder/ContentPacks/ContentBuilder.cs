@@ -1,10 +1,13 @@
-﻿using DemoContentLoader;
+﻿using DemoContentBuilder.Meshes;
+using DemoContentBuilder.Shaders;
+using DemoContentBuilder.Textures;
+using DemoContentLoader;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.ContentPacks
 {
     public struct ContentBuildResult
     {
@@ -26,12 +29,12 @@ namespace DemoContentBuilder
             errors = new List<ContentBuildResult>();
             warnings = new List<ContentBuildResult>();
             bool newContentBuilt = false;
-            ContentBuildCacheIO.Load(buildCachePath, out var loadedBuildCache);
-            var newBuildCache = new Dictionary<string, ContentElement>();
-            foreach (var content in contentToBuild)
+            ContentBuildCacheIO.Load(buildCachePath, out Dictionary<string, ContentElement> loadedBuildCache);
+            Dictionary<string, ContentElement> newBuildCache = new();
+            foreach (ContentBuildInput content in contentToBuild)
             {
-                var currentTimeStamp = File.GetLastWriteTime(content.Path).Ticks;
-                if (loadedBuildCache.TryGetValue(content.Path, out var cachedContent) && currentTimeStamp == cachedContent.LastModifiedTimestamp)
+                long currentTimeStamp = File.GetLastWriteTime(content.Path).Ticks;
+                if (loadedBuildCache.TryGetValue(content.Path, out ContentElement cachedContent) && currentTimeStamp == cachedContent.LastModifiedTimestamp)
                 {
                     //We can just used the cached version of this content.
                     newBuildCache.Add(content.Path, cachedContent);
@@ -42,7 +45,7 @@ namespace DemoContentBuilder
                     //This is a new or modified content element, so we'll have to build it.
                     ContentElement newElement;
                     newElement.LastModifiedTimestamp = currentTimeStamp;
-                    using (var stream = File.OpenRead(content.Path))
+                    using (FileStream stream = File.OpenRead(content.Path))
                     {
                         try
                         {
@@ -81,11 +84,11 @@ namespace DemoContentBuilder
             //If we have new OR less content, the files should be rewritten.
             if (newContentBuilt || newBuildCache.Count < loadedBuildCache.Count)
             {
-                var archive = new Dictionary<string, IContent>();
-                foreach (var pair in newBuildCache)
+                Dictionary<string, IContent> archive = new();
+                foreach (KeyValuePair<string, ContentElement> pair in newBuildCache)
                 {
                     //Prune out all of the extra path bits and save it.
-                    var relativePath = ProjectBuilder.GetRelativePathFromDirectory(pair.Key, workingPath);
+                    string relativePath = ProjectBuilder.GetRelativePathFromDirectory(pair.Key, workingPath);
                     archive.Add(relativePath.Replace(Path.DirectorySeparatorChar, '\\'), pair.Value.Content);
                 }
 
@@ -97,7 +100,7 @@ namespace DemoContentBuilder
                     try
                     {
                         ContentBuildCacheIO.Save(newBuildCache, buildCachePath);
-                        using (var stream = File.OpenWrite(runtimeCachePath))
+                        using (FileStream stream = File.OpenWrite(runtimeCachePath))
                         {
                             ContentArchive.Save(archive, stream);
                         }

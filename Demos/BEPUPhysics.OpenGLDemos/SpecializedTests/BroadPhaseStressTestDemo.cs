@@ -8,7 +8,7 @@ using DemoRenderer;
 using DemoRenderer.Constraints;
 using DemoRenderer.UI;
 using BEPUPhysics.OpenGLDemos.Types;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using System;
 using System.Numerics;
 

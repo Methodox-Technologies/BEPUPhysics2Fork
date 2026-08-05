@@ -1,13 +1,13 @@
 ﻿using System.IO;
 using DemoContentLoader;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.Shaders
 {
     public static class GLSLBuilder
     {
         public static GLSLContent Build(Stream dataStream)
         {
-            using (var reader = new StreamReader(dataStream))
+            using (StreamReader reader = new(dataStream))
                 return new GLSLContent(reader.ReadToEnd());
         }
     }

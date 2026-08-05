@@ -5,11 +5,11 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using System;
 using DemoContentLoader;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuUtilities.Collections;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Demos.Characters;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 

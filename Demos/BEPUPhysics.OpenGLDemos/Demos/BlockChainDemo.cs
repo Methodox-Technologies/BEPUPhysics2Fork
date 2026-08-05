@@ -5,7 +5,7 @@ using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Numerics;
@@ -68,7 +68,7 @@ public class BlockChainDemo : DemoBase
 
     BodyDescription coinDescription;
     Random random = new(5);
-    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
+    public override void Update(BEPU.DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         if (input.WasPushed(Keys.Z))
         {

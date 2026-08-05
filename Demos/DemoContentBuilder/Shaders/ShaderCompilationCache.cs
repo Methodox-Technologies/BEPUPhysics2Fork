@@ -5,7 +5,7 @@ using SharpDX.D3DCompiler;
 using System.Linq;
 using DemoContentLoader;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.Shaders
 {
     /// <summary>
     /// Stores compiled shaders and their associated timestamps needed to know which shaders need to be freshly compiled.
@@ -75,7 +75,7 @@ namespace DemoContentBuilder
 
         public static void Save(ShaderCompilationCache cache, string path)
         {
-            using (var archiveFileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (FileStream archiveFileStream = new(path, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 Save(cache, archiveFileStream);
             }
@@ -84,13 +84,13 @@ namespace DemoContentBuilder
         public static void Save(ShaderCompilationCache cache, Stream outputStream)
         {
             //Save the number of shaders.
-            using (var writer = new BinaryWriter(outputStream))
+            using (BinaryWriter writer = new(outputStream))
             {
                 writer.Write((int)cache.ShaderFlags);
                 writer.Write(cache.CompiledShaders.Count);
 
                 //Save every path-shader in sequence.
-                foreach (var element in cache.CompiledShaders)
+                foreach (KeyValuePair<SourceShader, ShaderBytecode> element in cache.CompiledShaders)
                 {
                     //Write the element's name.
                     writer.Write(element.Key.Name);
@@ -112,7 +112,7 @@ namespace DemoContentBuilder
                 //Note that timestamps and dependencies do not have define permutations. Timestamps and dependencies do not change with respect to permutations.
                 writer.Write(cache.TimeStamps.Count);
 
-                foreach (var element in cache.TimeStamps)
+                foreach (KeyValuePair<string, long> element in cache.TimeStamps)
                 {
                     writer.Write(element.Key);
 
@@ -121,11 +121,11 @@ namespace DemoContentBuilder
                 }
 
                 writer.Write(cache.Dependencies.Count);
-                foreach (var pathDependenciesPair in cache.Dependencies)
+                foreach (KeyValuePair<string, HashSet<string>> pathDependenciesPair in cache.Dependencies)
                 {
                     writer.Write(pathDependenciesPair.Key);
                     writer.Write(pathDependenciesPair.Value.Count);
-                    foreach (var dependency in pathDependenciesPair.Value)
+                    foreach (string dependency in pathDependenciesPair.Value)
                     {
                         writer.Write(dependency);
                     }
@@ -140,7 +140,7 @@ namespace DemoContentBuilder
                 cache = null;
                 return false;
             }
-            using (var stream = File.OpenRead(path))
+            using (FileStream stream = File.OpenRead(path))
             {
                 return TryLoad(stream, out cache);
             }
@@ -150,7 +150,7 @@ namespace DemoContentBuilder
 
         public static bool TryLoad(Stream stream, out ShaderCompilationCache cache)
         {
-            using (var reader = new BinaryReader(stream))
+            using (BinaryReader reader = new(stream))
             {
                 try
                 {
@@ -158,10 +158,10 @@ namespace DemoContentBuilder
 
                     byte[] data = new byte[16384];
 
-                    var shaderDataCount = reader.ReadInt32();
+                    int shaderDataCount = reader.ReadInt32();
                     for (int i = 0; i < shaderDataCount; ++i)
                     {
-                        var shaderSource = SourceShader.Read(reader);
+                        SourceShader shaderSource = SourceShader.Read(reader);
 
                         //Read the size in bytes of the content element data itself.
                         int sizeInBytes = reader.ReadInt32();
@@ -182,22 +182,22 @@ namespace DemoContentBuilder
                         cache.CompiledShaders.Add(shaderSource, bytecode);
                     }
 
-                    var timeStampCount = reader.ReadInt32();
+                    int timeStampCount = reader.ReadInt32();
                     for (int i = 0; i < timeStampCount; ++i)
                     {
-                        var shaderSource = reader.ReadString();
+                        string shaderSource = reader.ReadString();
 
                         //Read the time stamp.
                         long timeStamp = reader.ReadInt64();
                         cache.TimeStamps.Add(shaderSource, timeStamp);
                     }
 
-                    var dependenciesCount = reader.ReadInt32();
+                    int dependenciesCount = reader.ReadInt32();
                     for (int i = 0; i < dependenciesCount; ++i)
                     {
-                        var shaderSource = reader.ReadString();
-                        var pathDependenciesCount = reader.ReadInt32();
-                        var dependencies = new HashSet<string>();
+                        string shaderSource = reader.ReadString();
+                        int pathDependenciesCount = reader.ReadInt32();
+                        HashSet<string> dependencies = new();
                         for (int j = 0; j < pathDependenciesCount; ++j)
                         {
                             dependencies.Add(reader.ReadString());
@@ -220,22 +220,22 @@ namespace DemoContentBuilder
             lock (CompiledShaders)
             {
                 //Just try every stage. Could be smarter about this, but nah.
-                foreach (var stage in MetadataParsing.Stages)
+                foreach (StageProperties stage in MetadataParsing.Stages)
                 {
                     //The old cached data is still valid. Copy it over into the new cache and skip.
                     //Note that there may be multiple compiled shaders due to shader permutations.
                     string sourceWithExtension = source + stage.Extension;
-                    var existingShaders = from pair in loadedCache.CompiledShaders
+                    IEnumerable<KeyValuePair<SourceShader, ShaderBytecode>> existingShaders = from pair in loadedCache.CompiledShaders
                                           where pair.Key.Name == sourceWithExtension
                                           select pair;
-                    foreach (var entry in existingShaders)
+                    foreach (KeyValuePair<SourceShader, ShaderBytecode> entry in existingShaders)
                     {
                         CompiledShaders.Add(entry.Key, entry.Value);
                     }
                 }
                 TimeStamps[source] = loadedCache.TimeStamps[source];
-                var dependencies = new HashSet<string>(loadedCache.Dependencies[source]);
-                foreach (var dependency in dependencies)
+                HashSet<string> dependencies = new(loadedCache.Dependencies[source]);
+                foreach (string dependency in dependencies)
                 {
                     TimeStamps[dependency] = loadedCache.TimeStamps[dependency];
                 }
@@ -250,13 +250,13 @@ namespace DemoContentBuilder
             {
                 defines[i] = target.ShaderMacros[i].Name;
             }
-            var sourceShader = new SourceShader { Name = target.Path + target.Stage.Extension, Defines = defines };
+            SourceShader sourceShader = new() { Name = target.Path + target.Stage.Extension, Defines = defines };
             lock (CompiledShaders)
             {
                 CompiledShaders[sourceShader] = result;
                 TimeStamps[target.Path] = target.CurrentTimeStamp;
 
-                foreach (var dependency in dependencyPaths)
+                foreach (string dependency in dependencyPaths)
                 {
                     TimeStamps[dependency] = File.GetLastWriteTime(dependency).Ticks;
                 }
@@ -265,7 +265,7 @@ namespace DemoContentBuilder
                     cacheDependencyPaths = new HashSet<string>();
                     Dependencies.Add(target.Path, cacheDependencyPaths);
                 }
-                foreach (var dependencyPath in dependencyPaths)
+                foreach (string dependencyPath in dependencyPaths)
                 {
                     cacheDependencyPaths.Add(dependencyPath);
                 }

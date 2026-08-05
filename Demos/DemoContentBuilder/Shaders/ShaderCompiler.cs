@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using DemoContentLoader;
 using System.Threading;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.Shaders
 {
     public struct ShaderCompilationResult
     {
@@ -48,7 +48,7 @@ namespace DemoContentBuilder
 
         public override string ToString()
         {
-            var builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.Append(Path);
             builder.Append(Stage.Extension);
             if (ShaderMacros.Length > 0)
@@ -85,12 +85,12 @@ namespace DemoContentBuilder
 
             //We'll try each in sequence rather than trying to construct a regex which captures all of them at once because OUGH.
             //(x,y)
-            var errorRegex = new Regex(@"(?<filePath>.*)\((?<line>[0-9]+),(?<column>[0-9]+)\): (?<description>.*)");
-            var m = errorRegex.Match(error);
+            Regex errorRegex = new(@"(?<filePath>.*)\((?<line>[0-9]+),(?<column>[0-9]+)\): (?<description>.*)");
+            Match m = errorRegex.Match(error);
             if (m.Success)
             {
-                var lineString = m.Groups["line"].Value;
-                var columnString = m.Groups["column"].Value;
+                string lineString = m.Groups["line"].Value;
+                string columnString = m.Groups["column"].Value;
                 filePath = m.Groups["filePath"].Value;
                 description = m.Groups["description"].Value;
                 if (int.TryParse(lineString, out lineBegin) && int.TryParse(columnString, out columnBegin))
@@ -108,9 +108,9 @@ namespace DemoContentBuilder
                 if (m.Success)
                 {
 
-                    var lineBeginString = m.Groups["lineBegin"].Value;
-                    var lineEndString = m.Groups["lineEnd"].Value;
-                    var columnString = m.Groups["column"].Value;
+                    string lineBeginString = m.Groups["lineBegin"].Value;
+                    string lineEndString = m.Groups["lineEnd"].Value;
+                    string columnString = m.Groups["column"].Value;
                     filePath = m.Groups["filePath"].Value;
                     description = m.Groups["description"].Value;
                     if (int.TryParse(lineBeginString, out lineBegin) && int.TryParse(lineEndString, out lineEnd) && int.TryParse(columnString, out columnBegin))
@@ -127,9 +127,9 @@ namespace DemoContentBuilder
 
                     if (m.Success)
                     {
-                        var lineString = m.Groups["line"].Value;
-                        var columnBeginString = m.Groups["columnBegin"].Value;
-                        var columnEndString = m.Groups["columnEnd"].Value;
+                        string lineString = m.Groups["line"].Value;
+                        string columnBeginString = m.Groups["columnBegin"].Value;
+                        string columnEndString = m.Groups["columnEnd"].Value;
                         filePath = m.Groups["filePath"].Value;
                         description = m.Groups["description"].Value;
 
@@ -147,10 +147,10 @@ namespace DemoContentBuilder
 
                         if (m.Success)
                         {
-                            var lineBeginString = m.Groups["lineBegin"].Value;
-                            var lineEndString = m.Groups["lineEnd"].Value;
-                            var columnBeginString = m.Groups["columnBegin"].Value;
-                            var columnEndString = m.Groups["columnEnd"].Value;
+                            string lineBeginString = m.Groups["lineBegin"].Value;
+                            string lineEndString = m.Groups["lineEnd"].Value;
+                            string columnBeginString = m.Groups["columnBegin"].Value;
+                            string columnEndString = m.Groups["columnEnd"].Value;
                             filePath = m.Groups["filePath"].Value;
                             description = m.Groups["description"].Value;
 
@@ -177,7 +177,7 @@ namespace DemoContentBuilder
             if (!Path.IsPathRooted(filePath))
             {
                 //Try the local version first.
-                var fullPath = Path.GetFullPath(localWorkingPath + Path.DirectorySeparatorChar + filePath);
+                string fullPath = Path.GetFullPath(localWorkingPath + Path.DirectorySeparatorChar + filePath);
                 if (!File.Exists(fullPath))
                 {
                     fullPath = Path.GetFullPath(workingPath + Path.DirectorySeparatorChar + filePath);
@@ -191,7 +191,7 @@ namespace DemoContentBuilder
         {
             if (macroGroups.Count == 0)
             {
-                var emptyPermutations = new ShaderMacro[1][];
+                ShaderMacro[][] emptyPermutations = new ShaderMacro[1][];
                 emptyPermutations[0] = new ShaderMacro[] { };
                 return emptyPermutations;
             }
@@ -201,16 +201,16 @@ namespace DemoContentBuilder
             {
                 permutationCount *= macroGroups[i].Names.Length;
             }
-            var permutations = new ShaderMacro[permutationCount][];
+            ShaderMacro[][] permutations = new ShaderMacro[permutationCount][];
             for (int permutationIndex = 0; permutationIndex < permutationCount; ++permutationIndex)
             {
-                var permutation = permutations[permutationIndex] = new ShaderMacro[macroGroups.Count];
+                ShaderMacro[] permutation = permutations[permutationIndex] = new ShaderMacro[macroGroups.Count];
                 int index = permutationIndex;
                 for (int i = 0; i < macroGroups.Count; ++i)
                 {
-                    var defineCount = macroGroups[i].Names.Length;
-                    var newIndex = index / defineCount;
-                    var nameIndex = index - defineCount * newIndex;
+                    int defineCount = macroGroups[i].Names.Length;
+                    int newIndex = index / defineCount;
+                    int nameIndex = index - defineCount * newIndex;
                     permutation[i] = new ShaderMacro { Name = macroGroups[i].Names[nameIndex] };
                     index = newIndex;
                 }
@@ -234,7 +234,7 @@ namespace DemoContentBuilder
 
 
             //Only compile this shader if the shader has been modified since the previous compile.
-            var currentTimeStamp = File.GetLastWriteTime(source).Ticks;
+            long currentTimeStamp = File.GetLastWriteTime(source).Ticks;
             if (loadedCache.ShaderFlags == cache.ShaderFlags && loadedCache.TimeStamps.TryGetValue(source, out long previousTimeStamp)) //If this file was contained before, we MIGHT be able to skip its compilation.
             {
                 if (currentTimeStamp <= previousTimeStamp) //If the file hasn't been updated, we MIGHT be able to skip.
@@ -244,12 +244,12 @@ namespace DemoContentBuilder
                     bool allowSkip = true;
                     if (loadedCache.Dependencies.TryGetValue(source, out HashSet<string> loadedDependencyPaths))
                     {
-                        foreach (var dependency in loadedDependencyPaths)
+                        foreach (string dependency in loadedDependencyPaths)
                         {
                             //The loadedCache is guaranteed to contain a time stamp for any dependency referenced,
                             //because the only time any dependency is added to the list the dependency is ALSO put into the timestamps list.
-                            var previousDependencyTimeStamp = loadedCache.TimeStamps[dependency];
-                            var currentDependencyTimeStamp = File.GetLastWriteTime(dependency).Ticks;
+                            long previousDependencyTimeStamp = loadedCache.TimeStamps[dependency];
+                            long currentDependencyTimeStamp = File.GetLastWriteTime(dependency).Ticks;
                             if (currentDependencyTimeStamp > previousDependencyTimeStamp)
                             {
                                 //One of the dependencies has been updated. This shader must be compiled.
@@ -274,13 +274,13 @@ namespace DemoContentBuilder
             }
 
 
-            var localWorkingPath = Path.GetDirectoryName(source);
-            var include = new IncludeHandler(shaderFileCache, workingPath, localWorkingPath);
+            string localWorkingPath = Path.GetDirectoryName(source);
+            IncludeHandler include = new(shaderFileCache, workingPath, localWorkingPath);
 
 
-            var stages = new List<ShaderStage>();
-            var macroGroups = new List<MacroGroup>();
-            var metadataParsingErrors = new List<MetadataParsingError>();
+            List<ShaderStage> stages = new();
+            List<MacroGroup> macroGroups = new();
+            List<MetadataParsingError> metadataParsingErrors = new();
             MetadataParsing.Parse(source, shaderCode, stages, macroGroups, metadataParsingErrors);
             //Prepass to collect include metadata. Seems hacky, oh well.
             try
@@ -291,8 +291,8 @@ namespace DemoContentBuilder
             {
                 if (ParseCompilerResult(e.Message, out string filePath, out int lineBegin, out int columnBegin, out int lineEnd, out int columnEnd, out string description))
                 {
-                    var errorChecker = new Regex("error X(?<errorCode>[0-9]{4}): ");
-                    var errorCode = errorChecker.Match(e.Message).Groups["errorCode"].Value;
+                    Regex errorChecker = new("error X(?<errorCode>[0-9]{4}): ");
+                    string errorCode = errorChecker.Match(e.Message).Groups["errorCode"].Value;
                     lock (errors)
                     {
                         errors.Add(new ShaderCompilationResult("Shader", errorCode, "", source, lineBegin, columnBegin, lineEnd, columnEnd, description));
@@ -314,7 +314,7 @@ namespace DemoContentBuilder
             //Remove duplicates.
             for (int i = stages.Count - 2; i >= 0; --i)
             {
-                var index = stages.IndexOf(stages[i], i + 1);
+                int index = stages.IndexOf(stages[i], i + 1);
                 if (index != -1)
                 {
                     stages.RemoveAt(i);
@@ -322,25 +322,25 @@ namespace DemoContentBuilder
             }
             for (int i = macroGroups.Count - 2; i >= 0; --i)
             {
-                var index = macroGroups.IndexOf(macroGroups[i], i + 1);
+                int index = macroGroups.IndexOf(macroGroups[i], i + 1);
                 if (index != -1)
                 {
                     macroGroups.RemoveAt(i);
                 }
             }
             metadataParsingErrors.AddRange(include.IncludeParsingErrors);
-            var dependencyPaths = include.DependencyPaths;
-            var shaderMacroPermutations = GetShaderMacroPermutations(macroGroups);
+            List<string> dependencyPaths = include.DependencyPaths;
+            ShaderMacro[][] shaderMacroPermutations = GetShaderMacroPermutations(macroGroups);
 
             include.Dispose();
 
 
             if (metadataParsingErrors.Count > 0)
             {
-                foreach (var error in metadataParsingErrors)
+                foreach (MetadataParsingError error in metadataParsingErrors)
                 {
                     //Make sure that the path is a full path. Includes will have relative paths.
-                    var path = GetRootedPath(error.Path, workingPath, localWorkingPath);
+                    string path = GetRootedPath(error.Path, workingPath, localWorkingPath);
 
                     lock (errors)
                         errors.Add(new ShaderCompilationResult("Shader", "", "", path, 0, 0, 0, 0, error.Message));
@@ -351,9 +351,9 @@ namespace DemoContentBuilder
 
             lock (compilationTargets)
             {
-                foreach (var stage in stages)
+                foreach (ShaderStage stage in stages)
                 {
-                    foreach (var shaderMacros in shaderMacroPermutations)
+                    foreach (ShaderMacro[] shaderMacros in shaderMacroPermutations)
                     {
                         compilationTargets.Add(new ShaderCompilationTarget
                         {
@@ -371,11 +371,11 @@ namespace DemoContentBuilder
             ShaderFileCache shaderFileCache, ShaderCompilationCache loadedCache, ShaderCompilationCache cache,
             List<ShaderCompilationResult> warnings, List<ShaderCompilationResult> errors)
         {
-            var permutationErrors = new List<ShaderCompilationResult>();
-            var permutationWarnings = new List<ShaderCompilationResult>();
-            var shaderCompileStartTime = Stopwatch.GetTimestamp();
-            var localWorkingPath = Path.GetDirectoryName(compilationTarget.Path);
-            var include = new IncludeHandler(shaderFileCache, workingPath, localWorkingPath);
+            List<ShaderCompilationResult> permutationErrors = new();
+            List<ShaderCompilationResult> permutationWarnings = new();
+            long shaderCompileStartTime = Stopwatch.GetTimestamp();
+            string localWorkingPath = Path.GetDirectoryName(compilationTarget.Path);
+            IncludeHandler include = new(shaderFileCache, workingPath, localWorkingPath);
             shaderFileCache.TryLoad(compilationTarget.Path, out string shaderCode);
             CompilationResult result;
 
@@ -385,16 +385,16 @@ namespace DemoContentBuilder
 
             //Note that dependency paths can vary between defines (so long as the new defines aren't expected to vary define permutations themselves),
             //so we can't trust the ones identified by the preprocessor.
-            var dependencyPaths = include.DependencyPaths;
+            List<string> dependencyPaths = include.DependencyPaths;
             include.Dispose();
 
-            var fullSourcePath = Path.GetFullPath(compilationTarget.Path);
+            string fullSourcePath = Path.GetFullPath(compilationTarget.Path);
             if (result.Message != null)
             {
-                var fileErrors = result.Message.Trim().Split('\n');
+                string[] fileErrors = result.Message.Trim().Split('\n');
 
-                var errorChecker = new Regex("error X(?<errorCode>[0-9]{4}): ");
-                foreach (var error in fileErrors)
+                Regex errorChecker = new("error X(?<errorCode>[0-9]{4}): ");
+                foreach (string error in fileErrors)
                 {
                     if (!ParseCompilerResult(error, out string filePath, out int lineBegin, out int columnBegin, out int lineEnd, out int columnEnd, out string description))
                     {
@@ -408,22 +408,22 @@ namespace DemoContentBuilder
                     filePath = GetRootedPath(filePath, workingPath, localWorkingPath);
 
                     //Is this a warning, or an error?
-                    var match = errorChecker.Match(description);
+                    Match match = errorChecker.Match(description);
                     if (match.Success)
                     {
 
                         //It's an error!
-                        var errorCode = errorChecker.Match(error).Groups["errorCode"].Value;
+                        string errorCode = errorChecker.Match(error).Groups["errorCode"].Value;
                         permutationErrors.Add(new ShaderCompilationResult("Shader", errorCode, "", filePath, lineBegin, columnBegin, lineEnd, columnEnd, description));
 
                     }
                     else
                     {
                         //It's a warning!
-                        var warningChecker = new Regex("warning X(?<errorCode>[0-9]{4}): ");
+                        Regex warningChecker = new("warning X(?<errorCode>[0-9]{4}): ");
                         match = warningChecker.Match(description);
 
-                        var errorCode = match.Groups["errorCode"].Value;
+                        string errorCode = match.Groups["errorCode"].Value;
                         permutationWarnings.Add(new ShaderCompilationResult("Shader", errorCode, "", filePath, lineBegin, columnBegin, lineEnd, columnEnd, description));
 
                     }
@@ -453,7 +453,7 @@ namespace DemoContentBuilder
             out List<ShaderCompilationResult> outWarnings, out List<ShaderCompilationResult> outErrors,
             bool debug = false, bool packMatrixRowMajor = false, int optimizationLevel = 3)
         {
-            var shaderFlags = new ShaderFlags();
+            ShaderFlags shaderFlags = new();
             if (debug)
                 shaderFlags |= ShaderFlags.Debug | ShaderFlags.SkipOptimization;
             if (packMatrixRowMajor)
@@ -483,15 +483,15 @@ namespace DemoContentBuilder
             {
                 loadedCache = new ShaderCompilationCache(shaderFlags);
             }
-            var cache = new ShaderCompilationCache(shaderFlags);
+            ShaderCompilationCache cache = new(shaderFlags);
             Configuration.ThrowOnShaderCompileError = false;
 
 
             //Collect the set of compilation targets from the sources.
-            var compilationTargets = new List<ShaderCompilationTarget>();
-            var shaderFileCache = new ShaderFileCache();
-            var warnings = outWarnings = new List<ShaderCompilationResult>();
-            var errors = outErrors = new List<ShaderCompilationResult>();
+            List<ShaderCompilationTarget> compilationTargets = new();
+            ShaderFileCache shaderFileCache = new();
+            List<ShaderCompilationResult> warnings = outWarnings = new List<ShaderCompilationResult>();
+            List<ShaderCompilationResult> errors = outErrors = new List<ShaderCompilationResult>();
             Parallel.ForEach(sources, source =>
             {
                 CollectCompilationTargets(source, workingPath, shaderFileCache, loadedCache, cache, errors, compilationTargets);
@@ -504,11 +504,11 @@ namespace DemoContentBuilder
             if (compilationTargets.Count > 0)
             {
                 //Something was compiled; prepare to save stuff.   
-                var prunedShaders = new Dictionary<SourceShader, byte[]>();
-                foreach (var pathShaderPair in cache.CompiledShaders)
+                Dictionary<SourceShader, byte[]> prunedShaders = new();
+                foreach (KeyValuePair<SourceShader, ShaderBytecode> pathShaderPair in cache.CompiledShaders)
                 {
                     //Prune out all of the extra path bits and save it.
-                    var relativePath = ProjectBuilder.GetRelativePathFromDirectory(pathShaderPair.Key.Name, workingPath);
+                    string relativePath = ProjectBuilder.GetRelativePathFromDirectory(pathShaderPair.Key.Name, workingPath);
                     prunedShaders.Add(new SourceShader { Name = relativePath, Defines = pathShaderPair.Key.Defines }, pathShaderPair.Value.Data);
                 }
 
@@ -519,7 +519,7 @@ namespace DemoContentBuilder
                     try
                     {
                         ShaderCompilationCache.Save(cache, compilationCachePath);
-                        using (var stream = File.OpenWrite(runtimeCachePath))
+                        using (FileStream stream = File.OpenWrite(runtimeCachePath))
                         {
                             ShaderCache.Save(prunedShaders, stream);
                         }

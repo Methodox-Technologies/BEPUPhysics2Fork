@@ -5,7 +5,7 @@ using DemoRenderer;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using DemoRenderer.UI;
 using BEPUPhysics.OpenGLDemos.Types;
 

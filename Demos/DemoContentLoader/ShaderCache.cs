@@ -50,7 +50,7 @@ namespace DemoContentLoader
         public static void Save(Dictionary<SourceShader, byte[]> archive, Stream stream)
         {
             //Save the number of elements.
-            using (var writer = new BinaryWriter(stream))
+            using (BinaryWriter writer = new(stream))
             {
                 writer.Write(archive.Count);
 
@@ -71,15 +71,15 @@ namespace DemoContentLoader
 
         public static ShaderCache Load(Stream stream)
         {
-            var archive = new Dictionary<SourceShader, byte[]>();
-            using (var reader = new BinaryReader(stream))
+            Dictionary<SourceShader, byte[]> archive = new();
+            using (BinaryReader reader = new(stream))
             {
                 var count = reader.ReadInt32();
 
                 for (int i = 0; i < count; ++i)
                 {
                     //Read the name length.
-                    var shader = SourceShader.Read(reader);
+                    SourceShader shader = SourceShader.Read(reader);
 
                     //Read the size in bytes of the content element data itself.
                     int sizeInBytes = reader.ReadInt32();

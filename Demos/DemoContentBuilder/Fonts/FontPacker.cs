@@ -49,7 +49,7 @@ namespace DemoContentBuilder
             int baseHeight = 0;
             for (int i = 0; i < intervals.Count; ++i)
             {
-                var interval = intervals[i];
+                Interval interval = intervals[i];
                 if (interval.End > queryStart)
                 {
                     firstOverlappedIndex = i;
@@ -61,7 +61,7 @@ namespace DemoContentBuilder
             int lastOverlappedIndex = firstOverlappedIndex;
             for (int i = firstOverlappedIndex + 1; i < intervals.Count; ++i)
             {
-                var interval = intervals[i];
+                Interval interval = intervals[i];
                 if (interval.Start < queryEnd)
                 {
                     if (interval.Height > baseHeight)
@@ -74,7 +74,7 @@ namespace DemoContentBuilder
             //Align and round up base height.
             baseHeight = (baseHeight + alignmentMask) & (~alignmentMask);
 
-            var firstInterval = intervals[firstOverlappedIndex];
+            Interval firstInterval = intervals[firstOverlappedIndex];
             Interval queryInterval;
             queryInterval.Start = queryStart;
             queryInterval.End = queryEnd;
@@ -111,7 +111,7 @@ namespace DemoContentBuilder
                     //The query interval is inside of an interval, with space available on either side.
                     //Add two more intervals- the query interval, and the interval on the other side.
                     //We treat the existing interval as the left side.
-                    var otherSideInterval = firstInterval;
+                    Interval otherSideInterval = firstInterval;
                     otherSideInterval.Start = queryEnd;
                     firstInterval.End = queryStart;
                     Debug.Assert(firstInterval.End > firstInterval.Start);
@@ -140,7 +140,7 @@ namespace DemoContentBuilder
                     intervals[firstOverlappedIndex] = firstInterval;
                 }
 
-                var lastInterval = intervals[lastOverlappedIndex];
+                Interval lastInterval = intervals[lastOverlappedIndex];
                 int removalEndIndex;
                 if (lastInterval.End == queryEnd)
                 {
@@ -157,7 +157,7 @@ namespace DemoContentBuilder
                 }
                 //Note that the end is an inclusive bound. The total number of contained intervals is removalEndIndex - removalStartIndex + 1,
                 //but reusing one of them avoids an unnecessary insert.
-                var removedCount = removalEndIndex - removalStartIndex;
+                int removedCount = removalEndIndex - removalStartIndex;
                 if (removedCount >= 0)
                 {
                     intervals.RemoveRange(removalStartIndex, removalEndIndex - removalStartIndex);
@@ -190,7 +190,7 @@ namespace DemoContentBuilder
             {
                 //Place glyphs from left to right.
                 start = (start + alignmentMask) & (~alignmentMask);
-                var end = start + allocationWidth;
+                int end = start + allocationWidth;
 
                 if (end <= atlasWidth)
                 {
@@ -213,7 +213,7 @@ namespace DemoContentBuilder
                 {
                     //Delayed alignment; alignment will never make this negative.
                     start = start & (~alignmentMask);
-                    var end = start + allocationWidth;
+                    int end = start + allocationWidth;
                     FillCharacterMinimum(ref characterData, end);
                 }
                 else

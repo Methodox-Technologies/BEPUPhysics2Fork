@@ -1,6 +1,6 @@
 ﻿using BepuUtilities;
 using DemoRenderer;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using System;

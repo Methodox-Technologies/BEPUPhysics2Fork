@@ -4,7 +4,7 @@ using BepuPhysics.Constraints;
 using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Numerics;
@@ -50,7 +50,7 @@ public class ExcessivePyramidVideoDemo : DemoBase
     }
 
     int frameCount;
-    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
+    public override void Update(BEPU.DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         ++frameCount;
         if (frameCount == 128 || (input != null && input.WasPushed(Keys.Z)))

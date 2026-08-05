@@ -1,4 +1,4 @@
-﻿using DemoUtilities;
+﻿using BEPU.DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace BEPUPhysics.OpenGLDemos.Interaction;
 /// <summary>
 /// Caches strings for enum values to avoid enum boxing.
 /// </summary>
-internal static class ControlStringsCache
+public static class ControlStringsCache
 {
     private static readonly Dictionary<Keys, string> _keys;
     private static readonly Dictionary<MouseButton, string> _mouseButtons;

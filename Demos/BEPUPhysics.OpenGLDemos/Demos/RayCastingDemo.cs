@@ -1,6 +1,6 @@
 ﻿using BepuUtilities;
 using DemoRenderer;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using System;
@@ -16,9 +16,9 @@ using DemoRenderer.Constraints;
 using System.Threading;
 using DemoContentLoader;
 using DemoHelpers = DemoRenderer.DemoHelpers;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Types;
 using BEPUPhysics.OpenGLDemos.SpecializedTests;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;
 

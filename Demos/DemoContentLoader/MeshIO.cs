@@ -15,7 +15,7 @@ namespace DemoContentLoader
         public static MeshContent Load(BinaryReader reader)
         {
             var triangleCount = reader.ReadInt32();
-            var triangles = new TriangleContent[triangleCount];
+            TriangleContent[] triangles = new TriangleContent[triangleCount];
             for (int i = 0; i < triangleCount; ++i)
             {
                 ref var triangle = ref triangles[i];

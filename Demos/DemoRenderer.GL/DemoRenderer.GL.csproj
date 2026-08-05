@@ -13,15 +13,12 @@
   <ItemGroup>
     <ProjectReference Include="../../BepuPhysics/BepuPhysics.csproj" />
     <ProjectReference Include="../DemoContentLoader/DemoContentLoader.csproj" />
-    <ProjectReference Include="../DemoUtilities/DemoUtilities.csproj" />
+    <ProjectReference Include="../BEPU.DemoUtilities/BEPU.DemoUtilities.csproj" />
+    <ProjectReference Include="..\..\..\..\Parcel.NExT\Packages\Divooka.OpenTK\Divooka.OpenTK.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="DemoRenderer.contentarchive" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="OpenTK" Version="4.9.4" />
   </ItemGroup>
 
   <ItemGroup>
