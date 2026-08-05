@@ -12,13 +12,13 @@ namespace DemoContentBuilder
         public static string GetRelativePathFromDirectory(string path, string baseDirectory)
         {
             //(Borrowed this from a ye olde Marc Gravell post on SO.)
-            Uri pathUri = new Uri(path);
+            Uri pathUri = new(path);
             //Guarantee that the folder ends with a slash.
             if (!baseDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {
                 baseDirectory += Path.DirectorySeparatorChar;
             }
-            Uri directoryUri = new Uri(baseDirectory);
+            Uri directoryUri = new(baseDirectory);
             return Uri.UnescapeDataString(directoryUri.MakeRelativeUri(pathUri).ToString().Replace('/', Path.DirectorySeparatorChar));
         }
 
@@ -33,7 +33,7 @@ namespace DemoContentBuilder
             contentToBuild = new List<ContentBuildInput>();
             try
             {
-                using (StreamReader stream = new StreamReader(File.OpenRead(projectPath)))
+                using (StreamReader stream = new(File.OpenRead(projectPath)))
                 {
                     string line;
                     while ((line = stream.ReadLine()) != null)
@@ -84,7 +84,7 @@ namespace DemoContentBuilder
         {
             bool debug = false;
             int optimizationLevel = 3;
-            List<string> targetPaths = new List<string>();
+            List<string> targetPaths = new();
             for (int i = 0; i < args.Length; ++i)
             {
                 //The argument should be either a compilation flag or a project path

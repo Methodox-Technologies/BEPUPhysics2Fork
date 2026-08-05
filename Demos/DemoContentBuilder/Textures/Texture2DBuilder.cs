@@ -16,7 +16,7 @@ namespace DemoContentBuilder.Textures
             //We're only supporting R8G8B8A8 right now, so texel size in bytes is always 4.
             //We don't compute mips during at content time. We could, but... there's not much reason to.
             //The font builder does because it uses a nonstandard mip process, but this builder is expected to be used to with normal data.
-            Texture2DContent content = new Texture2DContent(image.Width, image.Height, 1, sizeof(Rgba32));
+            Texture2DContent content = new(image.Width, image.Height, 1, sizeof(Rgba32));
             Rgba32* data = (Rgba32*)content.Pin();
             //Copy the image data into the Texture2DContent.
             image.ProcessPixelRows(accessor =>

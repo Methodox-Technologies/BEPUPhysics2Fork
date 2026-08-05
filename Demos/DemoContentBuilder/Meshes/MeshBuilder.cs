@@ -21,7 +21,7 @@ namespace DemoContentBuilder.Meshes
         public static MeshContent Build(Stream dataStream)
         {
             LoadResult result = new ObjLoaderFactory().Create(new MaterialStubLoader()).Load(dataStream);
-            List<TriangleContent> triangles = new List<TriangleContent>();
+            List<TriangleContent> triangles = new();
             for (int i = 0; i < result.Groups.Count; ++i)
             {
                 Group group = result.Groups[i];

@@ -48,7 +48,7 @@ namespace DemoContentBuilder.Shaders
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             builder.Append(Path);
             builder.Append(Stage.Extension);
             if (ShaderMacros.Length > 0)
@@ -85,7 +85,7 @@ namespace DemoContentBuilder.Shaders
 
             //We'll try each in sequence rather than trying to construct a regex which captures all of them at once because OUGH.
             //(x,y)
-            Regex errorRegex = new Regex(@"(?<filePath>.*)\((?<line>[0-9]+),(?<column>[0-9]+)\): (?<description>.*)");
+            Regex errorRegex = new(@"(?<filePath>.*)\((?<line>[0-9]+),(?<column>[0-9]+)\): (?<description>.*)");
             Match m = errorRegex.Match(error);
             if (m.Success)
             {
@@ -275,12 +275,12 @@ namespace DemoContentBuilder.Shaders
 
 
             string localWorkingPath = Path.GetDirectoryName(source);
-            IncludeHandler include = new IncludeHandler(shaderFileCache, workingPath, localWorkingPath);
+            IncludeHandler include = new(shaderFileCache, workingPath, localWorkingPath);
 
 
-            List<ShaderStage> stages = new List<ShaderStage>();
-            List<MacroGroup> macroGroups = new List<MacroGroup>();
-            List<MetadataParsingError> metadataParsingErrors = new List<MetadataParsingError>();
+            List<ShaderStage> stages = new();
+            List<MacroGroup> macroGroups = new();
+            List<MetadataParsingError> metadataParsingErrors = new();
             MetadataParsing.Parse(source, shaderCode, stages, macroGroups, metadataParsingErrors);
             //Prepass to collect include metadata. Seems hacky, oh well.
             try
@@ -291,7 +291,7 @@ namespace DemoContentBuilder.Shaders
             {
                 if (ParseCompilerResult(e.Message, out string filePath, out int lineBegin, out int columnBegin, out int lineEnd, out int columnEnd, out string description))
                 {
-                    Regex errorChecker = new Regex("error X(?<errorCode>[0-9]{4}): ");
+                    Regex errorChecker = new("error X(?<errorCode>[0-9]{4}): ");
                     string errorCode = errorChecker.Match(e.Message).Groups["errorCode"].Value;
                     lock (errors)
                     {
@@ -371,11 +371,11 @@ namespace DemoContentBuilder.Shaders
             ShaderFileCache shaderFileCache, ShaderCompilationCache loadedCache, ShaderCompilationCache cache,
             List<ShaderCompilationResult> warnings, List<ShaderCompilationResult> errors)
         {
-            List<ShaderCompilationResult> permutationErrors = new List<ShaderCompilationResult>();
-            List<ShaderCompilationResult> permutationWarnings = new List<ShaderCompilationResult>();
+            List<ShaderCompilationResult> permutationErrors = new();
+            List<ShaderCompilationResult> permutationWarnings = new();
             long shaderCompileStartTime = Stopwatch.GetTimestamp();
             string localWorkingPath = Path.GetDirectoryName(compilationTarget.Path);
-            IncludeHandler include = new IncludeHandler(shaderFileCache, workingPath, localWorkingPath);
+            IncludeHandler include = new(shaderFileCache, workingPath, localWorkingPath);
             shaderFileCache.TryLoad(compilationTarget.Path, out string shaderCode);
             CompilationResult result;
 
@@ -393,7 +393,7 @@ namespace DemoContentBuilder.Shaders
             {
                 string[] fileErrors = result.Message.Trim().Split('\n');
 
-                Regex errorChecker = new Regex("error X(?<errorCode>[0-9]{4}): ");
+                Regex errorChecker = new("error X(?<errorCode>[0-9]{4}): ");
                 foreach (string error in fileErrors)
                 {
                     if (!ParseCompilerResult(error, out string filePath, out int lineBegin, out int columnBegin, out int lineEnd, out int columnEnd, out string description))
@@ -420,7 +420,7 @@ namespace DemoContentBuilder.Shaders
                     else
                     {
                         //It's a warning!
-                        Regex warningChecker = new Regex("warning X(?<errorCode>[0-9]{4}): ");
+                        Regex warningChecker = new("warning X(?<errorCode>[0-9]{4}): ");
                         match = warningChecker.Match(description);
 
                         string errorCode = match.Groups["errorCode"].Value;
@@ -453,7 +453,7 @@ namespace DemoContentBuilder.Shaders
             out List<ShaderCompilationResult> outWarnings, out List<ShaderCompilationResult> outErrors,
             bool debug = false, bool packMatrixRowMajor = false, int optimizationLevel = 3)
         {
-            ShaderFlags shaderFlags = new ShaderFlags();
+            ShaderFlags shaderFlags = new();
             if (debug)
                 shaderFlags |= ShaderFlags.Debug | ShaderFlags.SkipOptimization;
             if (packMatrixRowMajor)
@@ -483,13 +483,13 @@ namespace DemoContentBuilder.Shaders
             {
                 loadedCache = new ShaderCompilationCache(shaderFlags);
             }
-            ShaderCompilationCache cache = new ShaderCompilationCache(shaderFlags);
+            ShaderCompilationCache cache = new(shaderFlags);
             Configuration.ThrowOnShaderCompileError = false;
 
 
             //Collect the set of compilation targets from the sources.
-            List<ShaderCompilationTarget> compilationTargets = new List<ShaderCompilationTarget>();
-            ShaderFileCache shaderFileCache = new ShaderFileCache();
+            List<ShaderCompilationTarget> compilationTargets = new();
+            ShaderFileCache shaderFileCache = new();
             List<ShaderCompilationResult> warnings = outWarnings = new List<ShaderCompilationResult>();
             List<ShaderCompilationResult> errors = outErrors = new List<ShaderCompilationResult>();
             Parallel.ForEach(sources, source =>
@@ -504,7 +504,7 @@ namespace DemoContentBuilder.Shaders
             if (compilationTargets.Count > 0)
             {
                 //Something was compiled; prepare to save stuff.   
-                Dictionary<SourceShader, byte[]> prunedShaders = new Dictionary<SourceShader, byte[]>();
+                Dictionary<SourceShader, byte[]> prunedShaders = new();
                 foreach (KeyValuePair<SourceShader, ShaderBytecode> pathShaderPair in cache.CompiledShaders)
                 {
                     //Prune out all of the extra path bits and save it.

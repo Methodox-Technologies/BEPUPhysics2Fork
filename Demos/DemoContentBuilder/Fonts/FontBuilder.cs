@@ -12,9 +12,10 @@ namespace DemoContentBuilder
 {
     public static class FontBuilder
     {
+        #region Config
         private static Dictionary<CharacterPair, int> ComputeKerningTable(Face face, string characterSet)
         {
-            Dictionary<CharacterPair, int> kerningTable = new Dictionary<CharacterPair, int>();
+            Dictionary<CharacterPair, int> kerningTable = new();
             for (int i = 0; i < characterSet.Length; ++i)
             {
                 uint glyphIndex = face.GetCharIndex(characterSet[i]);
@@ -40,7 +41,9 @@ namespace DemoContentBuilder
         private const int FontSizeInPixels = 128;
         private const int MipLevels = 5;
         private const int AtlasWidth = 2048;
+        #endregion
 
+        #region Subtypes
         class CharacterHeightComparer : IComparer<CharacterData>
         {
             public int Compare(CharacterData a, CharacterData b)
@@ -48,14 +51,23 @@ namespace DemoContentBuilder
                 return a.SourceSpan.Y < b.SourceSpan.Y ? 1 : a.SourceSpan.Y > b.SourceSpan.Y ? -1 : 0;
             }
         }
+        #endregion
 
+        #region Methods
+        /// <summary>
+        /// Converts the TTF into the actual runtime data for renderer use: signed-distance-field atlas, glyph metrics, and kerning table.
+        /// </summary>
+        /// <remarks>
+        /// This is for optimized runtie build use;
+        /// For pipeline use, we could embedding the raw TTF directly (or reference from disk file) and ship FreeType/SharpFont while running this conversion at runtime.
+        /// </remarks>
         public unsafe static FontContent Build(Stream fontDataStream)
         {
             byte[] faceBytes = new byte[fontDataStream.Length];
             fontDataStream.Read(faceBytes, 0, faceBytes.Length);
-            using (Library library = new Library())
+            using (Library library = new())
             {
-                using (Face face = new Face(library, faceBytes, 0))
+                using (Face face = new(library, faceBytes, 0))
                 {
 
                     //Collect glyph boundings information.
@@ -83,8 +95,8 @@ namespace DemoContentBuilder
                     Array.Sort(sortedCharacterData, sortedCharacterSet, new CharacterHeightComparer());
 
                     const int padding = 1 << MipLevels;
-                    Dictionary<char, CharacterData> characters = new Dictionary<char, CharacterData>();
-                    FontPacker packer = new FontPacker(AtlasWidth, MipLevels, padding, characterSet.Length);
+                    Dictionary<char, CharacterData> characters = new();
+                    FontPacker packer = new(AtlasWidth, MipLevels, padding, characterSet.Length);
                     for (int i = 0; i < sortedCharacterSet.Length; ++i)
                     {
                         //The packer class handles the placement logic and sets the SourceMinimum in the character data, too.
@@ -93,7 +105,7 @@ namespace DemoContentBuilder
 
                     //Now that every glyph has been positioned within the sheet, we can actually rasterize the glyph alphas into a bitmap proto-atlas.
                     //We're building the rasterized set sequentially first so we don't have to worry about threading issues in the underlying library.
-                    Texture2DContent rasterizedAlphas = new Texture2DContent(AtlasWidth, packer.Height, 1, 1);
+                    Texture2DContent rasterizedAlphas = new(AtlasWidth, packer.Height, 1, 1);
                     for (int i = 0; i < sortedCharacterSet.Length; ++i)
                     {
                         //Rasterize the glyph.
@@ -120,8 +132,8 @@ namespace DemoContentBuilder
 
                     //Preallocate memory for full single precision float version of the atlas. This will be used as scratch memory (admittedly, more than is necessary)
                     //which will be encoded into the final single byte representation after the mips are calculated. The full precision stage makes the mips a little more accurate.
-                    Texture2DContent preciseAtlas = new Texture2DContent(AtlasWidth, packer.Height, MipLevels, 4);
-                    Texture2DContent atlas = new Texture2DContent(AtlasWidth, packer.Height, MipLevels, 1);
+                    Texture2DContent preciseAtlas = new(AtlasWidth, packer.Height, MipLevels, 4);
+                    Texture2DContent atlas = new(AtlasWidth, packer.Height, MipLevels, 1);
                     //Compute the distances for every character-covered texel in the atlas.
                     byte* atlasData = atlas.Pin();
                     float* preciseData = (float*)preciseAtlas.Pin();
@@ -132,10 +144,10 @@ namespace DemoContentBuilder
                         //Note that the padding around characters should also have its distances filled in. That way, the less detailed mips can pull from useful data.
                         ref CharacterData charData = ref sortedCharacterData[i];
 
-                        Int2 min = new Int2(charData.SourceMinimum.X, charData.SourceMinimum.Y);
-                        Int2 max = new Int2(charData.SourceMinimum.X + charData.SourceSpan.X, charData.SourceMinimum.Y + charData.SourceSpan.Y);
-                        Int2 paddedMin = new Int2(min.X - padding, min.Y - padding);
-                        Int2 paddedMax = new Int2(max.X + padding, max.Y + padding);
+                        Int2 min = new(charData.SourceMinimum.X, charData.SourceMinimum.Y);
+                        Int2 max = new(charData.SourceMinimum.X + charData.SourceSpan.X, charData.SourceMinimum.Y + charData.SourceSpan.Y);
+                        Int2 paddedMin = new(min.X - padding, min.Y - padding);
+                        Int2 paddedMax = new(max.X + padding, max.Y + padding);
                         //Initialize every character texel to max distance. The following BFS only ever reduces distances, so it has to start high.
                         int maxDistance = Math.Max(AtlasWidth, packer.Height);
                         for (int rowIndex = paddedMin.Y; rowIndex < paddedMax.Y; ++rowIndex)
@@ -152,7 +164,7 @@ namespace DemoContentBuilder
                         //Scan the alphas. Add border texels of the glyph to the point set. We collect both the nonzero alpha outline and the 'negative space' zero alpha outline.
                         //While scanning distances, nonzero alpha texels will look for the shortest distance to a zero alpha texel, while zero alpha texels will look for the shortest
                         //distance to a nonzero alpha texel.
-                        List<Int2> glyphOutline = new List<Int2>((max.X - min.X) * (max.Y - min.Y));
+                        List<Int2> glyphOutline = new((max.X - min.X) * (max.Y - min.Y));
                         int coverageThreshold = 127;
                         for (int rowIndex = min.Y; rowIndex < max.Y; ++rowIndex)
                         {
@@ -216,8 +228,8 @@ namespace DemoContentBuilder
                         //Note that we aligned and padded each glyph during packing. For a given texel in mip(n), the four parent texels in mip(n-1) can be safely sampled.
                         for (int mipLevel = 1; mipLevel < preciseAtlas.MipLevels; ++mipLevel)
                         {
-                            Int2 mipMin = new Int2(paddedMin.X >> mipLevel, paddedMin.Y >> mipLevel);
-                            Int2 mipMax = new Int2(paddedMax.X >> mipLevel, paddedMax.Y >> mipLevel);
+                            Int2 mipMin = new(paddedMin.X >> mipLevel, paddedMin.Y >> mipLevel);
+                            Int2 mipMax = new(paddedMax.X >> mipLevel, paddedMax.Y >> mipLevel);
 
                             //Yes, these do some redundant calculations, but no it doesn't matter.
                             float* parentMipStart = preciseData + preciseAtlas.GetMipStartIndex(mipLevel - 1);
@@ -248,8 +260,8 @@ namespace DemoContentBuilder
                         float encodingMultiplier = 1f / largestDistanceMagnitude;
                         for (int mipLevel = 0; mipLevel < atlas.MipLevels; ++mipLevel)
                         {
-                            Int2 mipMin = new Int2(paddedMin.X >> mipLevel, paddedMin.Y >> mipLevel);
-                            Int2 mipMax = new Int2(paddedMax.X >> mipLevel, paddedMax.Y >> mipLevel);
+                            Int2 mipMin = new(paddedMin.X >> mipLevel, paddedMin.Y >> mipLevel);
+                            Int2 mipMax = new(paddedMax.X >> mipLevel, paddedMax.Y >> mipLevel);
 
                             //Note signed bytes. We're building an R8_SNORM texture, not UNORM.
                             sbyte* encodedStart = (sbyte*)atlasData + atlas.GetMipStartIndex(mipLevel);
@@ -305,5 +317,20 @@ namespace DemoContentBuilder
                 }
             }
         }
+        /// <summary>
+        /// Build a standalone embeddable resource for runtime use.
+        /// </summary>
+        /// <param name="sourceFile">A source ttf file, e.g. Carlito-Regular.ttf</param>
+        /// <param name="outputFile">Target font build result file for runtime use, e.g. Carlito-Regular.font</param>
+        public static void BuildStandalone(string sourceFile = "Carlito-Regular.ttf", string outputFile = "Carlito-Regular.font")
+        {
+            using FileStream input = File.OpenRead(sourceFile);
+            FontContent font = FontBuilder.Build(input);
+
+            using FileStream output = File.Create(outputFile);
+            using BinaryWriter writer = new(output, System.Text.Encoding.UTF8, true);
+            FontIO.Save(font, writer);
+        }
+        #endregion
     }
 }

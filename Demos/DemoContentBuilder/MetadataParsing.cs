@@ -45,7 +45,7 @@ namespace DemoContentBuilder
             List<MetadataParsingError> parsingErrors)
         {
             text = text.Trim();
-            using (StringReader reader = new StringReader(text))
+            using (StringReader reader = new(text))
             {
                 //Check for metadata.
                 string line = reader.ReadLine();

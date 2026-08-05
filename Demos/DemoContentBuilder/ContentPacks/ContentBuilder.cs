@@ -30,7 +30,7 @@ namespace DemoContentBuilder.ContentPacks
             warnings = new List<ContentBuildResult>();
             bool newContentBuilt = false;
             ContentBuildCacheIO.Load(buildCachePath, out Dictionary<string, ContentElement> loadedBuildCache);
-            Dictionary<string, ContentElement> newBuildCache = new Dictionary<string, ContentElement>();
+            Dictionary<string, ContentElement> newBuildCache = new();
             foreach (ContentBuildInput content in contentToBuild)
             {
                 long currentTimeStamp = File.GetLastWriteTime(content.Path).Ticks;
@@ -84,7 +84,7 @@ namespace DemoContentBuilder.ContentPacks
             //If we have new OR less content, the files should be rewritten.
             if (newContentBuilt || newBuildCache.Count < loadedBuildCache.Count)
             {
-                Dictionary<string, IContent> archive = new Dictionary<string, IContent>();
+                Dictionary<string, IContent> archive = new();
                 foreach (KeyValuePair<string, ContentElement> pair in newBuildCache)
                 {
                     //Prune out all of the extra path bits and save it.

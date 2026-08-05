@@ -18,7 +18,7 @@ namespace DemoContentBuilder.ContentPacks
     {
         public static void Save(Dictionary<string, ContentElement> cache, string path)
         {
-            using (FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (FileStream stream = new(path, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 Save(cache, stream);
             }
@@ -27,7 +27,7 @@ namespace DemoContentBuilder.ContentPacks
         public static void Save(Dictionary<string, ContentElement> cache, Stream outputStream)
         {
             //Save the number of shaders.
-            using (BinaryWriter writer = new BinaryWriter(outputStream))
+            using (BinaryWriter writer = new(outputStream))
             {
                 writer.Write(cache.Count);
 
@@ -60,11 +60,11 @@ namespace DemoContentBuilder.ContentPacks
 
         public static Dictionary<string, ContentElement> Load(Stream stream)
         {
-            using (BinaryReader reader = new BinaryReader(stream))
+            using (BinaryReader reader = new(stream))
             {
                 try
                 {
-                    Dictionary<string, ContentElement> cache = new Dictionary<string, ContentElement>();
+                    Dictionary<string, ContentElement> cache = new();
                     int contentCount = reader.ReadInt32();
 
                     for (int i = 0; i < contentCount; ++i)

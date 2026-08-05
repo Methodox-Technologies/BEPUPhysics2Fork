@@ -75,7 +75,7 @@ namespace DemoContentBuilder.Shaders
 
         public static void Save(ShaderCompilationCache cache, string path)
         {
-            using (FileStream archiveFileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (FileStream archiveFileStream = new(path, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 Save(cache, archiveFileStream);
             }
@@ -84,7 +84,7 @@ namespace DemoContentBuilder.Shaders
         public static void Save(ShaderCompilationCache cache, Stream outputStream)
         {
             //Save the number of shaders.
-            using (BinaryWriter writer = new BinaryWriter(outputStream))
+            using (BinaryWriter writer = new(outputStream))
             {
                 writer.Write((int)cache.ShaderFlags);
                 writer.Write(cache.CompiledShaders.Count);
@@ -150,7 +150,7 @@ namespace DemoContentBuilder.Shaders
 
         public static bool TryLoad(Stream stream, out ShaderCompilationCache cache)
         {
-            using (BinaryReader reader = new BinaryReader(stream))
+            using (BinaryReader reader = new(stream))
             {
                 try
                 {
@@ -197,7 +197,7 @@ namespace DemoContentBuilder.Shaders
                     {
                         string shaderSource = reader.ReadString();
                         int pathDependenciesCount = reader.ReadInt32();
-                        HashSet<string> dependencies = new HashSet<string>();
+                        HashSet<string> dependencies = new();
                         for (int j = 0; j < pathDependenciesCount; ++j)
                         {
                             dependencies.Add(reader.ReadString());
@@ -234,7 +234,7 @@ namespace DemoContentBuilder.Shaders
                     }
                 }
                 TimeStamps[source] = loadedCache.TimeStamps[source];
-                HashSet<string> dependencies = new HashSet<string>(loadedCache.Dependencies[source]);
+                HashSet<string> dependencies = new(loadedCache.Dependencies[source]);
                 foreach (string dependency in dependencies)
                 {
                     TimeStamps[dependency] = loadedCache.TimeStamps[dependency];
@@ -250,7 +250,7 @@ namespace DemoContentBuilder.Shaders
             {
                 defines[i] = target.ShaderMacros[i].Name;
             }
-            SourceShader sourceShader = new SourceShader { Name = target.Path + target.Stage.Extension, Defines = defines };
+            SourceShader sourceShader = new() { Name = target.Path + target.Stage.Extension, Defines = defines };
             lock (CompiledShaders)
             {
                 CompiledShaders[sourceShader] = result;
