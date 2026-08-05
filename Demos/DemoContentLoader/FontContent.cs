@@ -71,7 +71,7 @@ namespace DemoContentLoader
         public FontContent(Texture2DContent atlas, string name, float inverseSizeInTexels,
             Dictionary<char, CharacterData> characterData, Dictionary<CharacterPair, int> kerningTable)
         {
-            GlyphCount = GlyphCount;
+            GlyphCount = characterData.Count;
             Atlas = atlas;
             Name = name;
             InverseSizeInTexels = inverseSizeInTexels;
