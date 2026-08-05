@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using DemoContentLoader;
 using System.Threading;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.Shaders
 {
     public struct ShaderCompilationResult
     {

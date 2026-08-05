@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.Shaders
 {
     /// <summary>
     /// Holds already-loaded files in memory to avoid hitting the disk repeatedly.

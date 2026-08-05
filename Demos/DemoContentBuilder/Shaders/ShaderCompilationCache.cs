@@ -5,7 +5,7 @@ using SharpDX.D3DCompiler;
 using System.Linq;
 using DemoContentLoader;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.Shaders
 {
     /// <summary>
     /// Stores compiled shaders and their associated timestamps needed to know which shaders need to be freshly compiled.

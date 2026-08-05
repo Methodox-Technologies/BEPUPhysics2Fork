@@ -1,10 +1,13 @@
-﻿using DemoContentLoader;
+﻿using DemoContentBuilder.Meshes;
+using DemoContentBuilder.Shaders;
+using DemoContentBuilder.Textures;
+using DemoContentLoader;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.ContentPacks
 {
     public struct ContentBuildResult
     {

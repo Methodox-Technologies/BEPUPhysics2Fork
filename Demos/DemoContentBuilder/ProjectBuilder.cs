@@ -1,4 +1,6 @@
-﻿using DemoContentLoader;
+﻿using DemoContentBuilder.ContentPacks;
+using DemoContentBuilder.Shaders;
+using DemoContentLoader;
 using System;
 using System.Collections.Generic;
 using System.IO;

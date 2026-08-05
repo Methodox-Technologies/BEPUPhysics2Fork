@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using DemoContentLoader;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.ContentPacks
 {
     public struct ContentElement
     {

@@ -4,6 +4,7 @@ using System.IO;
 using SharpDX;
 using System.Text;
 using SharpDX.D3DCompiler;
+using DemoContentBuilder.Shaders;
 
 namespace DemoContentBuilder
 {

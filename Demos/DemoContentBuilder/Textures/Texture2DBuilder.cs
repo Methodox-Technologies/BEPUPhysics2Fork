@@ -3,7 +3,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace DemoContentBuilder
+namespace DemoContentBuilder.Textures
 {
     public static class Texture2DBuilder
     {
