@@ -78,8 +78,6 @@ namespace DemoContentBuilder
                 Console.WriteLine($"{projectPath}: error: Content list read exception: {e.Message}");
             }
         }
-
-
         public static void Main(string[] args)
         {
             bool debug = false;

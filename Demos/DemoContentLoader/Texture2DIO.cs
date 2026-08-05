@@ -10,7 +10,7 @@ namespace DemoContentLoader
             var height = reader.ReadInt32();
             var mipLevels = reader.ReadInt32();
             var texelSizeInBytes = reader.ReadInt32();
-            var content = new Texture2DContent(width, height, mipLevels, texelSizeInBytes);
+            Texture2DContent content = new(width, height, mipLevels, texelSizeInBytes);
             reader.Read(content.Data, 0, content.Data.Length);
             return content;
         }

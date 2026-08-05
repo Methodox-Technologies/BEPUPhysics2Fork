@@ -10,7 +10,7 @@ namespace DemoContentLoader
             var name = reader.ReadString();
             var inverseSizeInTexels = reader.ReadSingle();
             var glyphCount = reader.ReadInt32();
-            var characterData = new Dictionary<char, CharacterData>();
+            Dictionary<char, CharacterData> characterData = new();
             for (int i = 0; i < glyphCount; ++i)
             {
                 var character = reader.ReadChar();
@@ -26,7 +26,7 @@ namespace DemoContentLoader
                 characterData.Add(character, data);
             }
             var kerningRelationshipCount = reader.ReadInt32();
-            var kerningTable = new Dictionary<CharacterPair, int>();
+            Dictionary<CharacterPair, int> kerningTable = new();
             for (int i = 0; i < kerningRelationshipCount; ++i)
             {
                 var a = reader.ReadChar();
