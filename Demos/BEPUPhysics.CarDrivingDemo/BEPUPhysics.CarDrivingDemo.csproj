@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Contents\Carlito-Regular.font" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Contents\Carlito-Regular.font" />
   </ItemGroup>
 
