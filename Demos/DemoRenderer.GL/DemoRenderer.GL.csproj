@@ -13,7 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="../../BepuPhysics/BepuPhysics.csproj" />
     <ProjectReference Include="../DemoContentLoader/DemoContentLoader.csproj" />
-    <ProjectReference Include="../DemoUtilities/DemoUtilities.csproj" />
+    <ProjectReference Include="../BEPU.DemoUtilities/BEPU.DemoUtilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

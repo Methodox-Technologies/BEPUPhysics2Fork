@@ -7,7 +7,7 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using BEPUPhysics.OpenGLDemos.Helpers;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using System;
 using System.Numerics;
 using BEPUPhysics.OpenGLDemos.Demos;

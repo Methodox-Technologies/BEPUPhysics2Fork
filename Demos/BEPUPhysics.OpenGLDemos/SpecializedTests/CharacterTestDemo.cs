@@ -5,7 +5,7 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using System;
 using DemoContentLoader;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuUtilities.Collections;
 using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Demos.Characters;

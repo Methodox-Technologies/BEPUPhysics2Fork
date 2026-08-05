@@ -12,7 +12,7 @@ using DemoRenderer;
 using DemoRenderer.UI;
 using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Interaction;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using BEPUPhysics.OpenGLDemos.Types;
 
@@ -181,7 +181,7 @@ public class TankDemo : DemoBase
     long frameIndex;
     long lastPlayerShotFrameIndex;
     int projectileCount;
-    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
+    public override void Update(BEPU.DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         if (input.WasPushed(ToggleTank))
             playerControlActive = !playerControlActive;

@@ -6,7 +6,7 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using System;
 using System.Diagnostics;
 using System.Numerics;

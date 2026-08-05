@@ -1,6 +1,6 @@
 ﻿using BepuUtilities;
 using DemoRenderer;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using System;
@@ -217,7 +217,7 @@ public class VolumeQueryTests : DemoBase
 
     bool shouldUseMultithreading = true;
 
-    public override void Update(DemoUtilities.Window window, Camera camera, Input input, float dt)
+    public override void Update(BEPU.DemoUtilities.Window window, Camera camera, Input input, float dt)
     {
         base.Update(window, camera, input, dt);
 

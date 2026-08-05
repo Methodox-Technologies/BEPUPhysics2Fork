@@ -16,7 +16,7 @@
 //using DemoRenderer;
 //using DemoRenderer.Constraints;
 //using DemoRenderer.UI;
-//using DemoUtilities;
+//using BEPU.DemoUtilities;
 
 //namespace Demos.SpecializedTests
 //{

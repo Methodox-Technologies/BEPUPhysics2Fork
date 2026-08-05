@@ -1,7 +1,7 @@
 ﻿using BepuUtilities;
 using DemoContentLoader;
 using BEPUPhysics.OpenGLDemos.Helpers;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 using System.IO;

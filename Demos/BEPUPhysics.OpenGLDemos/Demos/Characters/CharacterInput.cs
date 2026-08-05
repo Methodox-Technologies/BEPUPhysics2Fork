@@ -4,7 +4,7 @@ using BepuPhysics.Collidables;
 using System.Numerics;
 using System;
 using System.Diagnostics;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using DemoRenderer.UI;
 using BepuUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;

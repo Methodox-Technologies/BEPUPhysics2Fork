@@ -1,7 +1,7 @@
 ﻿using BepuUtilities;
 using DemoRenderer;
 using DemoRenderer.UI;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using System;
 using System.Collections.Generic;
 using System.Numerics;

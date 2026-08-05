@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Parcel.NExT\Packages\Divooka.OpenTK\Divooka.OpenTK.csproj" />
-    <ProjectReference Include="..\DemoUtilities\DemoUtilities.csproj" />
+    <ProjectReference Include="..\BEPU.DemoUtilities\BEPU.DemoUtilities.csproj" />
   </ItemGroup>
 
 </Project>

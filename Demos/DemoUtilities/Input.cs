@@ -8,7 +8,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace DemoUtilities
+namespace BEPU.DemoUtilities
 {
     using KeySet = QuickSet<Keys, KeyComparer>;
     using MouseButtonSet = QuickSet<MouseButton, MouseButtonComparer>;

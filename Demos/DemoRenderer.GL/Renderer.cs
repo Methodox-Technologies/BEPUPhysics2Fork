@@ -6,7 +6,7 @@ using DemoRenderer.PostProcessing;
 using DemoRenderer.ShapeDrawing;
 using DemoRenderer.Constraints;
 using BepuUtilities.Memory;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using OpenTK.Graphics.OpenGL4;
 
 namespace DemoRenderer

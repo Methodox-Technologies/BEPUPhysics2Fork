@@ -3,7 +3,7 @@ using DemoRenderer;
 using System;
 using System.Numerics;
 using BepuPhysics;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using BepuUtilities.Collections;
 using BepuPhysics.Collidables;
 using BEPUPhysics.OpenGLDemos.Helpers;

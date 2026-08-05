@@ -11,7 +11,7 @@ using BepuUtilities.Memory;
 using BepuUtilities.Collections;
 using System.Runtime.CompilerServices;
 using DemoRenderer.UI;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using System;
 using BepuPhysics.CollisionDetection.SweepTasks;
 using BepuPhysics.Constraints;

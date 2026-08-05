@@ -6,7 +6,7 @@ using System.Numerics;
 using BepuPhysics;
 using DemoRenderer.UI;
 using System.IO;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using System.Diagnostics;
 using BepuUtilities.Collections;
 using BepuPhysics.Collidables;

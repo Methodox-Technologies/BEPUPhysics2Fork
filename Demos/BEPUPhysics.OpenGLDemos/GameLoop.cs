@@ -1,5 +1,5 @@
 ﻿using DemoRenderer;
-using DemoUtilities;
+using BEPU.DemoUtilities;
 using System;
 using BepuUtilities;
 using BepuUtilities.Memory;

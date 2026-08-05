@@ -1,4 +1,4 @@
-﻿using DemoUtilities;
+﻿using BEPU.DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;

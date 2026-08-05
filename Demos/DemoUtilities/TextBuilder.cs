@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace DemoUtilities
+namespace BEPU.DemoUtilities
 {
     /// <summary>
     /// Simple StringBuilder-like class designed for reuse with minimal allocations.
