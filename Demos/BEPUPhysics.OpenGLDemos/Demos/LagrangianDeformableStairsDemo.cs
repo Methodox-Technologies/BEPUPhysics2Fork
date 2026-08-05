@@ -5,19 +5,18 @@ using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using BEPUPhysics.OpenGLDemos.Types;
 using BepuUtilities;
-using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
-namespace BEPUPhysics.OpenGLDemos
+namespace BEPUPhysics.OpenGLDemos.Demos
 {
+    /// <summary>
+    /// Identifies particles within a deformable solid and suppresses collisions between nearby lattice neighbors while allowing distant self-collisions and collisions with other objects.
+    /// </summary>
     struct DeformableSolidCollisionFilter
     {
         ushort x;
