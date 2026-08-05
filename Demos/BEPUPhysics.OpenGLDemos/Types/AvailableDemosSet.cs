@@ -51,6 +51,7 @@ public class AvailableDemosSet
         AddOption<ColosseumDemo>();
         AddOption<NewtDemo>();
         AddOption<ClothDemo>();
+        AddOption<TrussBridgeDemo>();
         AddOption<LagrangianDeformableStairsDemo>();
         AddOption<DancerDemo>();
         AddOption<PlumpDancerDemo>();
