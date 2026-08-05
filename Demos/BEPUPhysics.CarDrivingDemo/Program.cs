@@ -1,26 +1,25 @@
 ﻿using BepuUtilities;
-using DemoContentLoader;
 using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPU.DemoUtilities;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
-using System.IO;
 
-namespace BEPUPhysics.OpenGLDemos;
-
-class Program
+namespace BEPUPhysics.OpenGLDemos
 {
-    static void Main()
+    class Program
     {
-        MonitorInfo primaryMonitor = Monitors.GetPrimaryMonitor();
-        Box2i videoMode = primaryMonitor.ClientArea;
+        static void Main()
+        {
+            MonitorInfo primaryMonitor = Monitors.GetPrimaryMonitor();
+            Box2i videoMode = primaryMonitor.ClientArea;
 
-        Window window = new("pretty cool multicolored window", new Int2((int)(videoMode.Size.X * 0.75f), (int)(videoMode.Size.Y * 0.75f)), WindowMode.Windowed);
+            Window window = new("Cityroad Racer", new Int2((int)(videoMode.Size.X * 0.75f), (int)(videoMode.Size.Y * 0.75f)), WindowMode.Windowed);
 
-        GameLoop loop = new(window);
-        DemoHost demo = new(loop);
-        loop.Run(demo);
-        loop.Dispose();
-        window.Dispose();
+            GameLoop loop = new(window);
+            DemoHost demo = new(loop);
+            loop.Run(demo);
+            loop.Dispose();
+            window.Dispose();
+        }
     }
 }
