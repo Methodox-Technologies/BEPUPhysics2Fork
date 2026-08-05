@@ -4,6 +4,7 @@ using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
+using BEPUPhysics.OpenGLDemos.Types;
 using BepuUtilities;
 using BepuUtilities.Collections;
 using BepuUtilities.Memory;

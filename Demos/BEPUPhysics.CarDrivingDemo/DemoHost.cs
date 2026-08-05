@@ -8,6 +8,7 @@ using BEPU.DemoUtilities;
 using System;
 using System.Numerics;
 using BEPUPhysics.OpenGLDemos.UI;
+using BEPUPhysics.OpenGLDemos.Demos.Cars;
 
 namespace BEPUPhysics.OpenGLDemos.Helpers;
 
@@ -23,7 +24,6 @@ public class DemoHost : IDisposable
 {
     internal GameLoop loop;
     internal BEPUDemoControlsBindings controls;
-    private readonly ContentArchive content;
     private readonly Font font;
 
     bool showControls;
@@ -42,25 +42,12 @@ public class DemoHost : IDisposable
     TimingDisplayMode timingDisplayMode;
     Graph timingGraph;
 
-    internal AvailableDemosSet demosSet;
     DemoBase demo;
-    internal void TryChangeToDemo(int demoIndex)
-    {
-        if (demoIndex >= 0 && demoIndex < demosSet.Count)
-        {
-            demo.Dispose();
-            demo = demosSet.Build(demoIndex, content, loop.Camera, loop.Surface);
-            // Forcing a full blocking collection makes it a little easier to distinguish some memory issues.
-            GC.Collect(int.MaxValue, GCCollectionMode.Forced, true, true);
-        }
-    }
-
     SimulationTimeSamples timeSamples;
 
-    public DemoHost(GameLoop loop, ContentArchive content, BEPUDemoControlsBindings? controls = null)
+    public DemoHost(GameLoop loop, BEPUDemoControlsBindings? controls = null)
     {
         this.loop = loop;
-        this.content = content;
         timeSamples = new SimulationTimeSamples(512, loop.Pool);
         this.controls = controls ?? BEPUDemoControlsBindings.Default;
 
@@ -104,8 +91,9 @@ public class DemoHost : IDisposable
         timingGraph.AddSeries("Solver", new Vector3(1, 0, 0), 0.5f, timeSamples.Solver);
         timingGraph.AddSeries("Batch Compress", new Vector3(0, 0.5f, 0), 0.125f, timeSamples.BatchCompressor);
 
-        demosSet = new AvailableDemosSet();
-        demo = demosSet.Build(0, content, loop.Camera, loop.Surface);
+        demo = new CarDemo();
+        demo.LoadGraphicalContent(content, loop.Surface);
+        demo.Initialize(content, loop.Camera);
 
         OnResize(loop.Window.Resolution);
     }

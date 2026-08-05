@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Parcel.NExT\Packages\Divooka.OpenTK\Divooka.OpenTK.csproj" />
     <ProjectReference Include="..\BEPU.DemoUtilities\BEPU.DemoUtilities.csproj" />
+    <ProjectReference Include="..\DemoRenderer.GL\DemoRenderer.GL.csproj" />
   </ItemGroup>
 
 </Project>
