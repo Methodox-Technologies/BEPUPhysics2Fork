@@ -1,4 +1,6 @@
 ﻿using DemoContentLoader;
+using ObjLoader.Loader.Data.Elements;
+using ObjLoader.Loader.Data.VertexData;
 using ObjLoader.Loader.Loaders;
 using System.Collections.Generic;
 using System.IO;
@@ -18,19 +20,19 @@ namespace DemoContentBuilder.Meshes
 
         public static MeshContent Build(Stream dataStream)
         {
-            var result = new ObjLoaderFactory().Create(new MaterialStubLoader()).Load(dataStream);
-            var triangles = new List<TriangleContent>();
+            LoadResult result = new ObjLoaderFactory().Create(new MaterialStubLoader()).Load(dataStream);
+            List<TriangleContent> triangles = new List<TriangleContent>();
             for (int i = 0; i < result.Groups.Count; ++i)
             {
-                var group = result.Groups[i];
+                Group group = result.Groups[i];
                 for (int j = 0; j < group.Faces.Count; ++j)
                 {
-                    var face = group.Faces[j];
-                    var a = result.Vertices[face[0].VertexIndex - 1];
+                    Face face = group.Faces[j];
+                    Vertex a = result.Vertices[face[0].VertexIndex - 1];
                     for (int k = 1; k < face.Count - 1; ++k)
                     {
-                        var b = result.Vertices[face[k].VertexIndex - 1];
-                        var c = result.Vertices[face[k + 1].VertexIndex - 1];
+                        Vertex b = result.Vertices[face[k].VertexIndex - 1];
+                        Vertex c = result.Vertices[face[k + 1].VertexIndex - 1];
                         triangles.Add(new TriangleContent
                         {
                             A = new Vector3(a.X, a.Y, a.Z),

@@ -26,7 +26,7 @@ namespace DemoContentBuilder.Shaders
             //This is an optimization, after all, not a correctness issue.
             if (File.Exists(path))
             {
-                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     using (StreamReader reader = new StreamReader(stream))
                     {

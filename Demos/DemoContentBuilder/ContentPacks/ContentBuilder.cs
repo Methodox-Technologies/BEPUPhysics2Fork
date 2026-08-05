@@ -29,12 +29,12 @@ namespace DemoContentBuilder.ContentPacks
             errors = new List<ContentBuildResult>();
             warnings = new List<ContentBuildResult>();
             bool newContentBuilt = false;
-            ContentBuildCacheIO.Load(buildCachePath, out var loadedBuildCache);
-            var newBuildCache = new Dictionary<string, ContentElement>();
-            foreach (var content in contentToBuild)
+            ContentBuildCacheIO.Load(buildCachePath, out Dictionary<string, ContentElement> loadedBuildCache);
+            Dictionary<string, ContentElement> newBuildCache = new Dictionary<string, ContentElement>();
+            foreach (ContentBuildInput content in contentToBuild)
             {
-                var currentTimeStamp = File.GetLastWriteTime(content.Path).Ticks;
-                if (loadedBuildCache.TryGetValue(content.Path, out var cachedContent) && currentTimeStamp == cachedContent.LastModifiedTimestamp)
+                long currentTimeStamp = File.GetLastWriteTime(content.Path).Ticks;
+                if (loadedBuildCache.TryGetValue(content.Path, out ContentElement cachedContent) && currentTimeStamp == cachedContent.LastModifiedTimestamp)
                 {
                     //We can just used the cached version of this content.
                     newBuildCache.Add(content.Path, cachedContent);
@@ -45,7 +45,7 @@ namespace DemoContentBuilder.ContentPacks
                     //This is a new or modified content element, so we'll have to build it.
                     ContentElement newElement;
                     newElement.LastModifiedTimestamp = currentTimeStamp;
-                    using (var stream = File.OpenRead(content.Path))
+                    using (FileStream stream = File.OpenRead(content.Path))
                     {
                         try
                         {
@@ -84,11 +84,11 @@ namespace DemoContentBuilder.ContentPacks
             //If we have new OR less content, the files should be rewritten.
             if (newContentBuilt || newBuildCache.Count < loadedBuildCache.Count)
             {
-                var archive = new Dictionary<string, IContent>();
-                foreach (var pair in newBuildCache)
+                Dictionary<string, IContent> archive = new Dictionary<string, IContent>();
+                foreach (KeyValuePair<string, ContentElement> pair in newBuildCache)
                 {
                     //Prune out all of the extra path bits and save it.
-                    var relativePath = ProjectBuilder.GetRelativePathFromDirectory(pair.Key, workingPath);
+                    string relativePath = ProjectBuilder.GetRelativePathFromDirectory(pair.Key, workingPath);
                     archive.Add(relativePath.Replace(Path.DirectorySeparatorChar, '\\'), pair.Value.Content);
                 }
 
@@ -100,7 +100,7 @@ namespace DemoContentBuilder.ContentPacks
                     try
                     {
                         ContentBuildCacheIO.Save(newBuildCache, buildCachePath);
-                        using (var stream = File.OpenWrite(runtimeCachePath))
+                        using (FileStream stream = File.OpenWrite(runtimeCachePath))
                         {
                             ContentArchive.Save(archive, stream);
                         }

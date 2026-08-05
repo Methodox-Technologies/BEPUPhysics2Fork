@@ -7,7 +7,7 @@ namespace DemoContentBuilder.Shaders
     {
         public static GLSLContent Build(Stream dataStream)
         {
-            using (var reader = new StreamReader(dataStream))
+            using (StreamReader reader = new StreamReader(dataStream))
                 return new GLSLContent(reader.ReadToEnd());
         }
     }
