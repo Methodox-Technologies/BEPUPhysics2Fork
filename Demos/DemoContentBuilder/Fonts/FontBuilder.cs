@@ -21,7 +21,7 @@ namespace DemoContentBuilder
                 uint glyphIndex = face.GetCharIndex(characterSet[i]);
                 for (int j = 0; j < characterSet.Length; ++j)
                 {
-                    FTVector26Dot6 kerning = face.GetKerning(glyphIndex, face.GetCharIndex(characterSet[i]), KerningMode.Default);
+                    FTVector26Dot6 kerning = face.GetKerning(glyphIndex, face.GetCharIndex(characterSet[j]), KerningMode.Default);
                     if (kerning.X != 0)
                     {
                         kerningTable.Add(new CharacterPair(characterSet[i], characterSet[j]), kerning.X.ToInt32());
