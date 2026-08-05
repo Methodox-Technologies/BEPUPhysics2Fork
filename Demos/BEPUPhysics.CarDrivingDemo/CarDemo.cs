@@ -8,11 +8,11 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Interaction;
 using BEPU.DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.Demos.Cars;
 

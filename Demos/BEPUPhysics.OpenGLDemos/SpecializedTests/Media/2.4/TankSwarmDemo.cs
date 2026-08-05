@@ -8,7 +8,6 @@ using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
 using DemoRenderer.UI;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Interaction;
 using BEPU.DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -16,6 +15,7 @@ using System;
 using System.Numerics;
 using BEPUPhysics.OpenGLDemos.Demos.Tanks;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace Demos.SpecializedTests.Media;
 

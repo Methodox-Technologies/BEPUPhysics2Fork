@@ -11,8 +11,8 @@ using System.Diagnostics;
 using DemoContentLoader;
 using BepuPhysics.Constraints;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 

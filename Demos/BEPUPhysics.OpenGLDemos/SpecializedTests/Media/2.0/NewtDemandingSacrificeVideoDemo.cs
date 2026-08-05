@@ -3,13 +3,13 @@ using BepuPhysics.Collidables;
 using BepuUtilities;
 using DemoContentLoader;
 using DemoRenderer;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPU.DemoUtilities;
 using System;
 using System.Numerics;
 using BEPUPhysics.OpenGLDemos.Demos;
 using BEPUPhysics.OpenGLDemos.SpecializedTests;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace Demos.SpecializedTests.Media;
 

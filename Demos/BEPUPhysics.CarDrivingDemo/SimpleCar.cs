@@ -2,6 +2,7 @@
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
+using BEPUPhysics.OpenGLDemos.Types;
 using BepuUtilities;
 
 namespace BEPUPhysics.OpenGLDemos.Demos.Cars;

@@ -12,9 +12,9 @@ using BepuUtilities.Collections;
 using BepuPhysics.Collidables;
 using DemoHelpers = DemoRenderer.DemoHelpers;
 using BepuUtilities;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Demos.Characters;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.Demos.Sponsors;
 

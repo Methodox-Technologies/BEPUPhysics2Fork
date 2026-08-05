@@ -10,8 +10,8 @@ using DemoRenderer;
 using BepuPhysics;
 using BepuPhysics.Constraints;
 using BepuPhysics.Collidables;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 

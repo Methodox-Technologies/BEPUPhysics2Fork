@@ -6,8 +6,8 @@ using BepuUtilities;
 using BepuUtilities.Memory;
 using DemoContentLoader;
 using DemoRenderer;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
 

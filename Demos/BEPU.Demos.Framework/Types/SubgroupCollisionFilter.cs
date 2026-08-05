@@ -87,7 +87,7 @@ namespace BEPUPhysics.OpenGLDemos.Types
     /// <summary>
     /// Narrow phase callbacks that prune out collisions between members of a group of objects.
     /// </summary>
-    struct SubgroupFilteredCallbacks : INarrowPhaseCallbacks
+    public struct SubgroupFilteredCallbacks : INarrowPhaseCallbacks
     {
         public CollidableProperty<SubgroupCollisionFilter> CollisionFilters;
         public PairMaterialProperties Material;

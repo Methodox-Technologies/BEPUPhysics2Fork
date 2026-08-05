@@ -9,8 +9,8 @@ using BepuPhysics.Constraints;
 using DemoRenderer.UI;
 using BEPU.DemoUtilities;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;
 

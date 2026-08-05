@@ -4,13 +4,13 @@ using BepuPhysics.CollisionDetection;
 using BepuUtilities;
 using BepuUtilities.Collections;
 using BepuUtilities.Memory;
-using BEPUPhysics.OpenGLDemos.Helpers;
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Xunit;
 using BEPUPhysics.OpenGLDemos.SpecializedTests;
 using BEPUPhysics.OpenGLDemos.Types;
+using BEPU.Demos.Framework.Helpers;
 
 namespace DemoTests
 {

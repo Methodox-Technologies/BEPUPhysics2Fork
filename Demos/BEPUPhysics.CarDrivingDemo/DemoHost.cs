@@ -91,6 +91,7 @@ public class DemoHost : IDisposable
         timingGraph.AddSeries("Solver", new Vector3(1, 0, 0), 0.5f, timeSamples.Solver);
         timingGraph.AddSeries("Batch Compress", new Vector3(0, 0.5f, 0), 0.125f, timeSamples.BatchCompressor);
 
+        ContentArchive content = new();
         demo = new CarDemo();
         demo.LoadGraphicalContent(content, loop.Surface);
         demo.Initialize(content, loop.Camera);
