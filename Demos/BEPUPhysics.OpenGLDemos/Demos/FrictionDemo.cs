@@ -10,7 +10,6 @@ using DemoUtilities;
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;

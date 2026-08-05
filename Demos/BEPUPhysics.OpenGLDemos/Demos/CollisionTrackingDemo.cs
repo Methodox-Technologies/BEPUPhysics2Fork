@@ -13,7 +13,6 @@ using BepuUtilities.Memory;
 using System.Runtime.CompilerServices;
 using BepuPhysics.Constraints;
 using System.Diagnostics;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;

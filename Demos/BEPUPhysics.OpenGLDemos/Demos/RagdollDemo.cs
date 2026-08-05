@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using BepuPhysics.Constraints;
 using DemoContentLoader;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;

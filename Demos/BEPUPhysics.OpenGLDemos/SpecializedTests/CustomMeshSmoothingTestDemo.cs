@@ -16,7 +16,6 @@ using DemoRenderer;
 using DemoRenderer.UI;
 using BEPUPhysics.OpenGLDemos.Helpers;
 using DemoUtilities;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.SpecializedTests;

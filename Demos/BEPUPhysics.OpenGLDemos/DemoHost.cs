@@ -44,15 +44,15 @@ public class DemoHost : IDisposable
     Graph timingGraph;
 
     DemoSwapper swapper;
-    internal AvailableDemosSet demoSet;
+    internal AvailableDemosSet demosSet;
     DemoBase demo;
     internal void TryChangeToDemo(int demoIndex)
     {
-        if (demoIndex >= 0 && demoIndex < demoSet.Count)
+        if (demoIndex >= 0 && demoIndex < demosSet.Count)
         {
             demo.Dispose();
-            demo = demoSet.Build(demoIndex, content, loop.Camera, loop.Surface);
-            //Forcing a full blocking collection makes it a little easier to distinguish some memory issues.
+            demo = demosSet.Build(demoIndex, content, loop.Camera, loop.Surface);
+            // Forcing a full blocking collection makes it a little easier to distinguish some memory issues.
             GC.Collect(int.MaxValue, GCCollectionMode.Forced, true, true);
         }
     }
@@ -111,8 +111,8 @@ public class DemoHost : IDisposable
         timingGraph.AddSeries("Solver", new Vector3(1, 0, 0), 0.5f, timeSamples.Solver);
         timingGraph.AddSeries("Batch Compress", new Vector3(0, 0.5f, 0), 0.125f, timeSamples.BatchCompressor);
 
-        demoSet = new AvailableDemosSet();
-        demo = demoSet.Build(0, content, loop.Camera, loop.Surface);
+        demosSet = new AvailableDemosSet();
+        demo = demosSet.Build(0, content, loop.Camera, loop.Surface);
 
         OnResize(loop.Window.Resolution);
     }
@@ -358,7 +358,7 @@ public class DemoHost : IDisposable
                 textHeight, textColor, font);
         }
 
-        swapper.Draw(uiText, renderer.TextBatcher, demoSet, new Vector2(16, 16), textHeight, textColor, font);
+        swapper.Draw(uiText, renderer.TextBatcher, demosSet, new Vector2(16, 16), textHeight, textColor, font);
 
         if (timingDisplayMode != TimingDisplayMode.Minimized)
         {

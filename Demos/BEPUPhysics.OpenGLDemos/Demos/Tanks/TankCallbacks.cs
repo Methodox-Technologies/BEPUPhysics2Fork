@@ -4,7 +4,6 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
-using BEPUPhysics.OpenGLDemos.Demos;
 using BepuUtilities.Collections;
 
 namespace BEPUPhysics.OpenGLDemos.Demos.Tanks;

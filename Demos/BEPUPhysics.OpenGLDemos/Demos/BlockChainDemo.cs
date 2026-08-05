@@ -9,7 +9,6 @@ using DemoUtilities;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Numerics;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;

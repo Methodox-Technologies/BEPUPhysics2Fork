@@ -15,7 +15,6 @@ using DemoUtilities;
 using System;
 using BepuPhysics.CollisionDetection.SweepTasks;
 using BepuPhysics.Constraints;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;

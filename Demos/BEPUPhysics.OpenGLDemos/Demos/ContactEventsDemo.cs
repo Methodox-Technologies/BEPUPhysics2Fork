@@ -15,7 +15,6 @@ using BepuPhysics.Constraints;
 using System.Diagnostics;
 using System.Threading;
 using System.Runtime.InteropServices;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.Demos;

@@ -7,7 +7,6 @@ using DemoContentLoader;
 using BepuPhysics.Constraints;
 using System;
 using BEPUPhysics.OpenGLDemos.Demos;
-using Demos;
 using BEPUPhysics.OpenGLDemos.Types;
 
 namespace BEPUPhysics.OpenGLDemos.SpecializedTests;
