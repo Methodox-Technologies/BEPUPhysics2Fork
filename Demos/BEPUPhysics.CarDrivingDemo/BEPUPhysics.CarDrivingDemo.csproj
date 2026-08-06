@@ -8,14 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Contents\Carlito-Regular.font" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Parcel.NExT\Packages\Divooka.Physics.RBD\Divooka.Physics.RBD.csproj" />
-    <ProjectReference Include="..\..\..\..\Parcel.NExT\Packages\Divooka.Physics.Rendering\Divooka.Physics.Rendering.csproj" />
-    <ProjectReference Include="..\BEPU.Demos.Framework\BEPU.Demos.Framework.csproj" />
-    <ProjectReference Include="..\DemoRenderer.GL\DemoRenderer.GL.csproj" />
+    <ProjectReference Include="..\..\..\..\Parcel.NExT\Frameworks\Gaunt.Car.Placeholder\Gaunt.Car.Placeholder.csproj" />
   </ItemGroup>
 
 </Project>

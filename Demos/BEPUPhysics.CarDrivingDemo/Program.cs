@@ -2,6 +2,7 @@
 using BEPU.DemoUtilities;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
+using Gaunt.Car.Placeholder;
 
 namespace BEPUPhysics.CarDrivingDemo
 {
