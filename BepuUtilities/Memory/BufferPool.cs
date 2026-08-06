@@ -145,7 +145,8 @@ namespace BepuUtilities.Memory
             }
 
             [Conditional("DEBUG")]
-            internal void ValidateBufferIsContained<T>(ref Buffer<T> typedBuffer) where T : unmanaged
+            internal void ValidateBufferIsContained<T>(ref Buffer<T> typedBuffer) 
+                where T : unmanaged
             {
                 Buffer<byte> buffer = typedBuffer.As<byte>();
                 //There are a lot of ways to screw this up. Try to catch as many as possible!

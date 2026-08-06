@@ -171,12 +171,14 @@ namespace DemoRenderer
 
             Lines.Dispose();
 
+            LineRenderer.Dispose();
             SphereRenderer.Dispose();
             CapsuleRenderer.Dispose();
             CylinderRenderer.Dispose();
             BoxRenderer.Dispose();
             TriangleRenderer.Dispose();
             MeshRenderer.Dispose();
+            ImageRenderer.Dispose();
 
             UILineRenderer.Dispose();
             GlyphRenderer.Dispose();
@@ -188,6 +190,8 @@ namespace DemoRenderer
             GL.DeleteTexture(resolvedColorBuffer);
 
             Shapes.Dispose();
+
+            pool.Clear(); // If cleared too early, can see ValidateBufferIsContained debug assert because when other objects latter dispose, the pool is already gone.
         }
     }
 }
