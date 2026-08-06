@@ -62,7 +62,7 @@ namespace BepuUtilities
         {
             //Create an SRT transform.
             Matrix3x3.CreateScale(scaling, out LinearTransform);
-            Matrix3x3.CreateFromQuaternion(orientation, out var rotation);
+            Matrix3x3.CreateFromQuaternion(orientation, out Matrix3x3 rotation);
             Matrix3x3.Multiply(LinearTransform, rotation, out LinearTransform);
             Translation = translation;
         }
@@ -127,7 +127,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Multiply(in AffineTransform a, in AffineTransform b, out AffineTransform transform)
         {
-            Matrix3x3.Transform(a.Translation, b.LinearTransform, out var translation);
+            Matrix3x3.Transform(a.Translation, b.LinearTransform, out Vector3 translation);
             transform.Translation = b.Translation + translation;
             Matrix3x3.Multiply(a.LinearTransform, b.LinearTransform, out transform.LinearTransform);
         }

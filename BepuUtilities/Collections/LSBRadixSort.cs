@@ -12,8 +12,8 @@ namespace BepuUtilities.Collections
         {
             for (int i = 0; i < keyCount; ++i)
             {
-                var key = Unsafe.Add(ref sourceKeys, i);
-                ref var bucketStartIndex = ref Unsafe.Add(ref indices, (key >> shift) & 0xFF);
+                int key = Unsafe.Add(ref sourceKeys, i);
+                ref int bucketStartIndex = ref Unsafe.Add(ref indices, (key >> shift) & 0xFF);
                 Unsafe.Add(ref targetKeys, bucketStartIndex) = key;
                 Unsafe.Add(ref targetValues, bucketStartIndex) = Unsafe.Add(ref sourceValues, i);
                 //Bump the index up to compensate for the new element.
@@ -24,13 +24,13 @@ namespace BepuUtilities.Collections
         public static void SortU32<T>(ref int keys, ref T values, ref int keysScratch, ref T valuesScratch, ref int bucketCounts, int keyCount)
         {
             //Each section of the bucketCounts cover 256 slots, representing all possible values for a byte.
-            ref var byte1Counts = ref Unsafe.Add(ref bucketCounts, 256);
-            ref var byte2Counts = ref Unsafe.Add(ref bucketCounts, 512);
-            ref var byte3Counts = ref Unsafe.Add(ref bucketCounts, 768);
+            ref int byte1Counts = ref Unsafe.Add(ref bucketCounts, 256);
+            ref int byte2Counts = ref Unsafe.Add(ref bucketCounts, 512);
+            ref int byte3Counts = ref Unsafe.Add(ref bucketCounts, 768);
 
             for (int i = 0; i < keyCount; ++i)
             {
-                var key = Unsafe.Add(ref keys, i);
+                int key = Unsafe.Add(ref keys, i);
                 ++Unsafe.Add(ref bucketCounts, key & 0xFF);
                 ++Unsafe.Add(ref byte1Counts, (key >> 8) & 0xFF);
                 ++Unsafe.Add(ref byte2Counts, (key >> 16) & 0xFF);
@@ -44,14 +44,14 @@ namespace BepuUtilities.Collections
             int sum3 = 0;
             for (int i = 0; i < 256; ++i)
             {
-                var previousSum0 = sum0;
-                var previousSum1 = sum1;
-                var previousSum2 = sum2;
-                var previousSum3 = sum3;
-                ref var byte0 = ref Unsafe.Add(ref bucketCounts, i);
-                ref var byte1 = ref Unsafe.Add(ref byte1Counts, i);
-                ref var byte2 = ref Unsafe.Add(ref byte2Counts, i);
-                ref var byte3 = ref Unsafe.Add(ref byte3Counts, i);
+                int previousSum0 = sum0;
+                int previousSum1 = sum1;
+                int previousSum2 = sum2;
+                int previousSum3 = sum3;
+                ref int byte0 = ref Unsafe.Add(ref bucketCounts, i);
+                ref int byte1 = ref Unsafe.Add(ref byte1Counts, i);
+                ref int byte2 = ref Unsafe.Add(ref byte2Counts, i);
+                ref int byte3 = ref Unsafe.Add(ref byte3Counts, i);
                 sum0 += byte0;
                 sum1 += byte1;
                 sum2 += byte2;
@@ -71,12 +71,12 @@ namespace BepuUtilities.Collections
         public static void SortU24<T>(ref int inputKeys, ref T inputValues, ref int outputKeys, ref T outputValues, ref int bucketCounts, int keyCount)
         {
             //Each section of the bucketCounts cover 256 slots, representing all possible values for a byte.
-            ref var byte1Counts = ref Unsafe.Add(ref bucketCounts, 256);
-            ref var byte2Counts = ref Unsafe.Add(ref bucketCounts, 512);
+            ref int byte1Counts = ref Unsafe.Add(ref bucketCounts, 256);
+            ref int byte2Counts = ref Unsafe.Add(ref bucketCounts, 512);
 
             for (int i = 0; i < keyCount; ++i)
             {
-                var key = Unsafe.Add(ref inputKeys, i);
+                int key = Unsafe.Add(ref inputKeys, i);
                 ++Unsafe.Add(ref bucketCounts, key & 0xFF);
                 ++Unsafe.Add(ref byte1Counts, (key >> 8) & 0xFF);
                 ++Unsafe.Add(ref byte2Counts, (key >> 16) & 0xFF);
@@ -88,12 +88,12 @@ namespace BepuUtilities.Collections
             int sum2 = 0;
             for (int i = 0; i < 256; ++i)
             {
-                var previousSum0 = sum0;
-                var previousSum1 = sum1;
-                var previousSum2 = sum2;
-                ref var byte0 = ref Unsafe.Add(ref bucketCounts, i);
-                ref var byte1 = ref Unsafe.Add(ref byte1Counts, i);
-                ref var byte2 = ref Unsafe.Add(ref byte2Counts, i);
+                int previousSum0 = sum0;
+                int previousSum1 = sum1;
+                int previousSum2 = sum2;
+                ref int byte0 = ref Unsafe.Add(ref bucketCounts, i);
+                ref int byte1 = ref Unsafe.Add(ref byte1Counts, i);
+                ref int byte2 = ref Unsafe.Add(ref byte2Counts, i);
                 sum0 += byte0;
                 sum1 += byte1;
                 sum2 += byte2;
@@ -110,11 +110,11 @@ namespace BepuUtilities.Collections
         public static void SortU16<T>(ref int keys, ref T values, ref int keysScratch, ref T valuesScratch, ref int bucketCounts, int keyCount)
         {
             //Each section of the bucketCounts cover 256 slots, representing all possible values for a byte.
-            ref var byte1Counts = ref Unsafe.Add(ref bucketCounts, 256);
+            ref int byte1Counts = ref Unsafe.Add(ref bucketCounts, 256);
 
             for (int i = 0; i < keyCount; ++i)
             {
-                var key = Unsafe.Add(ref keys, i);
+                int key = Unsafe.Add(ref keys, i);
                 ++Unsafe.Add(ref bucketCounts, key & 0xFF);
                 ++Unsafe.Add(ref byte1Counts, (key >> 8) & 0xFF);
             }
@@ -124,10 +124,10 @@ namespace BepuUtilities.Collections
             int sum1 = 0;
             for (int i = 0; i < 256; ++i)
             {
-                var previousSum0 = sum0;
-                var previousSum1 = sum1;
-                ref var byte0 = ref Unsafe.Add(ref bucketCounts, i);
-                ref var byte1 = ref Unsafe.Add(ref byte1Counts, i);
+                int previousSum0 = sum0;
+                int previousSum1 = sum1;
+                ref int byte0 = ref Unsafe.Add(ref bucketCounts, i);
+                ref int byte1 = ref Unsafe.Add(ref byte1Counts, i);
                 sum0 += byte0;
                 sum1 += byte1;
                 byte0 = previousSum0;
@@ -142,7 +142,7 @@ namespace BepuUtilities.Collections
         {
             for (int i = 0; i < keyCount; ++i)
             {
-                var key = Unsafe.Add(ref inputKeys, i);
+                int key = Unsafe.Add(ref inputKeys, i);
                 ++Unsafe.Add(ref bucketCounts, key & 0xFF);
             }
 
@@ -150,8 +150,8 @@ namespace BepuUtilities.Collections
             int sum0 = 0;
             for (int i = 0; i < 256; ++i)
             {
-                var previousSum0 = sum0;
-                ref var byte0 = ref Unsafe.Add(ref bucketCounts, i);
+                int previousSum0 = sum0;
+                ref int byte0 = ref Unsafe.Add(ref bucketCounts, i);
                 sum0 += byte0;
                 byte0 = previousSum0;
             }
@@ -192,7 +192,7 @@ namespace BepuUtilities.Collections
             }
 #endif
             int bucketSetCount = keysUpperBound < (1 << 16) ? keysUpperBound < (1 << 8) ? 1 : 2 : keysUpperBound < (1 << 24) ? 3 : 4;
-            bufferPool.Take<int>(bucketSetCount * 256, out var bucketCounts);
+            bufferPool.Take<int>(bucketSetCount * 256, out Buffer<int> bucketCounts);
             unsafe
             {
                 //The bucket counts will be added to, so they need to be zeroed.

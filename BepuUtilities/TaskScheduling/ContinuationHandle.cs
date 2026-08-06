@@ -54,9 +54,9 @@ public unsafe struct ContinuationHandle : IEquatable<ContinuationHandle>
     /// <param name="dispatcher">Dispatcher to pass to the continuation's delegate, if any.</param>
     public void NotifyTaskCompleted(int workerIndex, IThreadDispatcher dispatcher)
     {
-        var continuation = Continuation;
+        TaskContinuation* continuation = Continuation;
         Debug.Assert(!Completed);
-        var counter = Interlocked.Decrement(ref continuation->RemainingTaskCounter);
+        int counter = Interlocked.Decrement(ref continuation->RemainingTaskCounter);
         Debug.Assert(counter >= 0, "The counter should not go negative. Was notify called too many times?");
         if (counter == 0)
         {

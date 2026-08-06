@@ -47,7 +47,7 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void InternalResizeForBundleCount(IUnmanagedMemoryPool pool, int bundleCapacity)
         {
-            var copyRegionLength = Math.Min(bundleCapacity, Flags.Length);
+            int copyRegionLength = Math.Min(bundleCapacity, Flags.Length);
             pool.ResizeToAtLeast(ref Flags, bundleCapacity, copyRegionLength);
             //Since the pool's data is not guaranteed to be clean and the indices rely on it being clean, we must clear any memory beyond the copied region.
             if (Flags.Length > copyRegionLength)
@@ -57,7 +57,7 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(int index)
         {
-            var packedIndex = index >> shift;
+            int packedIndex = index >> shift;
             return packedIndex < Flags.Length && (Flags[packedIndex] & (1ul << (index & mask))) > 0;
         }
 
@@ -82,8 +82,8 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SetUnsafely(int index, int bundleIndex)
         {
-            ref var bundle = ref Flags[bundleIndex];
-            var slot = 1ul << (index & mask);
+            ref ulong bundle = ref Flags[bundleIndex];
+            ulong slot = 1ul << (index & mask);
             //Not much point in branching to stop a single instruction that doesn't change the result.
             bundle |= slot;
         }
@@ -109,7 +109,7 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Set(int index, IUnmanagedMemoryPool pool)
         {
-            var bundleIndex = index >> shift;
+            int bundleIndex = index >> shift;
             if (bundleIndex >= Flags.Length)
             {
                 //Note that the bundle index may be larger than two times the current capacity, since indices are not guaranteed to be appended.
@@ -150,7 +150,7 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(int index, IUnmanagedMemoryPool pool)
         {
-            var bundleIndex = index >> shift;
+            int bundleIndex = index >> shift;
             if (bundleIndex >= Flags.Length)
             {
                 //Note that the bundle index may be larger than two times the current capacity, since indices are not guaranteed to be appended.
@@ -184,7 +184,7 @@ namespace BepuUtilities.Collections
         //While we expose a compaction and resize, using it requires care. It would be a mistake to, for example, shrink beyond the current bodies indices size.
         public void Compact(int indexCapacity, IUnmanagedMemoryPool pool)
         {
-            var desiredBundleCount = BufferPool.GetCapacityForCount<ulong>(GetBundleCapacity(indexCapacity));
+            int desiredBundleCount = BufferPool.GetCapacityForCount<ulong>(GetBundleCapacity(indexCapacity));
             if (Flags.Length > desiredBundleCount)
             {
                 InternalResizeForBundleCount(pool, desiredBundleCount);
@@ -192,7 +192,7 @@ namespace BepuUtilities.Collections
         }
         public void Resize(int indexCapacity, IUnmanagedMemoryPool pool)
         {
-            var desiredBundleCount = BufferPool.GetCapacityForCount<ulong>(GetBundleCapacity(indexCapacity));
+            int desiredBundleCount = BufferPool.GetCapacityForCount<ulong>(GetBundleCapacity(indexCapacity));
             if (Flags.Length != desiredBundleCount)
             {
                 InternalResizeForBundleCount(pool, desiredBundleCount);

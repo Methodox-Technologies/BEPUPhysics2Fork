@@ -119,7 +119,7 @@ namespace BepuUtilities
         [Conditional("CHECKMATH")]
         public static void ValidateOrientation(this Quaternion q)
         {
-            var lengthSquared = q.LengthSquared();
+            float lengthSquared = q.LengthSquared();
             if (IsInvalid(lengthSquared) && Math.Abs(1 - lengthSquared) < 1e-5f)
             {
                 Debug.Fail("Invalid value.");
@@ -181,10 +181,10 @@ namespace BepuUtilities
                 Debug.Fail("Invalid lane count.");
             if (laneCount == -1)
                 laneCount = Vector<float>.Count;
-            ref var casted = ref Unsafe.As<Vector<float>, float>(ref f);
+            ref float casted = ref Unsafe.As<Vector<float>, float>(ref f);
             for (int i = 0; i < laneCount; ++i)
             {
-                var value = Unsafe.Add(ref casted, i);
+                float value = Unsafe.Add(ref casted, i);
                 if (float.IsNaN(value) || float.IsInfinity(value))
                 {
                     Debug.Fail($"Invalid floating point value: {value}.");
@@ -195,14 +195,14 @@ namespace BepuUtilities
         [Conditional("CHECKMATH")]
         public static void Validate(this Vector<float> f, Vector<int> lanesToTest)
         {
-            ref var castedValues = ref Unsafe.As<Vector<float>, float>(ref f);
-            ref var castedMask = ref Unsafe.As<Vector<int>, int>(ref lanesToTest);
+            ref float castedValues = ref Unsafe.As<Vector<float>, float>(ref f);
+            ref int castedMask = ref Unsafe.As<Vector<int>, int>(ref lanesToTest);
             for (int i = 0; i < Vector<float>.Count; ++i)
             {
-                var mask = Unsafe.Add(ref castedMask, i);
+                int mask = Unsafe.Add(ref castedMask, i);
                 if (mask != 0)
                 {
-                    var value = Unsafe.Add(ref castedValues, i);
+                    float value = Unsafe.Add(ref castedValues, i);
                     if (float.IsNaN(value) || float.IsInfinity(value))
                     {
                         Debug.Fail($"Invalid floating point value: {value}.");

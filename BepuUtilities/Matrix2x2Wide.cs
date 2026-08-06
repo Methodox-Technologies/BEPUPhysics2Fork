@@ -42,7 +42,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Transform(in Vector2Wide v, in Matrix2x2Wide m, out Vector2Wide result)
         {
-            TransformWithoutOverlap(v, m, out var temp);
+            TransformWithoutOverlap(v, m, out Vector2Wide temp);
             result = temp;
         }
 
@@ -98,7 +98,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InvertWithoutOverlap(in Matrix2x2Wide m, out Matrix2x2Wide inverse)
         {
-            var determinantInverse = Vector<float>.One / (m.X.X * m.Y.Y - m.X.Y * m.Y.X);
+            Vector<float> determinantInverse = Vector<float>.One / (m.X.X * m.Y.Y - m.X.Y * m.Y.X);
             inverse.X.X = m.Y.Y * determinantInverse;
             inverse.X.Y = -m.X.Y * determinantInverse;
 

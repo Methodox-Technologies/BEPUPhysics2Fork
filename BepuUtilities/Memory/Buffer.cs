@@ -276,7 +276,7 @@ namespace BepuUtilities.Memory
         public int IndexOf(ref T element, int start, int count)
         {
             ValidateRegion(start, count);
-            var end = start + count;
+            int end = start + count;
             if (SpanHelper.IsPrimitive<T>())
             {
                 var defaultComparer = default(PrimitiveComparer<T>);
@@ -287,7 +287,7 @@ namespace BepuUtilities.Memory
             }
             else
             {
-                WrapperEqualityComparer<T>.CreateDefault(out var defaultComparer);
+                WrapperEqualityComparer<T>.CreateDefault(out WrapperEqualityComparer<T> defaultComparer);
                 for (int i = start; i < end; ++i)
                     if (defaultComparer.Equals(ref this[i], ref element))
                         return i;
@@ -319,7 +319,7 @@ namespace BepuUtilities.Memory
         public int IndexOf<TPredicate>(ref TPredicate predicate, int start, int count) where TPredicate : IPredicate<T>
         {
             ValidateRegion(start, count);
-            var end = start + count;
+            int end = start + count;
             for (int i = start; i < end; ++i)
                 if (predicate.Matches(ref this[i]))
                     return i;
@@ -334,7 +334,7 @@ namespace BepuUtilities.Memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Buffer<TCast> As<TCast>() where TCast : unmanaged
         {
-            var count = Length * Unsafe.SizeOf<T>() / Unsafe.SizeOf<TCast>();
+            int count = Length * Unsafe.SizeOf<T>() / Unsafe.SizeOf<TCast>();
             return new Buffer<TCast>(Memory, count, Id);
         }
 

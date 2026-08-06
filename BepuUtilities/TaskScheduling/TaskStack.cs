@@ -102,7 +102,7 @@ public unsafe struct TaskStack
             int sum = 0;
             for (int i = 0; i < workers.Length; ++i)
             {
-                var block = workers[i].ContinuationHead;
+                ContinuationBlock* block = workers[i].ContinuationHead;
                 while (block != null)
                 {
                     sum += block->Count;
@@ -191,7 +191,7 @@ public unsafe struct TaskStack
     /// <returns>Result status of the pop attempt.</returns>
     public PopTaskResult TryPopAndRun<TJobFilter>(ref TJobFilter filter, int workerIndex, IThreadDispatcher dispatcher) where TJobFilter : IJobFilter
     {
-        var result = TryPop(ref filter, out var task);
+        PopTaskResult result = TryPop(ref filter, out Task task);
         if (result == PopTaskResult.Success)
         {
             task.Run(workerIndex, dispatcher);
@@ -285,10 +285,10 @@ public unsafe struct TaskStack
     /// <returns>Handle of the continuation created for these tasks.</returns>
     public ContinuationHandle AllocateContinuationAndPush(Span<Task> tasks, int workerIndex, IThreadDispatcher dispatcher, ulong tag = 0, Task onComplete = default)
     {
-        var continuationHandle = AllocateContinuation(tasks.Length, workerIndex, dispatcher, onComplete);
+        ContinuationHandle continuationHandle = AllocateContinuation(tasks.Length, workerIndex, dispatcher, onComplete);
         for (int i = 0; i < tasks.Length; ++i)
         {
-            ref var task = ref tasks[i];
+            ref Task task = ref tasks[i];
             Debug.Assert(!task.Continuation.Initialized, "This function creates a continuation for the tasks");
             task.Continuation = continuationHandle;
         }
@@ -325,7 +325,7 @@ public unsafe struct TaskStack
         Debug.Assert(continuation.Initialized, "This codepath should only run if the continuation was allocated earlier.");
         while (!continuation.Completed)
         {
-            var result = TryPop(ref filter, out var fillerTask);
+            PopTaskResult result = TryPop(ref filter, out Task fillerTask);
             if (result == PopTaskResult.Stop)
             {
                 return;
@@ -373,13 +373,13 @@ public unsafe struct TaskStack
         if (tasks.Length > 1)
         {
             //Note that we only submit tasks to the stack for tasks beyond the first. The current thread is responsible for at least task 0.
-            var taskCount = tasks.Length - 1;
+            int taskCount = tasks.Length - 1;
             Span<Task> tasksToPush = stackalloc Task[taskCount];
-            ref var worker = ref workers[workerIndex];
+            ref Worker worker = ref workers[workerIndex];
             continuationHandle = worker.AllocateContinuation(taskCount, dispatcher);
             for (int i = 0; i < tasksToPush.Length; ++i)
             {
-                var task = tasks[i + 1];
+                Task task = tasks[i + 1];
                 Debug.Assert(!task.Continuation.Initialized, $"None of the source tasks should have continuations when provided to {nameof(RunTasks)}.");
                 task.Continuation = continuationHandle;
                 tasksToPush[i] = task;
@@ -388,7 +388,7 @@ public unsafe struct TaskStack
         }
         //Tasks [1, count) are submitted to the stack and may now be executing on other workers.
         //The thread calling the for loop should not relinquish its timeslice. It should immediately begin working on task 0.
-        var task0 = tasks[0];
+        Task task0 = tasks[0];
         Debug.Assert(!task0.Continuation.Initialized, $"None of the source tasks should have continuations when provided to {nameof(RunTasks)}.");
         task0.Function(task0.Id, task0.Context, workerIndex, dispatcher);
 

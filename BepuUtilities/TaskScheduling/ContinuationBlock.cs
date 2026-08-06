@@ -14,7 +14,7 @@ internal unsafe struct ContinuationBlock
 
     public static ContinuationBlock* Create(int continuationCapacity, BufferPool pool)
     {
-        pool.Take<byte>(sizeof(TaskContinuation) * continuationCapacity + sizeof(ContinuationBlock), out var rawBuffer);
+        pool.Take<byte>(sizeof(TaskContinuation) * continuationCapacity + sizeof(ContinuationBlock), out Buffer<byte> rawBuffer);
         ContinuationBlock* block = (ContinuationBlock*)rawBuffer.Memory;
         block->Continuations = new Buffer<TaskContinuation>(rawBuffer.Memory + sizeof(ContinuationBlock), continuationCapacity, rawBuffer.Id);
         block->Count = 0;
@@ -35,7 +35,7 @@ internal unsafe struct ContinuationBlock
 
     public void Dispose(BufferPool pool)
     {
-        var id = Continuations.Id;
+        int id = Continuations.Id;
         pool.ReturnUnsafely(id);
         if (Previous != null)
             Previous->Dispose(pool);

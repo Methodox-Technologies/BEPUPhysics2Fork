@@ -8,7 +8,7 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void Swap<T>(ref T a, ref T b)
         {
-            var temp = a;
+            T temp = a;
             a = b;
             b = temp;
         }
@@ -239,10 +239,10 @@ namespace BepuUtilities.Collections
             where TComparer : IComparerRef<TKey>
         {
             //Use MO3 to find a pivot to compensate for the common already-sorted case and to slightly improve worst-case behavior.
-            ref var first = ref Unsafe.Add(ref keys, l);
+            ref TKey first = ref Unsafe.Add(ref keys, l);
             int middleIndex = (l + r) / 2;
-            ref var middle = ref Unsafe.Add(ref keys, middleIndex);
-            ref var last = ref Unsafe.Add(ref keys, r);
+            ref TKey middle = ref Unsafe.Add(ref keys, middleIndex);
+            ref TKey last = ref Unsafe.Add(ref keys, r);
             if (comparer.Compare(ref first, ref middle) <= 0 && comparer.Compare(ref first, ref last) <= 0)
             {
                 //first is lowest.
@@ -291,11 +291,11 @@ namespace BepuUtilities.Collections
             else
             {
                 //Use MO3 to find a pivot to compensate for the common already-sorted case and to slightly improve worst-case behavior.
-                var pivotIndex = FindMO3Index(ref keys, l, r, ref comparer);
+                int pivotIndex = FindMO3Index(ref keys, l, r, ref comparer);
 
                 //Put the pivot into the last slot.
-                var pivot = Unsafe.Add(ref keys, pivotIndex);
-                var pivotValue = Unsafe.Add(ref values, pivotIndex);
+                TKey pivot = Unsafe.Add(ref keys, pivotIndex);
+                TValue pivotValue = Unsafe.Add(ref values, pivotIndex);
                 //We cached the pivot key and value. Push the value in 'r' to the pivot's location, leaving r unused for the moment.
                 Unsafe.Add(ref keys, pivotIndex) = Unsafe.Add(ref keys, r);
                 Unsafe.Add(ref values, pivotIndex) = Unsafe.Add(ref values, r);
@@ -346,8 +346,8 @@ namespace BepuUtilities.Collections
                 //The pivot at r has not been swapped.
                 //Since the loop has terminated, we know that i has reached the the '>=pivot' side of the partition.
                 //So, swap the pivot and the first element of the greater-than-pivot side to guarantee sorting.
-                ref var firstGreaterKeySlot = ref Unsafe.Add(ref keys, i);
-                ref var firstGreaterValueSlot = ref Unsafe.Add(ref values, i);
+                ref TKey firstGreaterKeySlot = ref Unsafe.Add(ref keys, i);
+                ref TValue firstGreaterValueSlot = ref Unsafe.Add(ref values, i);
                 Unsafe.Add(ref keys, r) = firstGreaterKeySlot;
                 Unsafe.Add(ref values, r) = firstGreaterValueSlot;
                 firstGreaterKeySlot = pivot;
@@ -377,10 +377,10 @@ namespace BepuUtilities.Collections
             else
             {
                 //Use MO3 to find a pivot to compensate for the common already-sorted case and to slightly improve worst-case behavior.
-                var pivotIndex = FindMO3Index(ref keys, l, r, ref comparer);
+                int pivotIndex = FindMO3Index(ref keys, l, r, ref comparer);
 
-                var pivot = Unsafe.Add(ref keys, pivotIndex);
-                var pivotValue = Unsafe.Add(ref values, pivotIndex);
+                TKey pivot = Unsafe.Add(ref keys, pivotIndex);
+                TValue pivotValue = Unsafe.Add(ref values, pivotIndex);
                 //We cached the pivot key and value. Push the value in 'r' to the pivot's location, leaving r unused for the moment.
                 Unsafe.Add(ref keys, pivotIndex) = Unsafe.Add(ref keys, r);
                 Unsafe.Add(ref values, pivotIndex) = Unsafe.Add(ref values, r);
@@ -416,8 +416,8 @@ namespace BepuUtilities.Collections
                 //The pivot has not been reintroduced.
                 //Since the loop has terminated, we know that i has reached the the '>=pivot' side of the partition.
                 //So, push the first element of the greater-than-pivot side into r and the pivot into the first greater element's slot to guarantee sorting.
-                ref var firstGreaterKeySlot = ref Unsafe.Add(ref keys, i);
-                ref var firstGreaterValueSlot = ref Unsafe.Add(ref values, i);
+                ref TKey firstGreaterKeySlot = ref Unsafe.Add(ref keys, i);
+                ref TValue firstGreaterValueSlot = ref Unsafe.Add(ref values, i);
                 Unsafe.Add(ref keys, r) = firstGreaterKeySlot;
                 Unsafe.Add(ref values, r) = firstGreaterValueSlot;
                 firstGreaterKeySlot = pivot;
@@ -441,9 +441,9 @@ namespace BepuUtilities.Collections
             else
             {
                 //Use MO3 to find a pivot to compensate for the common already-sorted case and to slightly improve worst-case behavior.
-                var pivotIndex = FindMO3Index(ref keys, l, r, ref comparer);
+                int pivotIndex = FindMO3Index(ref keys, l, r, ref comparer);
 
-                var pivot = Unsafe.Add(ref keys, pivotIndex);
+                TKey pivot = Unsafe.Add(ref keys, pivotIndex);
                 //We cached the pivot key and value. Push the value in 'r' to the pivot's location, leaving r unused for the moment.
                 Unsafe.Add(ref keys, pivotIndex) = Unsafe.Add(ref keys, r);
 
@@ -478,7 +478,7 @@ namespace BepuUtilities.Collections
                 //The pivot has not been reintroduced.
                 //Since the loop has terminated, we know that i has reached the the '>=pivot' side of the partition.
                 //So, push the first element of the greater-than-pivot side into r and the pivot into the first greater element's slot to guarantee sorting.
-                ref var firstGreaterKeySlot = ref Unsafe.Add(ref keys, i);
+                ref TKey firstGreaterKeySlot = ref Unsafe.Add(ref keys, i);
                 Unsafe.Add(ref keys, r) = firstGreaterKeySlot;
                 firstGreaterKeySlot = pivot;
                 j = i - 1; //Sort's parameters take an inclusive bound, so push j back.

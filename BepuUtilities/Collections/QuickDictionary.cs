@@ -34,7 +34,7 @@ namespace BepuUtilities.Collections
             const int b = 13;
             const int c = 25;
             uint uhash = (uint)hash * 982451653u;
-            var redongled =
+            uint redongled =
                 ((uhash << a) | (uhash >> (32 - a))) ^
                 ((uhash << b) | (uhash >> (32 - b))) ^
                 ((uhash << c) | (uhash >> (32 - c)));
@@ -173,9 +173,9 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public QuickDictionary(int initialCapacity, int tableSizePower, IUnmanagedMemoryPool pool, TEqualityComparer comparer)
         {
-            pool.TakeAtLeast<TKey>(initialCapacity, out var keySpan);
-            pool.TakeAtLeast<TValue>(keySpan.Length, out var valueSpan);
-            pool.TakeAtLeast<int>(keySpan.Length << tableSizePower, out var tableSpan);
+            pool.TakeAtLeast<TKey>(initialCapacity, out Buffer<TKey> keySpan);
+            pool.TakeAtLeast<TValue>(keySpan.Length, out Buffer<TValue> valueSpan);
+            pool.TakeAtLeast<int>(keySpan.Length << tableSizePower, out Buffer<int> tableSpan);
             //No guarantee that the table is clean; clear it.
             tableSpan.Clear(0, tableSpan.Length);
             this = new QuickDictionary<TKey, TValue, TEqualityComparer>(ref keySpan, ref valueSpan, ref tableSpan, comparer, tableSizePower);
@@ -221,13 +221,13 @@ namespace BepuUtilities.Collections
         {
             ValidateSpanCapacity(ref newKeySpan, ref newValueSpan, ref newTableSpan);
             ValidateTableIsCleared(ref newTableSpan);
-            var oldDictionary = this;
+            QuickDictionary<TKey, TValue, TEqualityComparer> oldDictionary = this;
             Keys = newKeySpan;
             Values = newValueSpan;
             Table = newTableSpan;
             Count = 0;
             TableMask = newTableSpan.Length - 1;
-            var newCount = oldDictionary.Count > newKeySpan.Length ? newKeySpan.Length : oldDictionary.Count;
+            int newCount = oldDictionary.Count > newKeySpan.Length ? newKeySpan.Length : oldDictionary.Count;
 
             //Unfortunately we can't really do a straight copy; the backing table relies on modulo operations.
             //Technically, we could copy the regular dictionary and then rely on a partial add to take care of the rest, but bleh!
@@ -253,16 +253,16 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Resize(int newSize, IUnmanagedMemoryPool pool)
         {
-            var targetKeyCapacity = pool.GetCapacityForCount<TKey>(newSize);
+            int targetKeyCapacity = pool.GetCapacityForCount<TKey>(newSize);
             if (targetKeyCapacity != Keys.Length)
             {
-                pool.TakeAtLeast<TKey>(newSize, out var newKeySpan);
-                pool.TakeAtLeast<TValue>(newKeySpan.Length, out var newValueSpan);
-                pool.TakeAtLeast<int>(newKeySpan.Length << TablePowerOffset, out var newTableSpan);
+                pool.TakeAtLeast<TKey>(newSize, out Buffer<TKey> newKeySpan);
+                pool.TakeAtLeast<TValue>(newKeySpan.Length, out Buffer<TValue> newValueSpan);
+                pool.TakeAtLeast<int>(newKeySpan.Length << TablePowerOffset, out Buffer<int> newTableSpan);
                 //There is no guarantee that the table retrieved from the pool is clean. Clear it!
                 newTableSpan.Clear(0, newTableSpan.Length);
-                var oldDictionary = this;
-                Resize(ref newKeySpan, ref newValueSpan, ref newTableSpan, out var oldKeySpan, out var oldValueSpan, out var oldTableSpan);
+                QuickDictionary<TKey, TValue, TEqualityComparer> oldDictionary = this;
+                Resize(ref newKeySpan, ref newValueSpan, ref newTableSpan, out Buffer<TKey> oldKeySpan, out Buffer<TValue> oldValueSpan, out Buffer<int> oldTableSpan);
                 oldDictionary.Dispose(pool);
             }
         }
@@ -299,7 +299,7 @@ namespace BepuUtilities.Collections
         public void Compact(IUnmanagedMemoryPool pool)
         {
             Validate();
-            var targetKeyCapacity = pool.GetCapacityForCount<TKey>(Count);
+            int targetKeyCapacity = pool.GetCapacityForCount<TKey>(Count);
             if (targetKeyCapacity < Keys.Length)
                 Resize(Count, pool);
         }
@@ -660,7 +660,7 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastRemove(int tableIndex, int elementIndex)
         {
-            Debug.Assert(GetTableIndices(ref Keys[elementIndex], out var debugTableIndex, out var debugElementIndex) && debugTableIndex == tableIndex && debugElementIndex == elementIndex,
+            Debug.Assert(GetTableIndices(ref Keys[elementIndex], out int debugTableIndex, out int debugElementIndex) && debugTableIndex == tableIndex && debugElementIndex == elementIndex,
                 "The table index and element index used to directly remove must match an actual key.");
             //Add and remove must both maintain a property:
             //All items are either at their desired index (as defined by the hash), or they are contained in a contiguous block clockwise from the desired index.
@@ -678,8 +678,8 @@ namespace BepuUtilities.Collections
                 //Would this element be closer to its actual index if it was moved to the gap?
                 //To find out, compute the clockwise distance from the gap and the clockwise distance from the ideal location.
 
-                var distanceFromGap = (tableIndex - gapIndex) & TableMask;
-                var distanceFromIdeal = (tableIndex - desiredIndex) & TableMask;
+                int distanceFromGap = (tableIndex - gapIndex) & TableMask;
+                int distanceFromIdeal = (tableIndex - desiredIndex) & TableMask;
                 if (distanceFromGap <= distanceFromIdeal)
                 {
                     //The distance to the gap is less than or equal the distance to the ideal location, so just move to the gap.

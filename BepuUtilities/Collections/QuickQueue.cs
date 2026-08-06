@@ -129,7 +129,7 @@ namespace BepuUtilities.Collections
         {
             Validate();
             Debug.Assert(Span.Length != newSpan.Length, "Resizing without changing the size is pretty peculiar. Is something broken?");
-            var oldQueue = this;
+            QuickQueue<T> oldQueue = this;
             //Truncate length.
             if (oldQueue.Count > newSpan.Length)
                 Count = newSpan.Length;
@@ -151,7 +151,7 @@ namespace BepuUtilities.Collections
             else if (Count > 0)
             {
                 //The last index is before the first index, meaning the elements wrap around the end of the span. Do a copy for each contiguous region.
-                var firstToEndLength = oldSpan.Length - oldQueue.FirstIndex;
+                int firstToEndLength = oldSpan.Length - oldQueue.FirstIndex;
                 oldSpan.CopyTo(oldQueue.FirstIndex, Span, 0, firstToEndLength);
                 oldSpan.CopyTo(0, Span, firstToEndLength, oldQueue.LastIndex + 1);
             }
@@ -167,12 +167,12 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Resize(int newSize, IUnmanagedMemoryPool pool)
         {
-            var targetCapacity = pool.GetCapacityForCount<T>(newSize);
+            int targetCapacity = pool.GetCapacityForCount<T>(newSize);
             if (targetCapacity != Span.Length)
             {
-                var oldQueue = this;
-                pool.TakeAtLeast<T>(newSize, out var newSpan);
-                Resize(ref newSpan, out var oldSpan);
+                QuickQueue<T> oldQueue = this;
+                pool.TakeAtLeast<T>(newSize, out Buffer<T> newSpan);
+                Resize(ref newSpan, out Buffer<T> oldSpan);
                 oldQueue.Dispose(pool);
             }
         }
@@ -207,7 +207,7 @@ namespace BepuUtilities.Collections
         public void Compact(IUnmanagedMemoryPool pool)
         {
             Validate();
-            var targetCapacity = pool.GetCapacityForCount<T>(Count);
+            int targetCapacity = pool.GetCapacityForCount<T>(Count);
             if (targetCapacity < Span.Length)
                 Resize(targetCapacity, pool);
         }
@@ -319,7 +319,7 @@ namespace BepuUtilities.Collections
             Validate();
             if (Count == 0)
                 throw new InvalidOperationException("The queue is empty.");
-            var element = Span[FirstIndex];
+            T element = Span[FirstIndex];
             IncrementFirst();
             return element;
 
@@ -335,7 +335,7 @@ namespace BepuUtilities.Collections
             Validate();
             if (Count == 0)
                 throw new InvalidOperationException("The queue is empty.");
-            var element = Span[LastIndex];
+            T element = Span[LastIndex];
             DecrementLast();
             return element;
         }
@@ -390,7 +390,7 @@ namespace BepuUtilities.Collections
         {
             Validate();
             Debug.Assert(Count > 0, "Can't dequeue from an empty queue.");
-            ref var element = ref Span[FirstIndex];
+            ref T element = ref Span[FirstIndex];
             IncrementFirst();
             return ref element;
         }
@@ -406,7 +406,7 @@ namespace BepuUtilities.Collections
         {
             Validate();
             Debug.Assert(Count > 0, "Can't dequeue from an empty queue.");
-            ref var element = ref Span[LastIndex];
+            ref T element = ref Span[LastIndex];
             DecrementLast();
             return ref element;
         }
@@ -432,7 +432,7 @@ namespace BepuUtilities.Collections
         {
             Validate();
             ValidateIndex(queueIndex);
-            var arrayIndex = GetBackingArrayIndex(queueIndex);
+            int arrayIndex = GetBackingArrayIndex(queueIndex);
             if (LastIndex == arrayIndex)
             {
                 DecrementLast();

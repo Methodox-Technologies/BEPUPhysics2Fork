@@ -183,7 +183,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReadSlot(ref Vector2Wide wide, int slotIndex, out Vector2 narrow)
         {
-            ref var offset = ref GatherScatter.GetOffsetInstance(ref wide, slotIndex);
+            ref Vector2Wide offset = ref GatherScatter.GetOffsetInstance(ref wide, slotIndex);
             ReadFirst(offset, out narrow);
         }
 

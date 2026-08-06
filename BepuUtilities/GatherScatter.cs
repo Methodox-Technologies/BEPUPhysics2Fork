@@ -32,10 +32,10 @@ namespace BepuUtilities
         public static void CopyLane<T>(ref T sourceBundle, int sourceInnerIndex, ref T targetBundle, int targetInnerIndex)
         {
             //Note the truncation. Currently used for some types that don't have a size evenly divisible by the Vector<int>.Count * sizeof(int).
-            var sizeInInts = (Unsafe.SizeOf<T>() >> 2) & ~BundleIndexing.VectorMask;
+            int sizeInInts = (Unsafe.SizeOf<T>() >> 2) & ~BundleIndexing.VectorMask;
 
-            ref var sourceBase = ref Unsafe.Add(ref Unsafe.As<T, int>(ref sourceBundle), sourceInnerIndex);
-            ref var targetBase = ref Unsafe.Add(ref Unsafe.As<T, int>(ref targetBundle), targetInnerIndex);
+            ref int sourceBase = ref Unsafe.Add(ref Unsafe.As<T, int>(ref sourceBundle), sourceInnerIndex);
+            ref int targetBase = ref Unsafe.Add(ref Unsafe.As<T, int>(ref targetBundle), targetInnerIndex);
 
             targetBase = sourceBase;
             //Would be nice if this just auto-unrolled based on the size, considering the jit considers all the relevant bits to be constants!
@@ -93,8 +93,8 @@ namespace BepuUtilities
         public static void ClearLane<TOuter, TVector>(ref TOuter bundle, int innerIndex) where TVector : struct
         {
             //This should be folded into a single constant by the jit.
-            var vectorCount = Unsafe.SizeOf<TOuter>() / Unsafe.SizeOf<Vector<TVector>>();
-            ref var laneBase = ref Unsafe.Add(ref Unsafe.As<TOuter, TVector>(ref bundle), innerIndex);
+            int vectorCount = Unsafe.SizeOf<TOuter>() / Unsafe.SizeOf<Vector<TVector>>();
+            ref TVector laneBase = ref Unsafe.Add(ref Unsafe.As<TOuter, TVector>(ref bundle), innerIndex);
             for (int i = 0; i < vectorCount; ++i)
             {
                 Unsafe.Add(ref laneBase, i * Vector<TVector>.Count) = default;

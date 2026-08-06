@@ -134,25 +134,25 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Transform(in Vector3Wide v, in Matrix3x3Wide m, out Vector3Wide result)
         {
-            TransformWithoutOverlap(v, m, out var temp);
+            TransformWithoutOverlap(v, m, out Vector3Wide temp);
             result = temp;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invert(in Matrix3x3Wide m, out Matrix3x3Wide inverse)
         {
-            var m11 = m.Y.Y * m.Z.Z - m.Z.Y * m.Y.Z;
-            var m21 = m.Y.Z * m.Z.X - m.Z.Z * m.Y.X;
-            var m31 = m.Y.X * m.Z.Y - m.Z.X * m.Y.Y;
-            var determinantInverse = Vector<float>.One / (m11 * m.X.X + m21 * m.X.Y + m31 * m.X.Z);
+            Vector<float> m11 = m.Y.Y * m.Z.Z - m.Z.Y * m.Y.Z;
+            Vector<float> m21 = m.Y.Z * m.Z.X - m.Z.Z * m.Y.X;
+            Vector<float> m31 = m.Y.X * m.Z.Y - m.Z.X * m.Y.Y;
+            Vector<float> determinantInverse = Vector<float>.One / (m11 * m.X.X + m21 * m.X.Y + m31 * m.X.Z);
 
-            var m12 = m.Z.Y * m.X.Z - m.X.Y * m.Z.Z;
-            var m22 = m.Z.Z * m.X.X - m.X.Z * m.Z.X;
-            var m32 = m.Z.X * m.X.Y - m.X.X * m.Z.Y;
+            Vector<float> m12 = m.Z.Y * m.X.Z - m.X.Y * m.Z.Z;
+            Vector<float> m22 = m.Z.Z * m.X.X - m.X.Z * m.Z.X;
+            Vector<float> m32 = m.Z.X * m.X.Y - m.X.X * m.Z.Y;
 
-            var m13 = m.X.Y * m.Y.Z - m.Y.Y * m.X.Z;
-            var m23 = m.X.Z * m.Y.X - m.Y.Z * m.X.X;
-            var m33 = m.X.X * m.Y.Y - m.Y.X * m.X.Y;
+            Vector<float> m13 = m.X.Y * m.Y.Z - m.Y.Y * m.X.Z;
+            Vector<float> m23 = m.X.Z * m.Y.X - m.Y.Z * m.X.X;
+            Vector<float> m33 = m.X.X * m.Y.Y - m.Y.X * m.X.Y;
 
             inverse.X.X = m11 * determinantInverse;
             inverse.Y.X = m21 * determinantInverse;
@@ -237,25 +237,25 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CreateFromQuaternion(in QuaternionWide quaternion, out Matrix3x3Wide result)
         {
-            var qX2 = quaternion.X + quaternion.X;
-            var qY2 = quaternion.Y + quaternion.Y;
-            var qZ2 = quaternion.Z + quaternion.Z;
+            Vector<float> qX2 = quaternion.X + quaternion.X;
+            Vector<float> qY2 = quaternion.Y + quaternion.Y;
+            Vector<float> qZ2 = quaternion.Z + quaternion.Z;
 
-            var YY = qY2 * quaternion.Y;
-            var ZZ = qZ2 * quaternion.Z;
+            Vector<float> YY = qY2 * quaternion.Y;
+            Vector<float> ZZ = qZ2 * quaternion.Z;
             result.X.X = Vector<float>.One - YY - ZZ;
-            var XY = qX2 * quaternion.Y;
-            var ZW = qZ2 * quaternion.W;
+            Vector<float> XY = qX2 * quaternion.Y;
+            Vector<float> ZW = qZ2 * quaternion.W;
             result.X.Y = XY + ZW;
-            var XZ = qX2 * quaternion.Z;
-            var YW = qY2 * quaternion.W;
+            Vector<float> XZ = qX2 * quaternion.Z;
+            Vector<float> YW = qY2 * quaternion.W;
             result.X.Z = XZ - YW;
 
-            var XX = qX2 * quaternion.X;
+            Vector<float> XX = qX2 * quaternion.X;
             result.Y.X = XY - ZW;
             result.Y.Y = Vector<float>.One - XX - ZZ;
-            var XW = qX2 * quaternion.W;
-            var YZ = qY2 * quaternion.Z;
+            Vector<float> XW = qX2 * quaternion.W;
+            Vector<float> YZ = qY2 * quaternion.Z;
             result.Y.Z = YZ + XW;
 
             result.Z.X = XZ + YW;
@@ -314,7 +314,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReadSlot(ref Matrix3x3Wide wide, int slotIndex, out Matrix3x3 narrow)
         {
-            ref var offset = ref GatherScatter.GetOffsetInstance(ref wide, slotIndex);
+            ref Matrix3x3Wide offset = ref GatherScatter.GetOffsetInstance(ref wide, slotIndex);
             ReadFirst(offset, out narrow);
         }
     }

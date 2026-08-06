@@ -54,7 +54,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InvertWithoutOverlap(in Symmetric2x2Wide m, out Symmetric2x2Wide inverse)
         {
-            var denom = Vector<float>.One / (m.YX * m.YX - m.XX * m.YY);
+            Vector<float> denom = Vector<float>.One / (m.YX * m.YX - m.XX * m.YY);
             inverse.XX = -m.YY * denom;
             inverse.YX = m.YX * denom;
             inverse.YY = -m.XX * denom;

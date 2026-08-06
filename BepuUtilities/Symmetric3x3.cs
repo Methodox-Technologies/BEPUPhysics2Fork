@@ -49,17 +49,17 @@ namespace BepuUtilities
             //TODO: We just copied this from the wide implementation. There are a lot of ways to improve this, should it be necessary.
             //(There's virtually no chance that optimizing this to a serious degree would be worth it- at the time of writing, it's only called by the pose integrator, which is 
             //horribly memory bound anyway.)
-            var i11 = r.X.X * m.XX + r.Y.X * m.YX + r.Z.X * m.ZX;
-            var i12 = r.X.X * m.YX + r.Y.X * m.YY + r.Z.X * m.ZY;
-            var i13 = r.X.X * m.ZX + r.Y.X * m.ZY + r.Z.X * m.ZZ;
+            float i11 = r.X.X * m.XX + r.Y.X * m.YX + r.Z.X * m.ZX;
+            float i12 = r.X.X * m.YX + r.Y.X * m.YY + r.Z.X * m.ZY;
+            float i13 = r.X.X * m.ZX + r.Y.X * m.ZY + r.Z.X * m.ZZ;
 
-            var i21 = r.X.Y * m.XX + r.Y.Y * m.YX + r.Z.Y * m.ZX;
-            var i22 = r.X.Y * m.YX + r.Y.Y * m.YY + r.Z.Y * m.ZY;
-            var i23 = r.X.Y * m.ZX + r.Y.Y * m.ZY + r.Z.Y * m.ZZ;
+            float i21 = r.X.Y * m.XX + r.Y.Y * m.YX + r.Z.Y * m.ZX;
+            float i22 = r.X.Y * m.YX + r.Y.Y * m.YY + r.Z.Y * m.ZY;
+            float i23 = r.X.Y * m.ZX + r.Y.Y * m.ZY + r.Z.Y * m.ZZ;
 
-            var i31 = r.X.Z * m.XX + r.Y.Z * m.YX + r.Z.Z * m.ZX;
-            var i32 = r.X.Z * m.YX + r.Y.Z * m.YY + r.Z.Z * m.ZY;
-            var i33 = r.X.Z * m.ZX + r.Y.Z * m.ZY + r.Z.Z * m.ZZ;
+            float i31 = r.X.Z * m.XX + r.Y.Z * m.YX + r.Z.Z * m.ZX;
+            float i32 = r.X.Z * m.YX + r.Y.Z * m.YY + r.Z.Z * m.ZY;
+            float i33 = r.X.Z * m.ZX + r.Y.Z * m.ZY + r.Z.Z * m.ZZ;
 
             sandwich.XX = i11 * r.X.X + i12 * r.Y.X + i13 * r.Z.X;
             sandwich.YX = i21 * r.X.X + i22 * r.Y.X + i23 * r.Z.X;
@@ -77,9 +77,9 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Determinant(in Symmetric3x3 m)
         {
-            var m11 = m.YY * m.ZZ - m.ZY * m.ZY;
-            var m21 = m.ZY * m.ZX - m.ZZ * m.YX;
-            var m31 = m.YX * m.ZY - m.ZX * m.YY;
+            float m11 = m.YY * m.ZZ - m.ZY * m.ZY;
+            float m21 = m.ZY * m.ZX - m.ZZ * m.YX;
+            float m31 = m.YX * m.ZY - m.ZX * m.YY;
             return m11 * m.XX + m21 * m.YX + m31 * m.ZX;
         }
 
@@ -91,7 +91,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Symmetric3x3 Invert(Symmetric3x3 m)
         {
-            Invert(m, out var inverse);
+            Invert(m, out Symmetric3x3 inverse);
             return inverse;
         }
 
@@ -103,15 +103,15 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invert(in Symmetric3x3 m, out Symmetric3x3 inverse)
         {
-            var m11 = m.YY * m.ZZ - m.ZY * m.ZY;
-            var m21 = m.ZY * m.ZX - m.ZZ * m.YX;
-            var m31 = m.YX * m.ZY - m.ZX * m.YY;
-            var determinantInverse = 1f / (m11 * m.XX + m21 * m.YX + m31 * m.ZX);
+            float m11 = m.YY * m.ZZ - m.ZY * m.ZY;
+            float m21 = m.ZY * m.ZX - m.ZZ * m.YX;
+            float m31 = m.YX * m.ZY - m.ZX * m.YY;
+            float determinantInverse = 1f / (m11 * m.XX + m21 * m.YX + m31 * m.ZX);
 
-            var m22 = m.ZZ * m.XX - m.ZX * m.ZX;
-            var m32 = m.ZX * m.YX - m.XX * m.ZY;
+            float m22 = m.ZZ * m.XX - m.ZX * m.ZX;
+            float m32 = m.ZX * m.YX - m.XX * m.ZY;
 
-            var m33 = m.XX * m.YY - m.YX * m.YX;
+            float m33 = m.XX * m.YY - m.YX * m.YX;
 
             inverse.XX = m11 * determinantInverse;
             inverse.YX = m21 * determinantInverse;
@@ -348,9 +348,9 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MultiplyWithoutOverlap(in Symmetric3x3 a, in Symmetric3x3 b, out Symmetric3x3 result)
         {
-            var ayxbyx = a.YX * b.YX;
-            var azxbzx = a.ZX * b.ZX;
-            var azybzy = a.ZY * b.ZY;
+            float ayxbyx = a.YX * b.YX;
+            float azxbzx = a.ZX * b.ZX;
+            float azybzy = a.ZY * b.ZY;
             result.XX = a.XX * b.XX + ayxbyx + azxbzx;
 
             result.YX = a.YX * b.XX + a.YY * b.YX + a.ZY * b.ZX;
@@ -370,9 +370,9 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Symmetric3x3 operator *(Symmetric3x3 a, Symmetric3x3 b)
         {
-            var ayxbyx = a.YX * b.YX;
-            var azxbzx = a.ZX * b.ZX;
-            var azybzy = a.ZY * b.ZY;
+            float ayxbyx = a.YX * b.YX;
+            float azxbzx = a.ZX * b.ZX;
+            float azybzy = a.ZY * b.ZY;
             Symmetric3x3 result;
             result.XX = a.XX * b.XX + ayxbyx + azxbzx;
 

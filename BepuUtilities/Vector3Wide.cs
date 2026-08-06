@@ -357,7 +357,7 @@ namespace BepuUtilities
         public static Vector3Wide operator /(Vector3Wide vector, Vector<float> scalar)
         {
             Vector3Wide result;
-            var inverse = Vector<float>.One / scalar;
+            Vector<float> inverse = Vector<float>.One / scalar;
             result.X = vector.X * inverse;
             result.Y = vector.Y * inverse;
             result.Z = vector.Z * inverse;
@@ -533,7 +533,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Cross(in Vector3Wide a, in Vector3Wide b, out Vector3Wide result)
         {
-            CrossWithoutOverlap(a, b, out var temp);
+            CrossWithoutOverlap(a, b, out Vector3Wide temp);
             result = temp;
         }
 
@@ -626,9 +626,9 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Distance(in Vector3Wide a, in Vector3Wide b, out Vector<float> distance)
         {
-            var x = b.X - a.X;
-            var y = b.Y - a.Y;
-            var z = b.Z - a.Z;
+            Vector<float> x = b.X - a.X;
+            Vector<float> y = b.Y - a.Y;
+            Vector<float> z = b.Z - a.Z;
             distance = Vector.SquareRoot(x * x + y * y + z * z);
         }
 
@@ -641,9 +641,9 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void DistanceSquared(in Vector3Wide a, in Vector3Wide b, out Vector<float> distanceSquared)
         {
-            var x = b.X - a.X;
-            var y = b.Y - a.Y;
-            var z = b.Z - a.Z;
+            Vector<float> x = b.X - a.X;
+            Vector<float> y = b.Y - a.Y;
+            Vector<float> z = b.Z - a.Z;
             distanceSquared = x * x + y * y + z * z;
         }
 
@@ -656,9 +656,9 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector<float> Distance(Vector3Wide a, Vector3Wide b)
         {
-            var x = b.X - a.X;
-            var y = b.Y - a.Y;
-            var z = b.Z - a.Z;
+            Vector<float> x = b.X - a.X;
+            Vector<float> y = b.Y - a.Y;
+            Vector<float> z = b.Z - a.Z;
             return Vector.SquareRoot(x * x + y * y + z * z);
         }
 
@@ -671,9 +671,9 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector<float> DistanceSquared(Vector3Wide a, Vector3Wide b)
         {
-            var x = b.X - a.X;
-            var y = b.Y - a.Y;
-            var z = b.Z - a.Z;
+            Vector<float> x = b.X - a.X;
+            Vector<float> y = b.Y - a.Y;
+            Vector<float> z = b.Z - a.Z;
             return x * x + y * y + z * z;
         }
 
@@ -687,8 +687,8 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Normalize(in Vector3Wide v, out Vector3Wide result)
         {
-            Length(v, out var length);
-            var scale = Vector<float>.One / length;
+            Length(v, out Vector<float> length);
+            Vector<float> scale = Vector<float>.One / length;
             Scale(v, scale, out result);
         }
 
@@ -700,8 +700,8 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3Wide Normalize(Vector3Wide v)
         {
-            Length(v, out var length);
-            var scale = Vector<float>.One / length;
+            Length(v, out Vector<float> length);
+            Vector<float> scale = Vector<float>.One / length;
             return v * scale;
         }
 
@@ -777,7 +777,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReadSlot(ref Vector3Wide wide, int slotIndex, out Vector3 narrow)
         {
-            ref var offset = ref GatherScatter.GetOffsetInstance(ref wide, slotIndex);
+            ref Vector3Wide offset = ref GatherScatter.GetOffsetInstance(ref wide, slotIndex);
             ReadFirst(offset, out narrow);
         }
 
@@ -888,8 +888,8 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopySlot(ref Vector3Wide source, int sourceSlotIndex, ref Vector3Wide target, int targetSlotIndex)
         {
-            ref var sourceSlot = ref GatherScatter.GetOffsetInstance(ref source, sourceSlotIndex);
-            ref var targetSlot = ref GatherScatter.GetOffsetInstance(ref target, targetSlotIndex);
+            ref Vector3Wide sourceSlot = ref GatherScatter.GetOffsetInstance(ref source, sourceSlotIndex);
+            ref Vector3Wide targetSlot = ref GatherScatter.GetOffsetInstance(ref target, targetSlotIndex);
             GatherScatter.GetFirst(ref targetSlot.X) = sourceSlot.X[0];
             GatherScatter.GetFirst(ref targetSlot.Y) = sourceSlot.Y[0];
             GatherScatter.GetFirst(ref targetSlot.Z) = sourceSlot.Z[0];

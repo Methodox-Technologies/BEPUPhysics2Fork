@@ -41,15 +41,15 @@ namespace BepuUtilities
         //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invert(in Symmetric3x3Wide m, out Symmetric3x3Wide inverse)
         {
-            var xx = m.YY * m.ZZ - m.ZY * m.ZY;
-            var yx = m.ZY * m.ZX - m.ZZ * m.YX;
-            var zx = m.YX * m.ZY - m.ZX * m.YY;
-            var determinantInverse = Vector<float>.One / (xx * m.XX + yx * m.YX + zx * m.ZX);
+            Vector<float> xx = m.YY * m.ZZ - m.ZY * m.ZY;
+            Vector<float> yx = m.ZY * m.ZX - m.ZZ * m.YX;
+            Vector<float> zx = m.YX * m.ZY - m.ZX * m.YY;
+            Vector<float> determinantInverse = Vector<float>.One / (xx * m.XX + yx * m.YX + zx * m.ZX);
 
-            var yy = m.ZZ * m.XX - m.ZX * m.ZX;
-            var zy = m.ZX * m.YX - m.XX * m.ZY;
+            Vector<float> yy = m.ZZ * m.XX - m.ZX * m.ZX;
+            Vector<float> zy = m.ZX * m.YX - m.XX * m.ZY;
 
-            var zz = m.XX * m.YY - m.YX * m.YX;
+            Vector<float> zz = m.XX * m.YY - m.YX * m.YX;
 
             inverse.XX = xx * determinantInverse;
             inverse.YX = yx * determinantInverse;
@@ -182,18 +182,18 @@ namespace BepuUtilities
         public static void SkewSandwichWithoutOverlap(in Vector3Wide v, in Symmetric3x3Wide m, out Symmetric3x3Wide sandwich)
         {
             //27 muls, 15 adds.
-            var xzy = v.X * m.ZY;
-            var yzx = v.Y * m.ZX;
-            var zyx = v.Z * m.YX;
-            var ixx = yzx - zyx;
-            var ixy = v.Y * m.ZY - v.Z * m.YY;
-            var ixz = v.Y * m.ZZ - v.Z * m.ZY;
-            var iyx = v.Z * m.XX - v.X * m.ZX;
-            var iyy = zyx - xzy;
-            var iyz = v.Z * m.ZX - v.X * m.ZZ;
-            var izx = v.X * m.YX - v.Y * m.XX;
-            var izy = v.X * m.YY - v.Y * m.YX;
-            var izz = xzy - yzx;
+            Vector<float> xzy = v.X * m.ZY;
+            Vector<float> yzx = v.Y * m.ZX;
+            Vector<float> zyx = v.Z * m.YX;
+            Vector<float> ixx = yzx - zyx;
+            Vector<float> ixy = v.Y * m.ZY - v.Z * m.YY;
+            Vector<float> ixz = v.Y * m.ZZ - v.Z * m.ZY;
+            Vector<float> iyx = v.Z * m.XX - v.X * m.ZX;
+            Vector<float> iyy = zyx - xzy;
+            Vector<float> iyz = v.Z * m.ZX - v.X * m.ZZ;
+            Vector<float> izx = v.X * m.YX - v.Y * m.XX;
+            Vector<float> izy = v.X * m.YY - v.Y * m.YX;
+            Vector<float> izz = xzy - yzx;
 
             sandwich.XX = v.Y * ixz - v.Z * ixy;
             sandwich.YX = v.Y * iyz - v.Z * iyy;
@@ -215,9 +215,9 @@ namespace BepuUtilities
         {
             //This isn't actually fewer flops than the equivalent explicit operation, but it does avoid some struct locals and it's a pretty common operation.
             //(And at the moment, avoiding struct locals is unfortunately helpful for codegen reasons.)
-            var x = v.X * m.XX + v.Y * m.YX + v.Z * m.ZX;
-            var y = v.X * m.YX + v.Y * m.YY + v.Z * m.ZY;
-            var z = v.X * m.ZX + v.Y * m.ZY + v.Z * m.ZZ;
+            Vector<float> x = v.X * m.XX + v.Y * m.YX + v.Z * m.ZX;
+            Vector<float> y = v.X * m.YX + v.Y * m.YY + v.Z * m.ZY;
+            Vector<float> z = v.X * m.ZX + v.Y * m.ZY + v.Z * m.ZZ;
             sandwich = x * v.X + y * v.Y + z * v.Z;
         }
 
@@ -230,17 +230,17 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RotationSandwich(in Matrix3x3Wide r, in Symmetric3x3Wide m, out Symmetric3x3Wide sandwich)
         {
-            var ixx = r.X.X * m.XX + r.Y.X * m.YX + r.Z.X * m.ZX;
-            var ixy = r.X.X * m.YX + r.Y.X * m.YY + r.Z.X * m.ZY;
-            var ixz = r.X.X * m.ZX + r.Y.X * m.ZY + r.Z.X * m.ZZ;
+            Vector<float> ixx = r.X.X * m.XX + r.Y.X * m.YX + r.Z.X * m.ZX;
+            Vector<float> ixy = r.X.X * m.YX + r.Y.X * m.YY + r.Z.X * m.ZY;
+            Vector<float> ixz = r.X.X * m.ZX + r.Y.X * m.ZY + r.Z.X * m.ZZ;
 
-            var iyx = r.X.Y * m.XX + r.Y.Y * m.YX + r.Z.Y * m.ZX;
-            var iyy = r.X.Y * m.YX + r.Y.Y * m.YY + r.Z.Y * m.ZY;
-            var iyz = r.X.Y * m.ZX + r.Y.Y * m.ZY + r.Z.Y * m.ZZ;
+            Vector<float> iyx = r.X.Y * m.XX + r.Y.Y * m.YX + r.Z.Y * m.ZX;
+            Vector<float> iyy = r.X.Y * m.YX + r.Y.Y * m.YY + r.Z.Y * m.ZY;
+            Vector<float> iyz = r.X.Y * m.ZX + r.Y.Y * m.ZY + r.Z.Y * m.ZZ;
 
-            var izx = r.X.Z * m.XX + r.Y.Z * m.YX + r.Z.Z * m.ZX;
-            var izy = r.X.Z * m.YX + r.Y.Z * m.YY + r.Z.Z * m.ZY;
-            var izz = r.X.Z * m.ZX + r.Y.Z * m.ZY + r.Z.Z * m.ZZ;
+            Vector<float> izx = r.X.Z * m.XX + r.Y.Z * m.YX + r.Z.Z * m.ZX;
+            Vector<float> izy = r.X.Z * m.YX + r.Y.Z * m.YY + r.Z.Z * m.ZY;
+            Vector<float> izz = r.X.Z * m.ZX + r.Y.Z * m.ZY + r.Z.Z * m.ZZ;
 
             sandwich.XX = ixx * r.X.X + ixy * r.Y.X + ixz * r.Z.X;
             sandwich.YX = iyx * r.X.X + iyy * r.Y.X + iyz * r.Z.X;
@@ -428,12 +428,12 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MatrixSandwich(in Matrix2x3Wide m, in Symmetric3x3Wide t, out Symmetric2x2Wide result)
         {
-            var ixx = m.X.X * t.XX + m.X.Y * t.YX + m.X.Z * t.ZX;
-            var ixy = m.X.X * t.YX + m.X.Y * t.YY + m.X.Z * t.ZY;
-            var ixz = m.X.X * t.ZX + m.X.Y * t.ZY + m.X.Z * t.ZZ;
-            var iyx = m.Y.X * t.XX + m.Y.Y * t.YX + m.Y.Z * t.ZX;
-            var iyy = m.Y.X * t.YX + m.Y.Y * t.YY + m.Y.Z * t.ZY;
-            var iyz = m.Y.X * t.ZX + m.Y.Y * t.ZY + m.Y.Z * t.ZZ;
+            Vector<float> ixx = m.X.X * t.XX + m.X.Y * t.YX + m.X.Z * t.ZX;
+            Vector<float> ixy = m.X.X * t.YX + m.X.Y * t.YY + m.X.Z * t.ZY;
+            Vector<float> ixz = m.X.X * t.ZX + m.X.Y * t.ZY + m.X.Z * t.ZZ;
+            Vector<float> iyx = m.Y.X * t.XX + m.Y.Y * t.YX + m.Y.Z * t.ZX;
+            Vector<float> iyy = m.Y.X * t.YX + m.Y.Y * t.YY + m.Y.Z * t.ZY;
+            Vector<float> iyz = m.Y.X * t.ZX + m.Y.Y * t.ZY + m.Y.Z * t.ZZ;
             result.XX = ixx * m.X.X + ixy * m.X.Y + ixz * m.X.Z;
             result.YX = iyx * m.X.X + iyy * m.X.Y + iyz * m.X.Z;
             result.YY = iyx * m.Y.X + iyy * m.Y.Y + iyz * m.Y.Z;

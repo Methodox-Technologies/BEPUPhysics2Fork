@@ -26,7 +26,7 @@ namespace BepuUtilities.Memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetContainingPowerOf2(int i)
         {
-            var unsigned = i == 0 ? 1u : (uint)i;
+            uint unsigned = i == 0 ? 1u : (uint)i;
             return 32 - BitOperations.LeadingZeroCount(unsigned - 1);
 
         }

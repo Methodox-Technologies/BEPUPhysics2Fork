@@ -118,8 +118,8 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public QuickSet(int initialCapacity, int tableSizePower, IUnmanagedMemoryPool pool, TEqualityComparer comparer)
         {
-            pool.TakeAtLeast<T>(initialCapacity, out var span);
-            pool.TakeAtLeast<int>(span.Length << tableSizePower, out var tableSpan);
+            pool.TakeAtLeast<T>(initialCapacity, out Buffer<T> span);
+            pool.TakeAtLeast<int>(span.Length << tableSizePower, out Buffer<int> tableSpan);
             //No guarantee that the table is clean; clear it.
             tableSpan.Clear(0, tableSpan.Length);
             this = new QuickSet<T, TEqualityComparer>(ref span, ref tableSpan, comparer, tableSizePower);
@@ -161,12 +161,12 @@ namespace BepuUtilities.Collections
         {
             ValidateSpanCapacity(ref newSpan, ref newTableSpan);
             ValidateTableIsCleared(ref newTableSpan);
-            var oldSet = this;
+            QuickSet<T, TEqualityComparer> oldSet = this;
             Span = newSpan;
             Table = newTableSpan;
             Count = 0;
             TableMask = newTableSpan.Length - 1;
-            var newCount = oldSet.Count > newSpan.Length ? newSpan.Length : oldSet.Count;
+            int newCount = oldSet.Count > newSpan.Length ? newSpan.Length : oldSet.Count;
 
             //Unfortunately we can't really do a straight copy; the backing table relies on modulo operations.
             //Technically, we could copy the regular set and then rely on a partial add to take care of the rest, but bleh!
@@ -191,15 +191,15 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Resize(int newSize, IUnmanagedMemoryPool pool)
         {
-            var targetCapacity = pool.GetCapacityForCount<T>(newSize);
+            int targetCapacity = pool.GetCapacityForCount<T>(newSize);
             if (targetCapacity != Span.Length)
             {
-                var oldSet = this;
-                pool.TakeAtLeast<T>(newSize, out var newSpan);
-                pool.TakeAtLeast<int>(newSpan.Length << TablePowerOffset, out var newTableSpan);
+                QuickSet<T, TEqualityComparer> oldSet = this;
+                pool.TakeAtLeast<T>(newSize, out Buffer<T> newSpan);
+                pool.TakeAtLeast<int>(newSpan.Length << TablePowerOffset, out Buffer<int> newTableSpan);
                 //There is no guarantee that the table retrieved from the pool is clean. Clear it!
                 newTableSpan.Clear(0, newTableSpan.Length);
-                Resize(ref newSpan, ref newTableSpan, out var oldSpan, out var oldTableSpan);
+                Resize(ref newSpan, ref newTableSpan, out Buffer<T> oldSpan, out Buffer<int> oldTableSpan);
                 oldSet.Dispose(pool);
             }
         }
@@ -236,7 +236,7 @@ namespace BepuUtilities.Collections
         public void Compact(IUnmanagedMemoryPool pool)
         {
             Validate();
-            var targetCapacity = pool.GetCapacityForCount<T>(Count);
+            int targetCapacity = pool.GetCapacityForCount<T>(Count);
             if (targetCapacity < Span.Length)
                 Resize(Count, pool);
         }
@@ -473,7 +473,7 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastRemove(int tableIndex, int elementIndex)
         {
-            Debug.Assert(GetTableIndices(ref Span[elementIndex], out var debugTableIndex, out var debugElementIndex) && debugTableIndex == tableIndex && debugElementIndex == elementIndex,
+            Debug.Assert(GetTableIndices(ref Span[elementIndex], out int debugTableIndex, out int debugElementIndex) && debugTableIndex == tableIndex && debugElementIndex == elementIndex,
                  "The table index and element index used to directly remove must match an actual element.");
 
             //Add and remove must both maintain a property:
@@ -492,8 +492,8 @@ namespace BepuUtilities.Collections
                 //Would this element be closer to its actual index if it was moved to the gap?
                 //To find out, compute the clockwise distance from the gap and the clockwise distance from the ideal location.
 
-                var distanceFromGap = (tableIndex - gapIndex) & TableMask;
-                var distanceFromIdeal = (tableIndex - desiredIndex) & TableMask;
+                int distanceFromGap = (tableIndex - gapIndex) & TableMask;
+                int distanceFromIdeal = (tableIndex - desiredIndex) & TableMask;
                 if (distanceFromGap <= distanceFromIdeal)
                 {
                     //The distance to the gap is less than or equal the distance to the ideal location, so just move to the gap.

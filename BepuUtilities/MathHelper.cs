@@ -203,9 +203,9 @@ namespace BepuUtilities
         public static float Cos(float x)
         {
             //Rational approximation over [0, pi/2], use symmetry for the rest.
-            var periodCount = x * (float)(0.5 / Math.PI);
-            var periodFraction = periodCount - MathF.Floor(periodCount); //This is a source of error as you get away from 0.
-            var periodX = periodFraction * TwoPi;
+            float periodCount = x * (float)(0.5 / Math.PI);
+            float periodFraction = periodCount - MathF.Floor(periodCount); //This is a source of error as you get away from 0.
+            float periodX = periodFraction * TwoPi;
 
             //[0, pi/2] = f(x)
             //(pi/2, pi] = -f(Pi - x)
@@ -216,9 +216,9 @@ namespace BepuUtilities
             //Using a fifth degree numerator and denominator.
             //This will be precise beyond a single's useful representation most of the time, but we're not *that* worried about performance here.
             //TODO: FMA could help here, primarily in terms of precision.
-            var numerator = ((((-0.003436308368583229f * y + 0.021317031205957775f) * y + 0.06955843390178032f) * y - 0.4578088075324152f) * y - 0.15082367674208508f) * y + 1f;
-            var denominator = ((((-0.00007650398834677185f * y + 0.0007451378206294365f) * y - 0.00585321045829395f) * y + 0.04219116713777847f) * y - 0.15082367538305258f) * y + 1f;
-            var result = numerator / denominator;
+            float numerator = ((((-0.003436308368583229f * y + 0.021317031205957775f) * y + 0.06955843390178032f) * y - 0.4578088075324152f) * y - 0.15082367674208508f) * y + 1f;
+            float denominator = ((((-0.00007650398834677185f * y + 0.0007451378206294365f) * y - 0.00585321045829395f) * y + 0.04219116713777847f) * y - 0.15082367538305258f) * y + 1f;
+            float result = numerator / denominator;
             return periodX > PiOver2 && periodX < 3 * PiOver2 ? -result : result;
 
         }
@@ -231,9 +231,9 @@ namespace BepuUtilities
         {
             //Similar to cos, use a rational approximation for the region of sin from [0, pi/2]. Use symmetry to cover the rest.
             //This has its own implementation rather than just calling into Cos because we want maximum fidelity near 0.
-            var periodCount = x * (float)(0.5 / Math.PI);
-            var periodFraction = periodCount - MathF.Floor(periodCount); //This is a source of error as you get away from 0.
-            var periodX = periodFraction * TwoPi;
+            float periodCount = x * (float)(0.5 / Math.PI);
+            float periodFraction = periodCount - MathF.Floor(periodCount); //This is a source of error as you get away from 0.
+            float periodX = periodFraction * TwoPi;
 
             //[0, pi/2] = f(x)
             //(pi/2, pi] = f(pi - x)
@@ -244,9 +244,9 @@ namespace BepuUtilities
             //Using a fifth degree numerator and denominator.
             //This will be precise beyond a single's useful representation most of the time, but we're not *that* worried about performance here.
             //TODO: FMA could help here, primarily in terms of precision.
-            var numerator = ((((0.0040507708755727605f * y - 0.006685815219853882f) * y - 0.13993701695343166f) * y + 0.06174562337697123f) * y + 1.00000000151466040f) * y;
-            var denominator = ((((0.00009018370615921334f * y + 0.0001700784176413186f) * y + 0.003606014457152456f) * y + 0.02672943625500751f) * y + 0.061745651499203795f) * y + 1f;
-            var result = numerator / denominator;
+            float numerator = ((((0.0040507708755727605f * y - 0.006685815219853882f) * y - 0.13993701695343166f) * y + 0.06174562337697123f) * y + 1.00000000151466040f) * y;
+            float denominator = ((((0.00009018370615921334f * y + 0.0001700784176413186f) * y + 0.003606014457152456f) * y + 0.02672943625500751f) * y + 0.061745651499203795f) * y + 1f;
+            float result = numerator / denominator;
             return periodX > Pi ? -result : result;
         }
 
@@ -257,12 +257,12 @@ namespace BepuUtilities
         /// <returns>Result of the arccos function.</returns>
         public static float Acos(float x)
         {
-            var negativeInput = x < 0;
+            bool negativeInput = x < 0;
             x = MathF.Min(1f, MathF.Abs(x));
             //Rational approximation (scaling sqrt(1-x)) over [0, 1], use symmetry for the rest. TODO: FMA would help with precision.
-            var numerator = MathF.Sqrt(1f - x) * (62.95741097600742f + x * (69.6550664543659f + x * (17.54512349463405f + x * 0.6022076120669532f)));
-            var denominator = 40.07993264439811f + x * (49.81949855726789f + x * (15.703851745284796f + x));
-            var result = numerator / denominator;
+            float numerator = MathF.Sqrt(1f - x) * (62.95741097600742f + x * (69.6550664543659f + x * (17.54512349463405f + x * 0.6022076120669532f)));
+            float denominator = 40.07993264439811f + x * (49.81949855726789f + x * (15.703851745284796f + x));
+            float result = numerator / denominator;
             return negativeInput ? Pi - result : result;
         }
 
@@ -274,10 +274,10 @@ namespace BepuUtilities
         public static Vector<float> Cos(Vector<float> x)
         {
             //Rational approximation over [0, pi/2], use symmetry for the rest.
-            var periodCount = x * (float)(0.5 / Math.PI);
-            var periodFraction = periodCount - Vector.Floor(periodCount); //This is a source of error as you get away from 0.
+            Vector<float> periodCount = x * (float)(0.5 / Math.PI);
+            Vector<float> periodFraction = periodCount - Vector.Floor(periodCount); //This is a source of error as you get away from 0.
             var twoPi = new Vector<float>(TwoPi);
-            var periodX = periodFraction * twoPi;
+            Vector<float> periodX = periodFraction * twoPi;
 
             //[0, pi/2] = f(x)
             //(pi/2, pi] = -f(Pi - x)
@@ -300,9 +300,9 @@ namespace BepuUtilities
             //var y5 = y3 * y2;
             //var numerator = Vector<float>.One - 0.15082367674208508f * y - 0.4578088075324152f * y2 + 0.06955843390178032f * y3 + 0.021317031205957775f * y4 - 0.003436308368583229f * y5;
             //var denominator = Vector<float>.One - 0.15082367538305258f * y + 0.04219116713777847f * y2 - 0.00585321045829395f * y3 + 0.0007451378206294365f * y4 - 0.00007650398834677185f * y5;
-            var numerator = ((((new Vector<float>(-0.003436308368583229f) * y + new Vector<float>(0.021317031205957775f)) * y + new Vector<float>(0.06955843390178032f)) * y - new Vector<float>(0.4578088075324152f)) * y - new Vector<float>(0.15082367674208508f)) * y + Vector<float>.One;
-            var denominator = ((((new Vector<float>(-0.00007650398834677185f) * y + new Vector<float>(0.0007451378206294365f)) * y - new Vector<float>(0.00585321045829395f)) * y + new Vector<float>(0.04219116713777847f)) * y - new Vector<float>(0.15082367538305258f)) * y + Vector<float>.One;
-            var result = numerator / denominator;
+            Vector<float> numerator = ((((new Vector<float>(-0.003436308368583229f) * y + new Vector<float>(0.021317031205957775f)) * y + new Vector<float>(0.06955843390178032f)) * y - new Vector<float>(0.4578088075324152f)) * y - new Vector<float>(0.15082367674208508f)) * y + Vector<float>.One;
+            Vector<float> denominator = ((((new Vector<float>(-0.00007650398834677185f) * y + new Vector<float>(0.0007451378206294365f)) * y - new Vector<float>(0.00585321045829395f)) * y + new Vector<float>(0.04219116713777847f)) * y - new Vector<float>(0.15082367538305258f)) * y + Vector<float>.One;
+            Vector<float> result = numerator / denominator;
             return Vector.ConditionalSelect(Vector.BitwiseAnd(Vector.GreaterThan(periodX, piOver2), Vector.LessThan(periodX, pi3Over2)), -result, result);
         }
         /// <summary>
@@ -314,10 +314,10 @@ namespace BepuUtilities
         {
             //Similar to cos, use a rational approximation for the region of sin from [0, pi/2]. Use symmetry to cover the rest.
             //This has its own implementation rather than just calling into Cos because we want maximum fidelity near 0.
-            var periodCount = x * (float)(0.5 / Math.PI);
-            var periodFraction = periodCount - Vector.Floor(periodCount); //This is a source of error as you get away from 0.
+            Vector<float> periodCount = x * (float)(0.5 / Math.PI);
+            Vector<float> periodFraction = periodCount - Vector.Floor(periodCount); //This is a source of error as you get away from 0.
             var twoPi = new Vector<float>(TwoPi);
-            var periodX = periodFraction * twoPi;
+            Vector<float> periodX = periodFraction * twoPi;
             //[0, pi/2] = f(x)
             //(pi/2, pi] = f(pi - x)
             //(pi, 3/2 * pi] = -f(x - pi)
@@ -339,9 +339,9 @@ namespace BepuUtilities
             //var y5 = y3 * y2;
             //var numerator = 1.0000000015146604f * y + 0.06174562337697123f * y2 - 0.13993701695343166f * y3 - 0.006685815219853882f * y4 + 0.0040507708755727605f * y5;
             //var denominator = Vector<float>.One + 0.061745651499203795f * y + 0.02672943625500751f * y2 + 0.003606014457152456f * y3 + 0.0001700784176413186f * y4 + 0.00009018370615921334f * y5;
-            var numerator = ((((0.0040507708755727605f * y - new Vector<float>(0.006685815219853882f)) * y - new Vector<float>(0.13993701695343166f)) * y + new Vector<float>(0.06174562337697123f)) * y + new Vector<float>(1.00000000151466040f)) * y;
-            var denominator = ((((new Vector<float>(0.00009018370615921334f) * y + new Vector<float>(0.0001700784176413186f)) * y + new Vector<float>(0.003606014457152456f)) * y + new Vector<float>(0.02672943625500751f)) * y + new Vector<float>(0.061745651499203795f)) * y + Vector<float>.One;
-            var result = numerator / denominator;
+            Vector<float> numerator = ((((0.0040507708755727605f * y - new Vector<float>(0.006685815219853882f)) * y - new Vector<float>(0.13993701695343166f)) * y + new Vector<float>(0.06174562337697123f)) * y + new Vector<float>(1.00000000151466040f)) * y;
+            Vector<float> denominator = ((((new Vector<float>(0.00009018370615921334f) * y + new Vector<float>(0.0001700784176413186f)) * y + new Vector<float>(0.003606014457152456f)) * y + new Vector<float>(0.02672943625500751f)) * y + new Vector<float>(0.061745651499203795f)) * y + Vector<float>.One;
+            Vector<float> result = numerator / denominator;
             return Vector.ConditionalSelect(inSecondHalf, -result, result);
         }
 
@@ -355,9 +355,9 @@ namespace BepuUtilities
             var negativeInput = Vector.LessThan(x, Vector<float>.Zero);
             x = Vector.Min(Vector<float>.One, Vector.Abs(x));
             //Rational approximation (scaling sqrt(1-x)) over [0, 1], use symmetry for the rest. TODO: FMA would help with precision.
-            var numerator = Vector.SquareRoot(Vector<float>.One - x) * (new Vector<float>(62.95741097600742f) + x * (new Vector<float>(69.6550664543659f) + x * (new Vector<float>(17.54512349463405f) + x * 0.6022076120669532f)));
-            var denominator = new Vector<float>(40.07993264439811f) + x * (new Vector<float>(49.81949855726789f) + x * (new Vector<float>(15.703851745284796f) + x));
-            var result = numerator / denominator;
+            Vector<float> numerator = Vector.SquareRoot(Vector<float>.One - x) * (new Vector<float>(62.95741097600742f) + x * (new Vector<float>(69.6550664543659f) + x * (new Vector<float>(17.54512349463405f) + x * 0.6022076120669532f)));
+            Vector<float> denominator = new Vector<float>(40.07993264439811f) + x * (new Vector<float>(49.81949855726789f) + x * (new Vector<float>(15.703851745284796f) + x));
+            Vector<float> result = numerator / denominator;
             return Vector.ConditionalSelect(negativeInput, new Vector<float>(Pi) - result, result);
         }
 
@@ -371,7 +371,7 @@ namespace BepuUtilities
         public static void GetSignedAngleDifference(in Vector<float> a, in Vector<float> b, out Vector<float> difference)
         {
             var half = new Vector<float>(0.5f);
-            var x = (b - a) * new Vector<float>(1f / TwoPi) + half;
+            Vector<float> x = (b - a) * new Vector<float>(1f / TwoPi) + half;
             difference = (x - Vector.Floor(x) - half) * new Vector<float>(TwoPi);
         }
 

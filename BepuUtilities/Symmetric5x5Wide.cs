@@ -37,13 +37,13 @@ namespace BepuUtilities
         {
             // [ A  BT ]^-1 = [ (A - BT * D^-1 * B)^-1, -(A - BT * D^-1 * B)^-1 * BT * D^-1                   ]
             // [ B  D  ]      [ symmetric               D^-1 + D^-1 * B * (A - BT * D^-1 * B)^-1 * BT * D^-1 ]
-            Symmetric2x2Wide.InvertWithoutOverlap(d, out var invD);
-            Symmetric2x2Wide.MultiplyTransposed(b, invD, out var bTInvD);
-            Symmetric3x3Wide.CompleteMatrixSandwich(bTInvD, b, out var bTInvDB);
-            Symmetric3x3Wide.Subtract(a, bTInvDB, out var resultAInverse);
+            Symmetric2x2Wide.InvertWithoutOverlap(d, out Symmetric2x2Wide invD);
+            Symmetric2x2Wide.MultiplyTransposed(b, invD, out Matrix2x3Wide bTInvD);
+            Symmetric3x3Wide.CompleteMatrixSandwich(bTInvD, b, out Symmetric3x3Wide bTInvDB);
+            Symmetric3x3Wide.Subtract(a, bTInvDB, out Symmetric3x3Wide resultAInverse);
             Symmetric3x3Wide.Invert(resultAInverse, out result.A);
 
-            Symmetric3x3Wide.MultiplyByTransposed(result.A, bTInvD, out var negatedResultBT);
+            Symmetric3x3Wide.MultiplyByTransposed(result.A, bTInvD, out Matrix2x3Wide negatedResultBT);
             Matrix2x3Wide.Negate(negatedResultBT, out result.B);
             Symmetric2x2Wide.CompleteMatrixSandwich(bTInvD, negatedResultBT, out result.D);
             Symmetric2x2Wide.Add(result.D, invD, out result.D);

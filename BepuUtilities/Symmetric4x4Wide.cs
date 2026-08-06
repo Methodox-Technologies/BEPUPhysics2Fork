@@ -61,20 +61,20 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InvertWithoutOverlap(in Symmetric4x4Wide m, out Symmetric4x4Wide result)
         {
-            var s0 = m.XX * m.YY - m.YX * m.YX;
-            var s1 = m.XX * m.ZY - m.YX * m.ZX;
-            var s2 = m.XX * m.WY - m.YX * m.WX;
-            var s3 = m.YX * m.ZY - m.YY * m.ZX;
-            var s4 = m.YX * m.WY - m.YY * m.WX;
-            var s5 = m.ZX * m.WY - m.ZY * m.WX;
-            var c5 = m.ZZ * m.WW - m.WZ * m.WZ;
-            var c4 = m.ZY * m.WW - m.WY * m.WZ;
-            var c3 = m.ZY * m.WZ - m.WY * m.ZZ;
-            var c2 = m.ZX * m.WW - m.WX * m.WZ;
-            var c1 = m.ZX * m.WZ - m.WX * m.ZZ;
+            Vector<float> s0 = m.XX * m.YY - m.YX * m.YX;
+            Vector<float> s1 = m.XX * m.ZY - m.YX * m.ZX;
+            Vector<float> s2 = m.XX * m.WY - m.YX * m.WX;
+            Vector<float> s3 = m.YX * m.ZY - m.YY * m.ZX;
+            Vector<float> s4 = m.YX * m.WY - m.YY * m.WX;
+            Vector<float> s5 = m.ZX * m.WY - m.ZY * m.WX;
+            Vector<float> c5 = m.ZZ * m.WW - m.WZ * m.WZ;
+            Vector<float> c4 = m.ZY * m.WW - m.WY * m.WZ;
+            Vector<float> c3 = m.ZY * m.WZ - m.WY * m.ZZ;
+            Vector<float> c2 = m.ZX * m.WW - m.WX * m.WZ;
+            Vector<float> c1 = m.ZX * m.WZ - m.WX * m.ZZ;
             //c0 = s5
 
-            var inverseDeterminant = Vector<float>.One / (s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * s5);
+            Vector<float> inverseDeterminant = Vector<float>.One / (s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * s5);
 
             result.XX = (m.YY * c5 - m.ZY * c4 + m.WY * c3) * inverseDeterminant;
 

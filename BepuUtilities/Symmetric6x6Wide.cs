@@ -31,13 +31,13 @@ namespace BepuUtilities
             //Note that B * D^-1 * BT produces a symmetric result. Likewise for the more complex result:
             //N = D^-1 * BT => 
             //D^-1 * BT * M * B * D^-1 = N * M * NT, because D is symmetric.
-            Symmetric3x3Wide.Invert(d, out var invD);
-            Symmetric3x3Wide.MultiplyWithoutOverlap(b, invD, out var bInvD);
-            Symmetric3x3Wide.CompleteMatrixSandwichByTranspose(bInvD, b, out var bInvDBT);
-            Symmetric3x3Wide.Subtract(a, bInvDBT, out var resultAInverse);
+            Symmetric3x3Wide.Invert(d, out Symmetric3x3Wide invD);
+            Symmetric3x3Wide.MultiplyWithoutOverlap(b, invD, out Matrix3x3Wide bInvD);
+            Symmetric3x3Wide.CompleteMatrixSandwichByTranspose(bInvD, b, out Symmetric3x3Wide bInvDBT);
+            Symmetric3x3Wide.Subtract(a, bInvDBT, out Symmetric3x3Wide resultAInverse);
             Symmetric3x3Wide.Invert(resultAInverse, out result.A);
 
-            Symmetric3x3Wide.Multiply(result.A, bInvD, out var negatedResultB);
+            Symmetric3x3Wide.Multiply(result.A, bInvD, out Matrix3x3Wide negatedResultB);
             Matrix3x3Wide.Negate(negatedResultB, out result.B);
             Symmetric3x3Wide.CompleteMatrixSandwichTranspose(bInvD, negatedResultB, out result.D);
             Symmetric3x3Wide.Add(result.D, invD, out result.D);
@@ -84,33 +84,33 @@ namespace BepuUtilities
         public static void LDLTSolve(
             in Vector3Wide v0, in Vector3Wide v1, in Symmetric3x3Wide a, in Matrix3x3Wide b, in Symmetric3x3Wide d, out Vector3Wide result0, out Vector3Wide result1)
         {
-            var d1 = a.XX;
-            var inverseD1 = Vector<float>.One / d1;
-            var l21 = inverseD1 * a.YX;
-            var l31 = inverseD1 * a.ZX;
-            var l41 = inverseD1 * b.X.X;
-            var l51 = inverseD1 * b.X.Y;
-            var l61 = inverseD1 * b.X.Z;
-            var d2 = a.YY - l21 * l21 * d1;
-            var inverseD2 = Vector<float>.One / d2;
-            var l32 = inverseD2 * (a.ZY - l31 * l21 * d1);
-            var l42 = inverseD2 * (b.Y.X - l41 * l21 * d1);
-            var l52 = inverseD2 * (b.Y.Y - l51 * l21 * d1);
-            var l62 = inverseD2 * (b.Y.Z - l61 * l21 * d1);
-            var d3 = a.ZZ - l31 * l31 * d1 - l32 * l32 * d2;
-            var inverseD3 = Vector<float>.One / d3;
-            var l43 = inverseD3 * (b.Z.X - l41 * l31 * d1 - l42 * l32 * d2);
-            var l53 = inverseD3 * (b.Z.Y - l51 * l31 * d1 - l52 * l32 * d2);
-            var l63 = inverseD3 * (b.Z.Z - l61 * l31 * d1 - l62 * l32 * d2);
-            var d4 = d.XX - l41 * l41 * d1 - l42 * l42 * d2 - l43 * l43 * d3;
-            var inverseD4 = Vector<float>.One / d4;
-            var l54 = inverseD4 * (d.YX - l51 * l41 * d1 - l52 * l42 * d2 - l53 * l43 * d3);
-            var l64 = inverseD4 * (d.ZX - l61 * l41 * d1 - l62 * l42 * d2 - l63 * l43 * d3);
-            var d5 = d.YY - l51 * l51 * d1 - l52 * l52 * d2 - l53 * l53 * d3 - l54 * l54 * d4;
-            var inverseD5 = Vector<float>.One / d5;
-            var l65 = inverseD5 * (d.ZY - l61 * l51 * d1 - l62 * l52 * d2 - l63 * l53 * d3 - l64 * l54 * d4);
-            var d6 = d.ZZ - l61 * l61 * d1 - l62 * l62 * d2 - l63 * l63 * d3 - l64 * l64 * d4 - l65 * l65 * d5;
-            var inverseD6 = Vector<float>.One / d6;
+            Vector<float> d1 = a.XX;
+            Vector<float> inverseD1 = Vector<float>.One / d1;
+            Vector<float> l21 = inverseD1 * a.YX;
+            Vector<float> l31 = inverseD1 * a.ZX;
+            Vector<float> l41 = inverseD1 * b.X.X;
+            Vector<float> l51 = inverseD1 * b.X.Y;
+            Vector<float> l61 = inverseD1 * b.X.Z;
+            Vector<float> d2 = a.YY - l21 * l21 * d1;
+            Vector<float> inverseD2 = Vector<float>.One / d2;
+            Vector<float> l32 = inverseD2 * (a.ZY - l31 * l21 * d1);
+            Vector<float> l42 = inverseD2 * (b.Y.X - l41 * l21 * d1);
+            Vector<float> l52 = inverseD2 * (b.Y.Y - l51 * l21 * d1);
+            Vector<float> l62 = inverseD2 * (b.Y.Z - l61 * l21 * d1);
+            Vector<float> d3 = a.ZZ - l31 * l31 * d1 - l32 * l32 * d2;
+            Vector<float> inverseD3 = Vector<float>.One / d3;
+            Vector<float> l43 = inverseD3 * (b.Z.X - l41 * l31 * d1 - l42 * l32 * d2);
+            Vector<float> l53 = inverseD3 * (b.Z.Y - l51 * l31 * d1 - l52 * l32 * d2);
+            Vector<float> l63 = inverseD3 * (b.Z.Z - l61 * l31 * d1 - l62 * l32 * d2);
+            Vector<float> d4 = d.XX - l41 * l41 * d1 - l42 * l42 * d2 - l43 * l43 * d3;
+            Vector<float> inverseD4 = Vector<float>.One / d4;
+            Vector<float> l54 = inverseD4 * (d.YX - l51 * l41 * d1 - l52 * l42 * d2 - l53 * l43 * d3);
+            Vector<float> l64 = inverseD4 * (d.ZX - l61 * l41 * d1 - l62 * l42 * d2 - l63 * l43 * d3);
+            Vector<float> d5 = d.YY - l51 * l51 * d1 - l52 * l52 * d2 - l53 * l53 * d3 - l54 * l54 * d4;
+            Vector<float> inverseD5 = Vector<float>.One / d5;
+            Vector<float> l65 = inverseD5 * (d.ZY - l61 * l51 * d1 - l62 * l52 * d2 - l63 * l53 * d3 - l64 * l54 * d4);
+            Vector<float> d6 = d.ZZ - l61 * l61 * d1 - l62 * l62 * d2 - l63 * l63 * d3 - l64 * l64 * d4 - l65 * l65 * d5;
+            Vector<float> inverseD6 = Vector<float>.One / d6;
 
             //We now have the components of L and D, so substitute.
             result0.X = v0.X;

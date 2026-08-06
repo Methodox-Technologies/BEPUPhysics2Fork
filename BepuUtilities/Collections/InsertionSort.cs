@@ -54,22 +54,22 @@ namespace BepuUtilities.Collections
         {
             for (int i = start + 1; i <= inclusiveEnd; ++i)
             {
-                var originalKey = Unsafe.Add(ref keys, i);
-                var originalValue = Unsafe.Add(ref values, i);
+                TKey originalKey = Unsafe.Add(ref keys, i);
+                TValue originalValue = Unsafe.Add(ref values, i);
                 int compareIndex;
                 for (compareIndex = i - 1; compareIndex >= start; --compareIndex)
                 {
                     if (comparer.Compare(ref originalKey, ref Unsafe.Add(ref keys, compareIndex)) < 0)
                     {
                         //Move the element up one slot.
-                        var upperSlotIndex = compareIndex + 1;
+                        int upperSlotIndex = compareIndex + 1;
                         Unsafe.Add(ref keys, upperSlotIndex) = Unsafe.Add(ref keys, compareIndex);
                         Unsafe.Add(ref values, upperSlotIndex) = Unsafe.Add(ref values, compareIndex);
                     }
                     else
                         break;
                 }
-                var targetIndex = compareIndex + 1;
+                int targetIndex = compareIndex + 1;
                 if (targetIndex != i)
                 {
                     //Move the original index down.
@@ -88,20 +88,20 @@ namespace BepuUtilities.Collections
         {
             for (int i = start + 1; i <= inclusiveEnd; ++i)
             {
-                var originalKey = Unsafe.Add(ref keys, i);
+                TKey originalKey = Unsafe.Add(ref keys, i);
                 int compareIndex;
                 for (compareIndex = i - 1; compareIndex >= start; --compareIndex)
                 {
                     if (comparer.Compare(ref originalKey, ref Unsafe.Add(ref keys, compareIndex)) < 0)
                     {
                         //Move the element up one slot.
-                        var upperSlotIndex = compareIndex + 1;
+                        int upperSlotIndex = compareIndex + 1;
                         Unsafe.Add(ref keys, upperSlotIndex) = Unsafe.Add(ref keys, compareIndex);
                     }
                     else
                         break;
                 }
-                var targetIndex = compareIndex + 1;
+                int targetIndex = compareIndex + 1;
                 if (targetIndex != i)
                 {
                     //Move the original index down.

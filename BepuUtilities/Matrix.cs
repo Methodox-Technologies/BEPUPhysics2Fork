@@ -114,12 +114,12 @@ namespace BepuUtilities
         {
             //Not an ideal implementation. Shuffles would be handy.
 
-            var xy = m.X.Y;
-            var xz = m.X.Z;
-            var xw = m.X.W;
-            var yz = m.Y.Z;
-            var yw = m.Y.W;
-            var zw = m.Z.W;
+            float xy = m.X.Y;
+            float xz = m.X.Z;
+            float xw = m.X.W;
+            float yz = m.Y.Z;
+            float yw = m.Y.W;
+            float zw = m.Z.W;
             transposed.X = new Vector4(m.X.X, m.Y.X, m.Z.X, m.W.X);
             transposed.Y = new Vector4(xy, m.Y.Y, m.Z.Y, m.W.Y);
             transposed.Z = new Vector4(xz, yz, m.Z.Z, m.W.Z);
@@ -191,9 +191,9 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Multiply(in Matrix a, in Matrix b, out Matrix result)
         {
-            var bX = b.X;
-            var bY = b.Y;
-            var bZ = b.Z;
+            Vector4 bX = b.X;
+            Vector4 bY = b.Y;
+            Vector4 bZ = b.Z;
             {
                 var x = new Vector4(a.X.X);
                 var y = new Vector4(a.X.Y);
@@ -563,7 +563,7 @@ namespace BepuUtilities
         public static void CreateView(Vector3 position, Vector3 forward, Vector3 upVector, out Matrix viewMatrix)
         {
             float length = forward.Length();
-            var z = forward / -length;
+            Vector3 z = forward / -length;
             var x = Vector3.Cross(upVector, z);
             x = Vector3.Normalize(x);
             var y = Vector3.Cross(z, x);
@@ -618,7 +618,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CreateRigid(Quaternion rotation, Vector3 position, out Matrix world)
         {
-            Matrix3x3.CreateFromQuaternion(rotation, out var rotationMatrix);
+            Matrix3x3.CreateFromQuaternion(rotation, out Matrix3x3 rotationMatrix);
             world.X = new Vector4(rotationMatrix.X, 0);
             world.Y = new Vector4(rotationMatrix.Y, 0);
             world.Z = new Vector4(rotationMatrix.Z, 0);
@@ -644,7 +644,7 @@ namespace BepuUtilities
         /// <returns>Larger matrix that has the smaller matrix as a submatrix.</returns>
         public static Matrix CreateFrom3x3(in Matrix3x3 matrix3x3)
         {
-            CreateFrom3x3(matrix3x3, out var matrix4x4);
+            CreateFrom3x3(matrix3x3, out Matrix matrix4x4);
             return matrix4x4;
         }
     }

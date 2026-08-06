@@ -11,7 +11,7 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void Swap<T>(ref T a, ref T b)
         {
-            var temp = a;
+            T temp = a;
             a = b;
             b = temp;
         }
@@ -23,22 +23,22 @@ namespace BepuUtilities.Collections
                 //There aren't many keys remaining. Use insertion sort.
                 for (int i = 1; i < keyCount; ++i)
                 {
-                    var originalKey = Unsafe.Add(ref keys, i);
-                    var originalValue = Unsafe.Add(ref values, i);
+                    int originalKey = Unsafe.Add(ref keys, i);
+                    T originalValue = Unsafe.Add(ref values, i);
                     int compareIndex;
                     for (compareIndex = i - 1; compareIndex >= 0; --compareIndex)
                     {
                         if (originalKey < Unsafe.Add(ref keys, compareIndex))
                         {
                             //Move the element up one slot.
-                            var upperSlotIndex = compareIndex + 1;
+                            int upperSlotIndex = compareIndex + 1;
                             Unsafe.Add(ref keys, upperSlotIndex) = Unsafe.Add(ref keys, compareIndex);
                             Unsafe.Add(ref values, upperSlotIndex) = Unsafe.Add(ref values, compareIndex);
                         }
                         else
                             break;
                     }
-                    var targetIndex = compareIndex + 1;
+                    int targetIndex = compareIndex + 1;
                     if (targetIndex != i)
                     {
                         //Move the original index down.
@@ -59,7 +59,7 @@ namespace BepuUtilities.Collections
             }
             for (int i = 0; i < keyCount; ++i)
             {
-                var key = Unsafe.Add(ref keys, i);
+                int key = Unsafe.Add(ref keys, i);
                 ++Unsafe.Add(ref bucketCounts, (key >> shift) & 0xFF);
             }
 
@@ -67,8 +67,8 @@ namespace BepuUtilities.Collections
             int sum = 0;
             for (int i = 0; i < bucketCount; ++i)
             {
-                var previousSum = sum;
-                ref var bucketSlotCount = ref Unsafe.Add(ref bucketCounts, i);
+                int previousSum = sum;
+                ref int bucketSlotCount = ref Unsafe.Add(ref bucketCounts, i);
                 sum += bucketSlotCount;
                 //We store the partial sum into both the bucketCounts array and the originalStartIndices array.
                 Unsafe.Add(ref bucketOriginalStartIndices, i) = previousSum;
@@ -83,16 +83,16 @@ namespace BepuUtilities.Collections
             //When the number of elements visited reaches the size of the bucket, move on to the next bucket and start over.
             for (int i = 0; i < bucketCount; ++i)
             {
-                ref var bucketStartIndex = ref Unsafe.Add(ref bucketCounts, i);
+                ref int bucketStartIndex = ref Unsafe.Add(ref bucketCounts, i);
                 //Note the use of the original start index. If it kept going beyond the original start, it will walk into an already sorted region.
                 int nextStartIndex = i == bucketCount - 1 ? keyCount : Unsafe.Add(ref bucketOriginalStartIndices, i + 1);
                 while (bucketStartIndex < nextStartIndex)
                 {
-                    var localKey = Unsafe.Add(ref keys, bucketStartIndex);
-                    var localValue = Unsafe.Add(ref values, bucketStartIndex);
+                    int localKey = Unsafe.Add(ref keys, bucketStartIndex);
+                    T localValue = Unsafe.Add(ref values, bucketStartIndex);
                     while (true)
                     {
-                        var targetBucketIndex = (localKey >> shift) & 0xFF;
+                        int targetBucketIndex = (localKey >> shift) & 0xFF;
                         if (targetBucketIndex == i)
                         {
                             //The local key belongs to the local bucket. We can stop the swaps.
@@ -102,11 +102,11 @@ namespace BepuUtilities.Collections
                             ++bucketStartIndex;
                             break;
                         }
-                        ref var targetBucketStartIndex = ref Unsafe.Add(ref bucketCounts, targetBucketIndex);
+                        ref int targetBucketStartIndex = ref Unsafe.Add(ref bucketCounts, targetBucketIndex);
                         Debug.Assert((targetBucketIndex < 255 && targetBucketStartIndex < Unsafe.Add(ref bucketCounts, targetBucketIndex + 1)) ||
                             (targetBucketIndex == 255 && targetBucketStartIndex < keyCount));
-                        ref var targetKeySlot = ref Unsafe.Add(ref keys, targetBucketStartIndex);
-                        ref var targetValueSlot = ref Unsafe.Add(ref values, targetBucketStartIndex);
+                        ref int targetKeySlot = ref Unsafe.Add(ref keys, targetBucketStartIndex);
+                        ref T targetValueSlot = ref Unsafe.Add(ref values, targetBucketStartIndex);
                         Swap(ref targetKeySlot, ref localKey);
                         Swap(ref targetValueSlot, ref localValue);
                         ++targetBucketStartIndex;
@@ -119,14 +119,14 @@ namespace BepuUtilities.Collections
             if (shift > 0)
             {
                 //There is at least one more level of sorting potentially required.
-                var newShift = shift - 8;
-                ref var nextLevelBucketCounts = ref Unsafe.Add(ref bucketCounts, bucketCount);
+                int newShift = shift - 8;
+                ref int nextLevelBucketCounts = ref Unsafe.Add(ref bucketCounts, bucketCount);
 
-                var previousEnd = 0;
+                int previousEnd = 0;
                 for (int i = 0; i < bucketCount; ++i)
                 {
-                    var bucketEnd = Unsafe.Add(ref bucketCounts, i);
-                    var count = bucketEnd - previousEnd;
+                    int bucketEnd = Unsafe.Add(ref bucketCounts, i);
+                    int count = bucketEnd - previousEnd;
                     if (count > 0)
                         SortU32(ref Unsafe.Add(ref keys, previousEnd), ref Unsafe.Add(ref values, previousEnd), ref nextLevelBucketCounts, ref bucketOriginalStartIndices, count, newShift);
                     previousEnd = bucketEnd;
@@ -150,7 +150,7 @@ namespace BepuUtilities.Collections
             const int bucketCount = 1 << bucketCountPower;
             const int mask = bucketCount - 1;
             //This stackalloc isn't actually super fast- the default behavior is to zero out the range. But we actually want it to be zeroed, so that's okay.
-            var bucketCounts = stackalloc int[bucketCount];
+            int* bucketCounts = stackalloc int[bucketCount];
             Unsafe.InitBlockUnaligned(bucketCounts, 0, sizeof(int) * bucketCount);
 #if DEBUG
             for (int i = 0; i < bucketCount; ++i)
@@ -162,20 +162,20 @@ namespace BepuUtilities.Collections
 #endif
             for (int i = 0; i < keyCount; ++i)
             {
-                var key = Unsafe.Add(ref keys, i);
+                int key = Unsafe.Add(ref keys, i);
                 ++bucketCounts[(key >> shift) & mask];
             }
 
             //Unlike the bucketCounts, we don't want to pre-initialize these start indices.
             //But they will be, whether we like it or not. (Unless the compiler realizes that it's impossible for an uninitialized value to be read, but good luck with that.)
             //So, using large bucket counts with this isn't ideal. If you want larger bucket sizes, it's a good idea to preallocate the memory outside the call.
-            var bucketOriginalStartIndices = stackalloc int[bucketCount];
+            int* bucketOriginalStartIndices = stackalloc int[bucketCount];
             //Convert the bucket counts to partial sums.
             int sum = 0;
             for (int i = 0; i < bucketCount; ++i)
             {
-                var previousSum = sum;
-                ref var bucketSlotCount = ref bucketCounts[i];
+                int previousSum = sum;
+                ref int bucketSlotCount = ref bucketCounts[i];
                 sum += bucketSlotCount;
                 //We store the partial sum into both the bucketCounts array and the originalStartIndices array.
                 bucketOriginalStartIndices[i] = previousSum;
@@ -190,16 +190,16 @@ namespace BepuUtilities.Collections
             //When the number of elements visited reaches the size of the bucket, move on to the next bucket and start over.
             for (int i = 0; i < bucketCount; ++i)
             {
-                ref var bucketStartIndex = ref bucketCounts[i];
+                ref int bucketStartIndex = ref bucketCounts[i];
                 //Note the use of the original start index. If it kept going beyond the original start, it will walk into an already sorted region.
                 int nextStartIndex = i == bucketCount - 1 ? keyCount : bucketOriginalStartIndices[i + 1];
                 while (bucketStartIndex < nextStartIndex)
                 {
-                    var localKey = Unsafe.Add(ref keys, bucketStartIndex);
-                    var localValue = Unsafe.Add(ref values, bucketStartIndex);
+                    int localKey = Unsafe.Add(ref keys, bucketStartIndex);
+                    T localValue = Unsafe.Add(ref values, bucketStartIndex);
                     while (true)
                     {
-                        var targetBucketIndex = (localKey >> shift) & mask;
+                        int targetBucketIndex = (localKey >> shift) & mask;
                         if (targetBucketIndex == i)
                         {
                             //The local key belongs to the local bucket. We can stop the swaps.
@@ -209,11 +209,11 @@ namespace BepuUtilities.Collections
                             ++bucketStartIndex;
                             break;
                         }
-                        ref var targetBucketStartIndex = ref bucketCounts[targetBucketIndex];
+                        ref int targetBucketStartIndex = ref bucketCounts[targetBucketIndex];
                         Debug.Assert((targetBucketIndex < bucketCount - 1 && targetBucketStartIndex < bucketCounts[targetBucketIndex + 1]) ||
                             (targetBucketIndex == bucketCount - 1 && targetBucketStartIndex < keyCount));
-                        ref var targetKeySlot = ref Unsafe.Add(ref keys, targetBucketStartIndex);
-                        ref var targetValueSlot = ref Unsafe.Add(ref values, targetBucketStartIndex);
+                        ref int targetKeySlot = ref Unsafe.Add(ref keys, targetBucketStartIndex);
+                        ref T targetValueSlot = ref Unsafe.Add(ref values, targetBucketStartIndex);
                         Swap(ref targetKeySlot, ref localKey);
                         Swap(ref targetValueSlot, ref localValue);
                         ++targetBucketStartIndex;
@@ -226,13 +226,13 @@ namespace BepuUtilities.Collections
             if (shift > 0)
             {
                 //There is at least one more level of sorting potentially required.
-                var newShift = Math.Max(0, shift - bucketCountPower);
+                int newShift = Math.Max(0, shift - bucketCountPower);
 
-                var previousEnd = 0;
+                int previousEnd = 0;
                 for (int i = 0; i < bucketCount; ++i)
                 {
-                    var bucketEnd = bucketCounts[i];
-                    var count = bucketEnd - previousEnd;
+                    int bucketEnd = bucketCounts[i];
+                    int count = bucketEnd - previousEnd;
                     if (count > 0)
                         SortU32(ref Unsafe.Add(ref keys, previousEnd), ref Unsafe.Add(ref values, previousEnd), count, newShift);
                     previousEnd = bucketEnd;

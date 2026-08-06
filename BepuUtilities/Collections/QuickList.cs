@@ -117,12 +117,12 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Resize(int newSize, IUnmanagedMemoryPool pool)
         {
-            var targetSize = pool.GetCapacityForCount<T>(newSize);
+            int targetSize = pool.GetCapacityForCount<T>(newSize);
             if (targetSize != Span.Length)
             {
-                var oldList = this;
-                pool.TakeAtLeast<T>(targetSize, out var newSpan);
-                Resize(ref newSpan, out var oldSpan);
+                QuickList<T> oldList = this;
+                pool.TakeAtLeast<T>(targetSize, out Buffer<T> newSpan);
+                Resize(ref newSpan, out Buffer<T> oldSpan);
                 oldList.Dispose(pool);
             }
         }
@@ -164,7 +164,7 @@ namespace BepuUtilities.Collections
         public void Compact(IUnmanagedMemoryPool pool)
         {
             Validate();
-            var targetLength = pool.GetCapacityForCount<T>(Count);
+            int targetLength = pool.GetCapacityForCount<T>(Count);
             if (targetLength != Span.Length)
                 Resize(targetLength, pool);
         }
@@ -342,9 +342,9 @@ namespace BepuUtilities.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T AllocateUnsafely(int count)
         {
-            var newCount = Count + count;
+            int newCount = Count + count;
             Debug.Assert(newCount <= Span.Length, "Capacity must be large enough to hold the requested space.");
-            ref var start = ref Span[Count];
+            ref T start = ref Span[Count];
             Count = newCount;
             return ref start;
         }
@@ -373,10 +373,10 @@ namespace BepuUtilities.Collections
         public ref T Allocate(int count, IUnmanagedMemoryPool pool)
         {
             Debug.Assert(count > 0, "Allocating a count returns a reference to the allocated region, and so must allocate at least one element.");
-            var newCount = Count + count;
+            int newCount = Count + count;
             if (newCount > Span.Length)
                 Resize(Math.Max(Count * 2, newCount), pool);
-            ref var start = ref Span[Count];
+            ref T start = ref Span[Count];
             Count = newCount;
             return ref start;
         }
@@ -453,7 +453,7 @@ namespace BepuUtilities.Collections
         public bool Remove(ref T element)
         {
             Validate();
-            var index = IndexOf(ref element);
+            int index = IndexOf(ref element);
             if (index >= 0)
             {
                 RemoveAt(index);
@@ -482,7 +482,7 @@ namespace BepuUtilities.Collections
         public bool Remove<TPredicate>(ref TPredicate predicate) where TPredicate : IPredicate<T>
         {
             Validate();
-            var index = Span.IndexOf(ref predicate, 0, Count);
+            int index = Span.IndexOf(ref predicate, 0, Count);
             if (index >= 0)
             {
                 RemoveAt(index);
@@ -502,7 +502,7 @@ namespace BepuUtilities.Collections
         public bool FastRemove(ref T element)
         {
             Validate();
-            var index = IndexOf(element);
+            int index = IndexOf(element);
             if (index >= 0)
             {
                 FastRemoveAt(index);
@@ -531,7 +531,7 @@ namespace BepuUtilities.Collections
         public bool FastRemove<TPredicate>(ref TPredicate predicate) where TPredicate : IPredicate<T>
         {
             Validate();
-            var index = Span.IndexOf(ref predicate, 0, Count);
+            int index = Span.IndexOf(ref predicate, 0, Count);
             if (index >= 0)
             {
                 FastRemoveAt(index);

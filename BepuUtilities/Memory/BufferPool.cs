@@ -63,7 +63,7 @@ namespace BepuUtilities.Memory
 
             void Resize(int newSize)
             {
-                var newBlocks = new byte*[newSize];
+                byte*[] newBlocks = new byte*[newSize];
                 Array.Copy(Blocks, newBlocks, Blocks.Length);
                 Blocks = newBlocks;
             }
@@ -86,7 +86,7 @@ namespace BepuUtilities.Memory
 
             public void EnsureCapacity(int capacity)
             {
-                var neededBlockCount = (int)Math.Ceiling((double)capacity / BlockSize);
+                int neededBlockCount = (int)Math.Ceiling((double)capacity / BlockSize);
                 if (BlockCount < neededBlockCount)
                 {
                     if (neededBlockCount > Blocks.Length)
@@ -104,15 +104,15 @@ namespace BepuUtilities.Memory
 
             public readonly byte* GetStartPointerForSlot(int slot)
             {
-                var blockIndex = slot >> SuballocationsPerBlockShift;
-                var indexInBlock = slot & SuballocationsPerBlockMask;
+                int blockIndex = slot >> SuballocationsPerBlockShift;
+                int indexInBlock = slot & SuballocationsPerBlockMask;
                 return Blocks[blockIndex] + indexInBlock * SuballocationSize;
             }
 
             public void Take(out Buffer<byte> buffer)
             {
-                var slot = Slots.Take();
-                var blockIndex = slot >> SuballocationsPerBlockShift;
+                int slot = Slots.Take();
+                int blockIndex = slot >> SuballocationsPerBlockShift;
                 if (blockIndex >= Blocks.Length)
                 {
                     Resize((int)BitOperations.RoundUpToPowerOf2((uint)(blockIndex + 1)));
@@ -122,7 +122,7 @@ namespace BepuUtilities.Memory
                     AllocateBlock(blockIndex);
                 }
 
-                var indexInBlock = slot & SuballocationsPerBlockMask;
+                int indexInBlock = slot & SuballocationsPerBlockMask;
                 buffer = new Buffer<byte>(Blocks[blockIndex] + indexInBlock * SuballocationSize, SuballocationSize, (Power << IdPowerShift) | slot);
                 Debug.Assert(buffer.Id >= 0 && Power >= 0 && Power < 32, "Slot/power should be safely encoded in a 32 bit integer.");
 #if DEBUG
@@ -147,22 +147,18 @@ namespace BepuUtilities.Memory
             [Conditional("DEBUG")]
             internal void ValidateBufferIsContained<T>(ref Buffer<T> typedBuffer) where T : unmanaged
             {
-                var buffer = typedBuffer.As<byte>();
+                Buffer<byte> buffer = typedBuffer.As<byte>();
                 //There are a lot of ways to screw this up. Try to catch as many as possible!
-                var slotIndex = buffer.Id & ((1 << IdPowerShift) - 1);
-                var blockIndex = slotIndex >> SuballocationsPerBlockShift;
-                var indexInAllocatorBlock = slotIndex & SuballocationsPerBlockMask;
+                int slotIndex = buffer.Id & ((1 << IdPowerShift) - 1);
+                int blockIndex = slotIndex >> SuballocationsPerBlockShift;
+                int indexInAllocatorBlock = slotIndex & SuballocationsPerBlockMask;
                 Debug.Assert(buffer.Length <= SuballocationSize,
                   "A buffer taken from a pool should have a specific size.");
-                Debug.Assert(blockIndex >= 0 && blockIndex < BlockCount,
-                    "The block pointed to by a returned buffer should actually exist within the pool.");
-                var memoryOffset = buffer.Memory - Blocks[blockIndex];
-                Debug.Assert(memoryOffset >= 0 && memoryOffset < BlockSize,
-                    "If a raw buffer points to a given block as its source, the address should be within the block's memory region.");
-                Debug.Assert(Blocks[blockIndex] + indexInAllocatorBlock * SuballocationSize == buffer.Memory,
-                    "The implied address of a buffer in its block should match its actual address.");
-                Debug.Assert(buffer.Length + indexInAllocatorBlock * SuballocationSize <= BlockSize,
-                    "The extent of the buffer should fit within the block.");
+                Debug.Assert(blockIndex >= 0 && blockIndex < BlockCount, "The block pointed to by a returned buffer should actually exist within the pool.");
+                long memoryOffset = buffer.Memory - Blocks[blockIndex];
+                Debug.Assert(memoryOffset >= 0 && memoryOffset < BlockSize, "If a raw buffer points to a given block as its source, the address should be within the block's memory region.");
+                Debug.Assert(Blocks[blockIndex] + indexInAllocatorBlock * SuballocationSize == buffer.Memory, "The implied address of a buffer in its block should match its actual address.");
+                Debug.Assert(buffer.Length + indexInAllocatorBlock * SuballocationSize <= BlockSize, "The extent of the buffer should fit within the block.");
             }
 
             public readonly void Return(int slotIndex)
@@ -281,7 +277,7 @@ namespace BepuUtilities.Memory
             //Avoid returning a zero length span because 1 byte / Unsafe.SizeOf<T>() happens to be zero.
             if (count == 0)
                 count = 1;
-            TakeForPower(SpanHelper.GetContainingPowerOf2(count * Unsafe.SizeOf<T>()), out var rawBuffer);
+            TakeForPower(SpanHelper.GetContainingPowerOf2(count * Unsafe.SizeOf<T>()), out Buffer<byte> rawBuffer);
             buffer = rawBuffer.As<T>();
         }
 
@@ -321,7 +317,7 @@ namespace BepuUtilities.Memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReturnUnsafely(int id)
         {
-            DecomposeId(id, out var powerIndex, out var slotIndex);
+            DecomposeId(id, out int powerIndex, out int slotIndex);
             pools[powerIndex].Return(slotIndex);
         }
 
@@ -330,7 +326,7 @@ namespace BepuUtilities.Memory
         public void Return<T>(ref Buffer<T> buffer) where T : unmanaged
         {
 #if DEBUG
-            DecomposeId(buffer.Id, out var powerIndex, out var slotIndex);
+            DecomposeId(buffer.Id, out int powerIndex, out int slotIndex);
             pools[powerIndex].ValidateBufferIsContained(ref buffer);
 #endif
             ReturnUnsafely(buffer.Id);
@@ -351,8 +347,8 @@ namespace BepuUtilities.Memory
             }
             else
             {
-                var originalAllocatedSizeInBytes = 1 << (buffer.Id >> PowerPool.IdPowerShift);
-                var originalAllocatedSize = originalAllocatedSizeInBytes / Unsafe.SizeOf<T>();
+                int originalAllocatedSizeInBytes = 1 << (buffer.Id >> PowerPool.IdPowerShift);
+                int originalAllocatedSize = originalAllocatedSizeInBytes / Unsafe.SizeOf<T>();
                 Debug.Assert(originalAllocatedSize >= buffer.Length, "The original allocated capacity must be sufficient for the buffer's observed length. Did the buffer get corrupted? Is this buffer reference from uninitialized memory?");
                 if (targetSize > originalAllocatedSize)
                 {
@@ -388,7 +384,7 @@ namespace BepuUtilities.Memory
 #if DEBUG
             for (int i = 0; i < pools.Length; ++i)
             {
-                var pool = pools[i];
+                PowerPool pool = pools[i];
                 if (pool.outstandingIds.Count > 0)
                 {
                     Debug.WriteLine($"Power pool {i} contains allocations.");
@@ -443,7 +439,7 @@ namespace BepuUtilities.Memory
 #if DEBUG
         ~BufferPool()
         {
-            var totalBlockCount = 0;
+            int totalBlockCount = 0;
             for (int i = 0; i < pools.Length; ++i)
             {
                 totalBlockCount += pools[i].BlockCount;

@@ -107,7 +107,7 @@ namespace BepuUtilities.Memory
         /// <param name="minimumCount">Number of elements to guarantee space for in the available ids queue.</param>
         public void Compact(int minimumCount)
         {
-            var targetLength = minimumCount > availableIdCount ? minimumCount : availableIdCount;
+            int targetLength = minimumCount > availableIdCount ? minimumCount : availableIdCount;
             if (availableIds.Length > targetLength)
             {
                 InternalResize(targetLength);
@@ -120,7 +120,7 @@ namespace BepuUtilities.Memory
         /// <param name="count">Number of elements to guarantee space for in the available ids queue.</param>
         public void Resize(int count)
         {
-            var targetLength = count > availableIdCount ? count : availableIdCount;
+            int targetLength = count > availableIdCount ? count : availableIdCount;
             if (availableIds.Length != targetLength)
             {
                 InternalResize(targetLength);

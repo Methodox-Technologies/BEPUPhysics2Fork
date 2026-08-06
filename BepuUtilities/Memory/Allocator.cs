@@ -97,10 +97,10 @@ namespace BepuUtilities.Memory
                 return size <= Capacity;
             }
             int allocationIndex = searchStartIndex;
-            var initialId = allocations.Keys[allocationIndex];
+            ulong initialId = allocations.Keys[allocationIndex];
             while (true)
             {
-                var allocation = allocations.Values[allocationIndex];
+                Allocation allocation = allocations.Values[allocationIndex];
                 int nextAllocationIndex;
                 Allocation nextAllocation;
 
@@ -214,12 +214,12 @@ namespace BepuUtilities.Memory
             }
             Debug.Assert(searchStartIndex >= 0 && searchStartIndex < allocations.Count, "Search start index must be within the allocation set!");
             int allocationIndex = searchStartIndex;
-            var initialId = allocations.Keys[allocationIndex];
+            ulong initialId = allocations.Keys[allocationIndex];
             while (true)
             {
-                var allocation = allocations.Values[allocationIndex];
+                Allocation allocation = allocations.Values[allocationIndex];
                 int nextAllocationIndex = allocations.IndexOf(allocation.Next);
-                var nextAllocation = allocations.Values[nextAllocationIndex];
+                Allocation nextAllocation = allocations.Values[nextAllocationIndex];
                 if (nextAllocation.Start < allocation.End)
                 {
                     //Wrapped around, so the gap goes from here to the end of the memory block, and from the beginning of the memory block to the next allocation.
@@ -274,12 +274,12 @@ namespace BepuUtilities.Memory
             {
                 if (allocation.Previous != id)
                 {
-                    var previousIndex = allocations.IndexOf(allocation.Previous);
+                    int previousIndex = allocations.IndexOf(allocation.Previous);
                     Debug.Assert(allocations.Values[previousIndex].Next == id, "Previous and current must agree about their relationship.");
                     //Make the previous allocation point to the next allocation to get rid of the current allocation.
                     allocations.Values[previousIndex].Next = allocation.Next;
 
-                    var nextIndex = allocations.IndexOf(allocation.Next);
+                    int nextIndex = allocations.IndexOf(allocation.Next);
                     Debug.Assert(allocations.Values[nextIndex].Previous == id, "Next and current must agree about their relationship.");
                     //Make the next allocation point to the previous allocation to get rid of the current allocation.
                     allocations.Values[nextIndex].Previous = allocation.Previous;
@@ -323,13 +323,13 @@ namespace BepuUtilities.Memory
             {
                 Allocation nextAllocation;
                 allocations.TryGetValue(allocations.Values[i].Next, out nextAllocation);
-                var toNext = nextAllocation.Start - allocations.Values[i].End;
+                long toNext = nextAllocation.Start - allocations.Values[i].End;
                 if (toNext < 0)
                 {
                     //The next allocation requires a wrap, so the actual contiguous area is only from our end to the end of the pool,
                     //and then a second region from 0 to the next allocation.
-                    var adjacent = Capacity - allocations.Values[i].End;
-                    var wrapped = nextAllocation.Start;
+                    long adjacent = Capacity - allocations.Values[i].End;
+                    long wrapped = nextAllocation.Start;
                     if (largestContiguous < adjacent)
                         largestContiguous = adjacent;
                     if (largestContiguous < wrapped)
@@ -365,8 +365,8 @@ namespace BepuUtilities.Memory
                 {
                     //Found the beginning of the list! This index is the first index.
                     //Now, scan forward through the allocation links looking for the first gap.
-                    var index = i;
-                    var previousEnd = 0L;
+                    int index = i;
+                    long previousEnd = 0L;
                     //Note that we stop before wrapping.
                     for (int iterationIndex = 0; iterationIndex < allocations.Count; ++iterationIndex)
                     {
@@ -411,12 +411,12 @@ namespace BepuUtilities.Memory
         /// <returns>True if the resize was successful. False if there was insufficient room for the larger allocation.</returns>
         public bool Resize(ulong id, long size, out long oldStart, out long newStart)
         {
-            var allocationIndex = allocations.IndexOf(id);
+            int allocationIndex = allocations.IndexOf(id);
             Debug.Assert(allocationIndex >= 0, "The allocation must be present inside the allocator to resize it!");
             //Ref locals would be so nice.
-            var allocation = allocations.Values[allocationIndex];
+            Allocation allocation = allocations.Values[allocationIndex];
             oldStart = allocation.Start;
-            var currentSize = allocation.End - allocation.Start;
+            long currentSize = allocation.End - allocation.Start;
             Debug.Assert(size != currentSize, "Why are you calling resize if the new size is the same as the old one?");
 
             if (size < currentSize)
@@ -434,7 +434,7 @@ namespace BepuUtilities.Memory
             }
             //The size is increasing (unless the above assertion was hit!).
             //This requires a reallocation.
-            var success = Deallocate(id);
+            bool success = Deallocate(id);
             Debug.Assert(success, "Sanity check: you just looked this allocation up, yet the deallocation failed. Did you introduce a race condition?");
             if (!Allocate(id, size, out newStart))
             {
@@ -451,15 +451,15 @@ namespace BepuUtilities.Memory
         {
             if (allocations.Count == 0)
                 return;
-            var initialId = allocations.Keys[0];
+            ulong initialId = allocations.Keys[0];
             ulong backwardId = initialId;
             ulong forwardId = initialId;
             for (int i = 0; i < allocations.Count; ++i)
             {
-                var backwardIndex = allocations.IndexOf(backwardId);
+                int backwardIndex = allocations.IndexOf(backwardId);
                 backwardId = allocations.Values[backwardIndex].Previous;
 
-                var forwardIndex = allocations.IndexOf(forwardId);
+                int forwardIndex = allocations.IndexOf(forwardId);
                 forwardId = allocations.Values[forwardIndex].Next;
             }
             Debug.Assert(initialId == backwardId && initialId == forwardId, "We should be able to walk back to the starting id in exactly allocations.Count steps in either direction.");

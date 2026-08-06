@@ -110,9 +110,9 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Transpose(in Matrix3x3 m, out Matrix3x3 transposed)
         {
-            var xy = m.X.Y;
-            var xz = m.X.Z;
-            var yz = m.Y.Z;
+            float xy = m.X.Y;
+            float xz = m.X.Z;
+            float yz = m.Y.Z;
             transposed.X = new Vector3(m.X.X, m.Y.X, m.Z.X);
             transposed.Y = new Vector3(xy, m.Y.Y, m.Z.Y);
             transposed.Z = new Vector3(xz, yz, m.Z.Z);
@@ -141,7 +141,7 @@ namespace BepuUtilities
             var yz = Vector3.Cross(m.Y, m.Z);
             var zx = Vector3.Cross(m.Z, m.X);
             var xy = Vector3.Cross(m.X, m.Y);
-            var inverseDeterminant = 1f / Vector3.Dot(m.X, yz);
+            float inverseDeterminant = 1f / Vector3.Dot(m.X, yz);
             inverse.X = yz * inverseDeterminant;
             inverse.Y = zx * inverseDeterminant;
             inverse.Z = xy * inverseDeterminant;
@@ -159,18 +159,18 @@ namespace BepuUtilities
             var mScalar = (M*)m;
             var inverseScalar = (M*)inverse;
 
-            var m11 = mScalar->M22 * mScalar->M33 - mScalar->M32 * mScalar->M23;
-            var m21 = mScalar->M23 * mScalar->M31 - mScalar->M33 * mScalar->M21;
-            var m31 = mScalar->M21 * mScalar->M32 - mScalar->M31 * mScalar->M22;
-            var determinantInverse = 1f / (m11 * mScalar->M11 + m21 * mScalar->M12 + m31 * mScalar->M13);
+            float m11 = mScalar->M22 * mScalar->M33 - mScalar->M32 * mScalar->M23;
+            float m21 = mScalar->M23 * mScalar->M31 - mScalar->M33 * mScalar->M21;
+            float m31 = mScalar->M21 * mScalar->M32 - mScalar->M31 * mScalar->M22;
+            float determinantInverse = 1f / (m11 * mScalar->M11 + m21 * mScalar->M12 + m31 * mScalar->M13);
 
-            var m12 = mScalar->M32 * mScalar->M13 - mScalar->M12 * mScalar->M33;
-            var m22 = mScalar->M33 * mScalar->M11 - mScalar->M13 * mScalar->M31;
-            var m32 = mScalar->M31 * mScalar->M12 - mScalar->M11 * mScalar->M32;
+            float m12 = mScalar->M32 * mScalar->M13 - mScalar->M12 * mScalar->M33;
+            float m22 = mScalar->M33 * mScalar->M11 - mScalar->M13 * mScalar->M31;
+            float m32 = mScalar->M31 * mScalar->M12 - mScalar->M11 * mScalar->M32;
 
-            var m13 = mScalar->M12 * mScalar->M23 - mScalar->M22 * mScalar->M13;
-            var m23 = mScalar->M13 * mScalar->M21 - mScalar->M23 * mScalar->M11;
-            var m33 = mScalar->M11 * mScalar->M22 - mScalar->M21 * mScalar->M12;
+            float m13 = mScalar->M12 * mScalar->M23 - mScalar->M22 * mScalar->M13;
+            float m23 = mScalar->M13 * mScalar->M21 - mScalar->M23 * mScalar->M11;
+            float m33 = mScalar->M11 * mScalar->M22 - mScalar->M21 * mScalar->M12;
 
             inverseScalar->M11 = m11 * determinantInverse;
             inverseScalar->M21 = m21 * determinantInverse;
@@ -237,8 +237,8 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Multiply(in Matrix3x3 a, in Matrix3x3 b, out Matrix3x3 result)
         {
-            var bX = b.X;
-            var bY = b.Y;
+            Vector3 bX = b.X;
+            Vector3 bY = b.Y;
             {
                 var x = new Vector3(a.X.X);
                 var y = new Vector3(a.X.Y);
@@ -270,8 +270,8 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MultiplyTransposed(in Matrix3x3 a, in Matrix3x3 b, out Matrix3x3 result)
         {
-            var bX = b.X;
-            var bY = b.Y;
+            Vector3 bX = b.X;
+            Vector3 bY = b.Y;
             {
                 var x = new Vector3(a.X.X);
                 var y = new Vector3(a.Y.X);
@@ -339,7 +339,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix3x3 CreateFromQuaternion(Quaternion quaternion)
         {
-            CreateFromQuaternion(quaternion, out var toReturn);
+            CreateFromQuaternion(quaternion, out Matrix3x3 toReturn);
             return toReturn;
         }
 
@@ -403,7 +403,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix3x3 CreateFromAxisAngle(Vector3 axis, float angle)
         {
-            CreateFromAxisAngle(axis, angle, out var result);
+            CreateFromAxisAngle(axis, angle, out Matrix3x3 result);
             return result;
 
         }
@@ -436,7 +436,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix3x3 operator *(in Matrix3x3 m1, in Matrix3x3 m2)
         {
-            Multiply(m1, m2, out var toReturn);
+            Multiply(m1, m2, out Matrix3x3 toReturn);
             return toReturn;
         }
     }

@@ -18,7 +18,7 @@ namespace BepuUtilities
             const ulong p1 = 961748927UL;
             const ulong p2 = 899809343UL;
             const ulong p3 = 715225741UL;
-            var hash64 = (ulong)X * unchecked(p1 * p2 * p3) + (ulong)Y * (p2 * p3) + (ulong)Z * p3;
+            ulong hash64 = (ulong)X * unchecked(p1 * p2 * p3) + (ulong)Y * (p2 * p3) + (ulong)Z * p3;
             return (int)(hash64 ^ (hash64 >> 32));
         }
 

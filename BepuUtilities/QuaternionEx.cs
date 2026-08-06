@@ -65,7 +65,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Concatenate(Quaternion a, Quaternion b, out Quaternion result)
         {
-            ConcatenateWithoutOverlap(a, b, out var temp);
+            ConcatenateWithoutOverlap(a, b, out Quaternion temp);
             result = temp;
         }
 
@@ -80,7 +80,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Quaternion Concatenate(Quaternion a, Quaternion b)
         {
-            ConcatenateWithoutOverlap(a, b, out var result);
+            ConcatenateWithoutOverlap(a, b, out Quaternion result);
             return result;
         }
 
@@ -155,7 +155,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Quaternion CreateFromRotationMatrix(in Matrix3x3 r)
         {
-            CreateFromRotationMatrix(r, out var toReturn);
+            CreateFromRotationMatrix(r, out Quaternion toReturn);
             return toReturn;
         }
 
@@ -168,7 +168,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CreateFromRotationMatrix(in Matrix r, out Quaternion q)
         {
-            Matrix3x3.CreateFromMatrix(r, out var rotation3x3);
+            Matrix3x3.CreateFromMatrix(r, out Matrix3x3 rotation3x3);
             CreateFromRotationMatrix(rotation3x3, out q);
         }
 
@@ -179,8 +179,8 @@ namespace BepuUtilities
         /// <returns>Quaternion based on the rotation matrix.</returns>
         public static Quaternion CreateFromRotationMatrix(in Matrix r)
         {
-            Matrix3x3.CreateFromMatrix(r, out var rotation3x3);
-            CreateFromRotationMatrix(rotation3x3, out var q);
+            Matrix3x3.CreateFromMatrix(r, out Matrix3x3 rotation3x3);
+            CreateFromRotationMatrix(rotation3x3, out Quaternion q);
             return q;
         }
 
@@ -191,7 +191,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Normalize(ref Quaternion quaternion)
         {
-            ref var q = ref Unsafe.As<Quaternion, Vector4>(ref quaternion);
+            ref Vector4 q = ref Unsafe.As<Quaternion, Vector4>(ref quaternion);
             q = q / (float)Math.Sqrt(Vector4.Dot(q, q)); //not great; MathF when available or perhaps alternatives?
         }
 
@@ -332,7 +332,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Quaternion Inverse(Quaternion quaternion)
         {
-            Inverse(quaternion, out var result);
+            Inverse(quaternion, out Quaternion result);
             return result;
 
         }
@@ -359,7 +359,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Quaternion Negate(Quaternion q)
         {
-            Negate(q, out var result);
+            Negate(q, out Quaternion result);
             return result;
         }
 
@@ -404,7 +404,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Transform(Vector3 v, Quaternion rotation, out Vector3 result)
         {
-            TransformWithoutOverlap(v, rotation, out var temp);
+            TransformWithoutOverlap(v, rotation, out Vector3 temp);
             result = temp;
         }
 
@@ -417,7 +417,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Transform(Vector3 v, Quaternion rotation)
         {
-            TransformWithoutOverlap(v, rotation, out var toReturn);
+            TransformWithoutOverlap(v, rotation, out Vector3 toReturn);
             return toReturn;
         }
 
@@ -545,7 +545,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Quaternion CreateFromYawPitchRoll(float yaw, float pitch, float roll)
         {
-            CreateFromYawPitchRoll(yaw, pitch, roll, out var toReturn);
+            CreateFromYawPitchRoll(yaw, pitch, roll, out Quaternion toReturn);
             return toReturn;
         }
 
@@ -684,7 +684,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetRelativeRotationWithoutOverlap(Quaternion start, Quaternion end, out Quaternion relative)
         {
-            Conjugate(start, out var startInverse);
+            Conjugate(start, out Quaternion startInverse);
             ConcatenateWithoutOverlap(startInverse, end, out relative);
         }
 
@@ -699,7 +699,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetLocalRotationWithoutOverlap(Quaternion rotation, Quaternion targetBasis, out Quaternion localRotation)
         {
-            Conjugate(targetBasis, out var basisInverse);
+            Conjugate(targetBasis, out Quaternion basisInverse);
             ConcatenateWithoutOverlap(rotation, basisInverse, out localRotation);
         }
     }

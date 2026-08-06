@@ -32,7 +32,7 @@ namespace BepuUtilities.Collections
                 {
                     //Grab a bundle of values and test them against every other key.
                     var values = Vector256.Load(paddedKeys.Memory + i);
-                    var counts = Vector256<int>.Zero;
+                    Vector256<int> counts = Vector256<int>.Zero;
 
                     var oneMask = Vector256.Create(1);
                     //The first loop tests all vectors up to the start of the current bundle.
@@ -45,8 +45,8 @@ namespace BepuUtilities.Collections
                     }
 
                     //For indices that overlap the current bundle, we need to check their relative position.
-                    var endOfEqualityTesting = Math.Min(i + 8, elementCount);
-                    var slotIndex = Vector256.Create(i) + indexOffsets;
+                    int endOfEqualityTesting = Math.Min(i + 8, elementCount);
+                    Vector256<int> slotIndex = Vector256.Create(i) + indexOffsets;
                     for (int j = i; j < endOfEqualityTesting; ++j)
                     {
                         var testVector = Vector256.Create(paddedKeys[j]);
@@ -77,7 +77,7 @@ namespace BepuUtilities.Collections
                 {
                     //Grab a bundle of values and test them against every other key.
                     var values = Vector128.Load(paddedKeys.Memory + i);
-                    var counts = Vector128<int>.Zero;
+                    Vector128<int> counts = Vector128<int>.Zero;
 
                     var oneMask = Vector128.Create(1);
                     //The first loop tests all vectors up to the start of the current bundle.
@@ -90,8 +90,8 @@ namespace BepuUtilities.Collections
                     }
 
                     //For indices that overlap the current bundle, we need to check their relative position.
-                    var endOfEqualityTesting = Math.Min(i + 4, elementCount);
-                    var slotIndex = Vector128.Create(i) + indexOffsets;
+                    int endOfEqualityTesting = Math.Min(i + 4, elementCount);
+                    Vector128<int> slotIndex = Vector128.Create(i) + indexOffsets;
                     for (int j = i; j < endOfEqualityTesting; ++j)
                     {
                         var testVector = Vector128.Create(paddedKeys[j]);

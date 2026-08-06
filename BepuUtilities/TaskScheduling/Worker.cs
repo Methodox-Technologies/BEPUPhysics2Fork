@@ -29,7 +29,7 @@ internal unsafe struct Worker
 
     public Worker(int workerIndex, IThreadDispatcher dispatcher, int initialJobCapacity = 128, int continuationBlockCapacity = 128)
     {
-        var threadPool = dispatcher.WorkerPools[workerIndex];
+        BufferPool threadPool = dispatcher.WorkerPools[workerIndex];
         WorkerIndex = workerIndex;
         AllocatedJobs = new QuickList<nuint>(initialJobCapacity, threadPool);
         ContinuationHead = ContinuationBlock.Create(continuationBlockCapacity, threadPool);
@@ -52,7 +52,7 @@ internal unsafe struct Worker
             ((Job*)AllocatedJobs[i])->Dispose(threadPool);
         }
         AllocatedJobs.Count = 0;
-        var capacity = ContinuationHead->Continuations.length;
+        int capacity = ContinuationHead->Continuations.length;
         ContinuationHead->Dispose(threadPool);
         ContinuationHead = ContinuationBlock.Create(capacity, threadPool);
     }
@@ -67,9 +67,9 @@ internal unsafe struct Worker
     internal Job* AllocateJob(Span<Task> tasks, ulong tag, IThreadDispatcher dispatcher)
     {
         Debug.Assert(tasks.Length > 0, "Probably shouldn't be trying to push zero tasks.");
-        var threadPool = dispatcher.WorkerPools[WorkerIndex];
+        BufferPool threadPool = dispatcher.WorkerPools[WorkerIndex];
         //Note that we allocate jobs on the heap directly; it's safe to resize the AllocatedJobs list because it's just storing pointers.
-        var job = Job.Create(tasks, tag, threadPool);
+        Job* job = Job.Create(tasks, tag, threadPool);
         AllocatedJobs.Allocate(threadPool) = (nuint)job;
         return job;
     }
@@ -88,10 +88,10 @@ internal unsafe struct Worker
         {
             //Couldn't allocate; need to allocate a new block.
             //(The reason for the linked list style allocation is that resizing a buffer- and returning the old buffer- opens up a potential race condition.)
-            var newBlock = ContinuationBlock.Create(ContinuationHead->Continuations.length, dispatcher.WorkerPools[WorkerIndex]);
+            ContinuationBlock* newBlock = ContinuationBlock.Create(ContinuationHead->Continuations.length, dispatcher.WorkerPools[WorkerIndex]);
             newBlock->Previous = ContinuationHead;
             ContinuationHead = newBlock;
-            var allocated = ContinuationHead->TryAllocateContinuation(out continuation);
+            bool allocated = ContinuationHead->TryAllocateContinuation(out continuation);
             Debug.Assert(allocated, "Just created that block! Is the capacity wrong?");
         }
         continuation->OnCompleted = onCompleted;

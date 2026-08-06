@@ -96,7 +96,7 @@ namespace BepuUtilities
 
         void WorkerLoop(object untypedSignal)
         {
-            var (signal, workerIndex) = ((AutoResetEvent, int))untypedSignal;
+            (AutoResetEvent signal, int workerIndex) = ((AutoResetEvent, int))untypedSignal;
             while (true)
             {
                 signal.WaitOne();
@@ -111,7 +111,7 @@ namespace BepuUtilities
             //Worker 0 is not signalled; it's the executing thread.
             //So if we want 4 total executing threads, we should signal 3 workers.
             int maximumWorkersToSignal = maximumWorkerCount - 1;
-            var workersToSignal = maximumWorkersToSignal < workers.Length ? maximumWorkersToSignal : workers.Length;
+            int workersToSignal = maximumWorkersToSignal < workers.Length ? maximumWorkersToSignal : workers.Length;
             remainingWorkerCounter.Value = workersToSignal;
             for (int i = 0; i < workersToSignal; ++i)
             {
@@ -181,7 +181,7 @@ namespace BepuUtilities
             {
                 disposed = true;
                 SignalThreads(threadCount);
-                foreach (var worker in workers)
+                foreach (Worker worker in workers)
                 {
                     worker.Thread.Join();
                     worker.Signal.Dispose();

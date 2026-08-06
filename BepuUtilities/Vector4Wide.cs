@@ -198,15 +198,15 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Distance(in Vector4Wide a, in Vector4Wide b, out Vector<float> distance)
         {
-            Subtract(b, a, out var offset);
+            Subtract(b, a, out Vector4Wide offset);
             Length(offset, out distance);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Normalize(in Vector4Wide v, out Vector4Wide result)
         {
-            Length(v, out var length);
-            var scale = Vector<float>.One / length;
+            Length(v, out Vector<float> length);
+            Vector<float> scale = Vector<float>.One / length;
             Scale(v, scale, out result);
         }
 
@@ -228,7 +228,7 @@ namespace BepuUtilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReadSlot(ref Vector4Wide wide, int slotIndex, out Vector4 narrow)
         {
-            ref var offset = ref GatherScatter.GetOffsetInstance(ref wide, slotIndex);
+            ref Vector4Wide offset = ref GatherScatter.GetOffsetInstance(ref wide, slotIndex);
             ReadFirst(offset, out narrow);
         }
 

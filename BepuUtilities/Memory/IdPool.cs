@@ -65,7 +65,7 @@ namespace BepuUtilities.Memory
             Debug.Assert(availableIds.Allocated);
             if (availableIdCount == availableIds.Length)
             {
-                var oldAvailableIds = availableIds;
+                Buffer<int> oldAvailableIds = availableIds;
                 pool.TakeAtLeast(Math.Max(availableIdCount * 2, availableIds.Length), out availableIds);
                 oldAvailableIds.CopyTo(0, availableIds, 0, availableIdCount);
                 pool.Return(ref oldAvailableIds);
@@ -95,7 +95,7 @@ namespace BepuUtilities.Memory
 
         void InternalResize(int newSize, IUnmanagedMemoryPool pool)
         {
-            var oldAvailableIds = availableIds;
+            Buffer<int> oldAvailableIds = availableIds;
             pool.TakeAtLeast(newSize, out availableIds);
             Debug.Assert(oldAvailableIds.Length != availableIds.Length, "Did you really mean to resize this? Nothing changed!");
             oldAvailableIds.CopyTo(0, availableIds, 0, availableIdCount);
@@ -128,7 +128,7 @@ namespace BepuUtilities.Memory
         public void Compact(int minimumCount, IUnmanagedMemoryPool pool)
         {
             Debug.Assert(availableIds.Allocated);
-            var targetLength = BufferPool.GetCapacityForCount<int>(Math.Max(minimumCount, availableIdCount));
+            int targetLength = BufferPool.GetCapacityForCount<int>(Math.Max(minimumCount, availableIdCount));
             if (availableIds.Length > targetLength)
             {
                 InternalResize(targetLength, pool);
@@ -148,7 +148,7 @@ namespace BepuUtilities.Memory
             }
             else
             {
-                var targetLength = BufferPool.GetCapacityForCount<int>(Math.Max(count, availableIdCount));
+                int targetLength = BufferPool.GetCapacityForCount<int>(Math.Max(count, availableIdCount));
                 if (availableIds.Length != targetLength)
                 {
                     InternalResize(targetLength, pool);

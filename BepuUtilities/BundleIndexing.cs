@@ -74,7 +74,7 @@ namespace BepuUtilities
             else
             {
                 Vector<int> mask;
-                var toReturnPointer = (int*)&mask;
+                int* toReturnPointer = (int*)&mask;
                 for (int i = 0; i < Vector<int>.Count; ++i)
                 {
                     toReturnPointer[i] = countInBundle <= i ? -1 : 0;
@@ -99,7 +99,7 @@ namespace BepuUtilities
             else
             {
                 Vector<int> mask;
-                var toReturnPointer = (int*)&mask;
+                int* toReturnPointer = (int*)&mask;
                 for (int i = 0; i < Vector<int>.Count; ++i)
                 {
                     toReturnPointer[i] = countInBundle > i ? -1 : 0;
@@ -115,12 +115,12 @@ namespace BepuUtilities
             //TODO: Probable cross platform intrinsics rewrite
             if (Avx.IsSupported && Vector<int>.Count == 8)
             {
-                var scalarMask = Avx.MoveMask(v.AsVector256().As<int, float>());
+                int scalarMask = Avx.MoveMask(v.AsVector256().As<int, float>());
                 return BitOperations.TrailingZeroCount(scalarMask);
             }
             else if (Sse.IsSupported && Vector<int>.Count == 4)
             {
-                var scalarMask = Sse.MoveMask(v.AsVector128().As<int, float>());
+                int scalarMask = Sse.MoveMask(v.AsVector128().As<int, float>());
                 return BitOperations.TrailingZeroCount(scalarMask);
             }
             else
@@ -145,12 +145,12 @@ namespace BepuUtilities
             //TODO: Cross platform intrinsics rewrite
             if (Avx.IsSupported && Vector<int>.Count == 8)
             {
-                var scalarMask = Avx.MoveMask(v.AsVector256().As<int, float>());
+                int scalarMask = Avx.MoveMask(v.AsVector256().As<int, float>());
                 return 32 - BitOperations.LeadingZeroCount((uint)scalarMask);
             }
             else if (Sse.IsSupported && Vector<int>.Count == 4)
             {
-                var scalarMask = Sse.MoveMask(v.AsVector128().As<int, float>());
+                int scalarMask = Sse.MoveMask(v.AsVector128().As<int, float>());
                 return 32 - BitOperations.LeadingZeroCount((uint)scalarMask);
             }
             else
