@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Methodox's fork packs under its own name, so that it never stands in for upstream's BepuPhysics of the same version in a NuGet cache or a feed. -->
+    <PackageId>BepuNext.Physics</PackageId>
     <Description>Speedy real time physics simulation library.</Description>
     <Configurations>Debug;Release;ReleaseNoProfiling</Configurations>
     <PackageTags>physics;3d;rigid body;real time;simulation</PackageTags>

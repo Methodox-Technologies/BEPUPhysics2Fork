@@ -2,6 +2,8 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Version>2.5.0-beta.24</Version>
+    <!-- Methodox's fork packs under its own name, as BepuNext.Physics does. -->
+    <PackageId>BepuNext.Utilities</PackageId>
     <Description>Supporting utilities library for BEPUphysics v2.</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
